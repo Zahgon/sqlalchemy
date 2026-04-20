@@ -76,18 +76,7 @@ class BitString(str):
         cannot be represented in a string of this length a ``ValueError``
         will be raised.
         """
-        str_v: str = "".join(f"{int(c):08b}" for c in value)
-        if length >= 0:
-            str_v = str_v.lstrip("0")
-
-            if len(str_v) > length:
-                raise ValueError(
-                    f"Cannot encode {value!r} as a BitString of "
-                    f"length {length}"
-                )
-            str_v = str_v.zfill(length)
-
-        return cls(str_v)
+        pass
 
     def get_bit(self, index: int) -> Literal["0", "1"]:
         """Returns the value of the flag at the given
@@ -95,7 +84,7 @@ class BitString(str):
 
             BitString("0101").get_flag(4) == "1"
         """
-        return cast(Literal["0", "1"], super().__getitem__(index))
+        pass
 
     @property
     def bit_length(self) -> int:
@@ -103,10 +92,10 @@ class BitString(str):
 
     @property
     def octet_length(self) -> int:
-        return math.ceil(len(self) / 8)
+        pass
 
     def has_bit(self, index: int) -> bool:
-        return self.get_bit(index) == "1"
+        pass
 
     def set_bit(
         self, index: int, value: bool | int | Literal["0", "1"]
@@ -115,18 +104,7 @@ class BitString(str):
 
         If value is an int, then it is considered to be '1' iff nonzero.
         """
-        if index < 0 or index >= len(self):
-            raise IndexError("BitString index out of range")
-
-        if isinstance(value, (bool, int)):
-            value = "1" if value else "0"
-
-        if self.get_bit(index) == value:
-            return self
-
-        return BitString(
-            "".join([self[:index], value, self[index + 1 :]]), False
-        )
+        pass
 
     def lstrip(self, char: str | None = None) -> BitString:
         """Returns a copy of the BitString with leading characters removed.
@@ -165,10 +143,10 @@ class BitString(str):
         return BitString(super().strip(char))
 
     def removeprefix(self, prefix: str, /) -> BitString:
-        return BitString(super().removeprefix(prefix), False)
+        pass
 
     def removesuffix(self, suffix: str, /) -> BitString:
-        return BitString(super().removesuffix(suffix), False)
+        pass
 
     def replace(
         self,
@@ -187,7 +165,7 @@ class BitString(str):
         return [BitString(word) for word in super().split(sep, maxsplit)]
 
     def zfill(self, width: SupportsIndex) -> BitString:
-        return BitString(super().zfill(width), False)
+        pass
 
     def __repr__(self) -> str:
         return f'BitString("{self.__str__()}")'
@@ -196,9 +174,7 @@ class BitString(str):
         return int(self, 2) if self else 0
 
     def to_bytes(self, length: int = -1) -> bytes:
-        return int(self).to_bytes(
-            length if length >= 0 else self.octet_length, byteorder="big"
-        )
+        pass
 
     def __bytes__(self) -> bytes:
         return self.to_bytes()

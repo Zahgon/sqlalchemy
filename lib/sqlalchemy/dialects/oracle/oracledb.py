@@ -652,7 +652,7 @@ class OracleDialect_oracledb(_cx_oracle.OracleDialect_cx_oracle):
 
     @classmethod
     def is_thin_mode(cls, connection):
-        return connection.connection.dbapi_connection.thin
+        pass
 
     @classmethod
     def get_async_dialect_cls(cls, url):
@@ -708,15 +708,7 @@ class OracleDialect_oracledb(_cx_oracle.OracleDialect_cx_oracle):
             connection.connection.tpc_commit(conn_xid)
 
     def do_recover_twophase(self, connection):
-        return [
-            # oracledb seems to return bytes
-            (
-                fi,
-                gti.decode() if isinstance(gti, bytes) else gti,
-                bq.decode() if isinstance(bq, bytes) else bq,
-            )
-            for fi, gti, bq in connection.connection.tpc_recover()
-        ]
+        pass
 
     def _check_max_identifier_length(self, connection):
         if self.oracledb_ver >= (2, 5):
@@ -734,11 +726,11 @@ class AsyncAdapt_oracledb_cursor(AsyncAdapt_dbapi_cursor):
 
     @property
     def outputtypehandler(self):
-        return self._cursor.outputtypehandler
+        pass
 
     @outputtypehandler.setter
     def outputtypehandler(self, value):
-        self._cursor.outputtypehandler = value
+        pass
 
     def var(self, *args, **kwargs):
         return self._cursor.var(*args, **kwargs)
@@ -803,27 +795,27 @@ class AsyncAdapt_oracledb_connection(AsyncAdapt_dbapi_connection):
 
     @property
     def outputtypehandler(self):
-        return self._connection.outputtypehandler
+        pass
 
     @outputtypehandler.setter
     def outputtypehandler(self, value):
-        self._connection.outputtypehandler = value
+        pass
 
     @property
     def version(self):
-        return self._connection.version
+        pass
 
     @property
     def stmtcachesize(self):
-        return self._connection.stmtcachesize
+        pass
 
     @stmtcachesize.setter
     def stmtcachesize(self, value):
-        self._connection.stmtcachesize = value
+        pass
 
     @property
     def max_identifier_length(self):
-        return self._connection.max_identifier_length
+        pass
 
     def cursor(self):
         return AsyncAdapt_oracledb_cursor(self)
@@ -844,7 +836,7 @@ class AsyncAdapt_oracledb_connection(AsyncAdapt_dbapi_connection):
         return await_(self._connection.tpc_prepare(*args, **kwargs))
 
     def tpc_recover(self, *args: Any, **kwargs: Any) -> Any:
-        return await_(self._connection.tpc_recover(*args, **kwargs))
+        pass
 
     def tpc_rollback(self, *args: Any, **kwargs: Any) -> Any:
         return await_(self._connection.tpc_rollback(*args, **kwargs))
@@ -902,7 +894,7 @@ class OracleDialectAsync_oracledb(OracleDialect_oracledb):
         return OracledbAdaptDBAPI(oracledb)
 
     def get_driver_connection(self, connection):
-        return connection._connection
+        pass
 
 
 dialect = OracleDialect_oracledb

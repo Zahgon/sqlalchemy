@@ -265,8 +265,7 @@ class Operators:
 
     def _null_operate(self, other: Any) -> Operators:
         """A 'null' operation available on all types, used for testing."""
-
-        return self.operate(null_op, other)
+        pass
 
     def op(
         self,
@@ -417,12 +416,7 @@ class Operators:
             :meth:`.Operators.op`
 
         """
-        return self.op(
-            opstring,
-            precedence=precedence,
-            is_comparison=True,
-            python_impl=python_impl,
-        )
+        pass
 
     def operate(
         self, op: OperatorType, *other: Any, **kwargs: Any
@@ -763,7 +757,7 @@ class ColumnOperators(OrderingOperators):
         on some such as SQLite may render "a IS NOT b".
 
         """
-        return self.operate(is_distinct_from, other)
+        pass
 
     def is_not_distinct_from(self, other: Any) -> ColumnOperators:
         """Implement the ``IS NOT DISTINCT FROM`` operator.
@@ -776,7 +770,7 @@ class ColumnOperators(OrderingOperators):
            The previous name remains available for backwards compatibility.
 
         """
-        return self.operate(is_not_distinct_from, other)
+        pass
 
     # deprecated 1.4; see #5435
     if TYPE_CHECKING:
@@ -883,7 +877,7 @@ class ColumnOperators(OrderingOperators):
         or uses the ``concat()`` operator on MySQL.
 
         """
-        return self.operate(concat_op, other)
+        pass
 
     def _rconcat(self, other: Any) -> ColumnOperators:
         """Implement an 'rconcat' operator.
@@ -893,7 +887,7 @@ class ColumnOperators(OrderingOperators):
         .. versionadded:: 1.4.40
 
         """
-        return self.reverse_operate(concat_op, other)
+        pass
 
     def like(
         self, other: Any, escape: Optional[str] = None
@@ -921,7 +915,7 @@ class ColumnOperators(OrderingOperators):
             :meth:`.ColumnOperators.ilike`
 
         """
-        return self.operate(like_op, other, escape=escape)
+        pass
 
     def ilike(
         self, other: Any, escape: Optional[str] = None
@@ -955,7 +949,7 @@ class ColumnOperators(OrderingOperators):
             :meth:`.ColumnOperators.like`
 
         """  # noqa: E501
-        return self.operate(ilike_op, other, escape=escape)
+        pass
 
     def bitwise_xor(self, other: Any) -> ColumnOperators:
         """Produce a bitwise XOR operation, typically via the ``^``
@@ -1214,7 +1208,7 @@ class ColumnOperators(OrderingOperators):
             :meth:`.ColumnOperators.ilike`
 
         """
-        return self.operate(not_ilike_op, other, escape=escape)
+        pass
 
     # deprecated 1.4; see #5435
     if TYPE_CHECKING:
@@ -1438,9 +1432,7 @@ class ColumnOperators(OrderingOperators):
 
             :meth:`.ColumnOperators.startswith`
         """  # noqa: E501
-        return self.operate(
-            istartswith_op, other, escape=escape, autoescape=autoescape
-        )
+        pass
 
     def endswith(
         self,
@@ -1616,9 +1608,7 @@ class ColumnOperators(OrderingOperators):
 
             :meth:`.ColumnOperators.endswith`
         """  # noqa: E501
-        return self.operate(
-            iendswith_op, other, escape=escape, autoescape=autoescape
-        )
+        pass
 
     def contains(self, other: Any, **kw: Any) -> ColumnOperators:
         r"""Implement the 'contains' operator.
@@ -1784,7 +1774,7 @@ class ColumnOperators(OrderingOperators):
             :meth:`.ColumnOperators.contains`
 
         """  # noqa: E501
-        return self.operate(icontains_op, other, **kw)
+        pass
 
     def match(self, other: Any, **kwargs: Any) -> ColumnOperators:
         """Implements a database-specific 'match' operator.
@@ -2125,8 +2115,7 @@ def _operator_fn(fn: Callable[..., Any]) -> OperatorType:
 
 
 def commutative_op(fn: _FN) -> _FN:
-    _commutative.add(fn)
-    return fn
+    pass
 
 
 def comparison_op(fn: _FN) -> _FN:
@@ -2188,13 +2177,13 @@ else:
 @comparison_op
 @_operator_fn
 def is_distinct_from(a: Any, b: Any) -> Any:
-    return a.is_distinct_from(b)
+    pass
 
 
 @comparison_op
 @_operator_fn
 def is_not_distinct_from(a: Any, b: Any) -> Any:
-    return a.is_not_distinct_from(b)
+    pass
 
 
 # deprecated 1.4; see #5435
@@ -2242,13 +2231,13 @@ def op(a: Any, opstring: str, b: Any) -> Any:
 @comparison_op
 @_operator_fn
 def like_op(a: Any, b: Any, escape: Optional[str] = None) -> Any:
-    return a.like(b, escape=escape)
+    pass
 
 
 @comparison_op
 @_operator_fn
 def not_like_op(a: Any, b: Any, escape: Optional[str] = None) -> Any:
-    return a.notlike(b, escape=escape)
+    pass
 
 
 # 1.4 deprecated; see #5435
@@ -2264,13 +2253,13 @@ else:
 @comparison_op
 @_operator_fn
 def ilike_op(a: Any, b: Any, escape: Optional[str] = None) -> Any:
-    return a.ilike(b, escape=escape)
+    pass
 
 
 @comparison_op
 @_operator_fn
 def not_ilike_op(a: Any, b: Any, escape: Optional[str] = None) -> Any:
-    return a.not_ilike(b, escape=escape)
+    pass
 
 
 # 1.4 deprecated; see #5435
@@ -2286,13 +2275,13 @@ else:
 @comparison_op
 @_operator_fn
 def between_op(a: Any, b: Any, c: Any, symmetric: bool = False) -> Any:
-    return a.between(b, c, symmetric=symmetric)
+    pass
 
 
 @comparison_op
 @_operator_fn
 def not_between_op(a: Any, b: Any, c: Any, symmetric: bool = False) -> Any:
-    return ~a.between(b, c, symmetric=symmetric)
+    pass
 
 
 # 1.4 deprecated; see #5435
@@ -2310,13 +2299,13 @@ else:
 @comparison_op
 @_operator_fn
 def in_op(a: Any, b: Any) -> Any:
-    return a.in_(b)
+    pass
 
 
 @comparison_op
 @_operator_fn
 def not_in_op(a: Any, b: Any) -> Any:
-    return a.not_in(b)
+    pass
 
 
 # 1.4 deprecated; see #5429
@@ -2331,39 +2320,23 @@ else:
 
 @_operator_fn
 def distinct_op(a: Any) -> Any:
-    return a.distinct()
+    pass
 
 
 @_operator_fn
 def any_op(a: Any) -> Any:
-    return a.any_()
+    pass
 
 
 @_operator_fn
 def all_op(a: Any) -> Any:
-    return a.all_()
+    pass
 
 
 def _escaped_like_impl(
     fn: Callable[..., Any], other: Any, escape: Optional[str], autoescape: bool
 ) -> Any:
-    if autoescape:
-        if autoescape is not True:
-            util.warn(
-                "The autoescape parameter is now a simple boolean True/False"
-            )
-        if escape is None:
-            escape = "/"
-
-        if not isinstance(other, str):
-            raise TypeError("String value expected when autoescape=True")
-
-        if escape not in ("%", "_"):
-            other = other.replace(escape, escape + escape)
-
-        other = other.replace("%", escape + "%").replace("_", escape + "_")
-
-    return fn(other, escape=escape)
+    pass
 
 
 @comparison_op
@@ -2371,7 +2344,7 @@ def _escaped_like_impl(
 def startswith_op(
     a: Any, b: Any, escape: Optional[str] = None, autoescape: bool = False
 ) -> Any:
-    return _escaped_like_impl(a.startswith, b, escape, autoescape)
+    pass
 
 
 @comparison_op
@@ -2379,7 +2352,7 @@ def startswith_op(
 def not_startswith_op(
     a: Any, b: Any, escape: Optional[str] = None, autoescape: bool = False
 ) -> Any:
-    return ~_escaped_like_impl(a.startswith, b, escape, autoescape)
+    pass
 
 
 # 1.4 deprecated; see #5435
@@ -2399,7 +2372,7 @@ else:
 def istartswith_op(
     a: Any, b: Any, escape: Optional[str] = None, autoescape: bool = False
 ) -> Any:
-    return _escaped_like_impl(a.istartswith, b, escape, autoescape)
+    pass
 
 
 @comparison_op
@@ -2407,7 +2380,7 @@ def istartswith_op(
 def not_istartswith_op(
     a: Any, b: Any, escape: Optional[str] = None, autoescape: bool = False
 ) -> Any:
-    return ~_escaped_like_impl(a.istartswith, b, escape, autoescape)
+    pass
 
 
 @comparison_op
@@ -2415,7 +2388,7 @@ def not_istartswith_op(
 def endswith_op(
     a: Any, b: Any, escape: Optional[str] = None, autoescape: bool = False
 ) -> Any:
-    return _escaped_like_impl(a.endswith, b, escape, autoescape)
+    pass
 
 
 @comparison_op
@@ -2423,7 +2396,7 @@ def endswith_op(
 def not_endswith_op(
     a: Any, b: Any, escape: Optional[str] = None, autoescape: bool = False
 ) -> Any:
-    return ~_escaped_like_impl(a.endswith, b, escape, autoescape)
+    pass
 
 
 # 1.4 deprecated; see #5435
@@ -2443,7 +2416,7 @@ else:
 def iendswith_op(
     a: Any, b: Any, escape: Optional[str] = None, autoescape: bool = False
 ) -> Any:
-    return _escaped_like_impl(a.iendswith, b, escape, autoescape)
+    pass
 
 
 @comparison_op
@@ -2451,7 +2424,7 @@ def iendswith_op(
 def not_iendswith_op(
     a: Any, b: Any, escape: Optional[str] = None, autoescape: bool = False
 ) -> Any:
-    return ~_escaped_like_impl(a.iendswith, b, escape, autoescape)
+    pass
 
 
 @comparison_op
@@ -2459,7 +2432,7 @@ def not_iendswith_op(
 def contains_op(
     a: Any, b: Any, escape: Optional[str] = None, autoescape: bool = False
 ) -> Any:
-    return _escaped_like_impl(a.contains, b, escape, autoescape)
+    pass
 
 
 @comparison_op
@@ -2467,7 +2440,7 @@ def contains_op(
 def not_contains_op(
     a: Any, b: Any, escape: Optional[str] = None, autoescape: bool = False
 ) -> Any:
-    return ~_escaped_like_impl(a.contains, b, escape, autoescape)
+    pass
 
 
 # 1.4 deprecated; see #5435
@@ -2487,7 +2460,7 @@ else:
 def icontains_op(
     a: Any, b: Any, escape: Optional[str] = None, autoescape: bool = False
 ) -> Any:
-    return _escaped_like_impl(a.icontains, b, escape, autoescape)
+    pass
 
 
 @comparison_op
@@ -2495,38 +2468,38 @@ def icontains_op(
 def not_icontains_op(
     a: Any, b: Any, escape: Optional[str] = None, autoescape: bool = False
 ) -> Any:
-    return ~_escaped_like_impl(a.icontains, b, escape, autoescape)
+    pass
 
 
 @comparison_op
 @_operator_fn
 def match_op(a: Any, b: Any, **kw: Any) -> Any:
-    return a.match(b, **kw)
+    pass
 
 
 @comparison_op
 @_operator_fn
 def regexp_match_op(a: Any, b: Any, flags: Optional[str] = None) -> Any:
-    return a.regexp_match(b, flags=flags)
+    pass
 
 
 @comparison_op
 @_operator_fn
 def not_regexp_match_op(a: Any, b: Any, flags: Optional[str] = None) -> Any:
-    return ~a.regexp_match(b, flags=flags)
+    pass
 
 
 @_operator_fn
 def regexp_replace_op(
     a: Any, b: Any, replacement: Any, flags: Optional[str] = None
 ) -> Any:
-    return a.regexp_replace(b, replacement=replacement, flags=flags)
+    pass
 
 
 @comparison_op
 @_operator_fn
 def not_match_op(a: Any, b: Any, **kw: Any) -> Any:
-    return ~a.match(b, **kw)
+    pass
 
 
 # 1.4 deprecated; see #5429
@@ -2551,27 +2524,22 @@ def filter_op(a: Any, b: Any) -> Any:
 
 @_operator_fn
 def concat_op(a: Any, b: Any) -> Any:
-    try:
-        concat = a.concat
-    except AttributeError:
-        return b._rconcat(a)
-    else:
-        return concat(b)
+    pass
 
 
 @_operator_fn
 def desc_op(a: Any) -> Any:
-    return a.desc()
+    pass
 
 
 @_operator_fn
 def asc_op(a: Any) -> Any:
-    return a.asc()
+    pass
 
 
 @_operator_fn
 def nulls_first_op(a: Any) -> Any:
-    return a.nulls_first()
+    pass
 
 
 # 1.4 deprecated; see #5435
@@ -2586,7 +2554,7 @@ else:
 
 @_operator_fn
 def nulls_last_op(a: Any) -> Any:
-    return a.nulls_last()
+    pass
 
 
 # 1.4 deprecated; see #5435
@@ -2611,32 +2579,32 @@ def json_path_getitem_op(a: Any, b: Any) -> Any:
 
 @_operator_fn
 def bitwise_xor_op(a: Any, b: Any) -> Any:
-    return a.bitwise_xor(b)
+    pass
 
 
 @_operator_fn
 def bitwise_or_op(a: Any, b: Any) -> Any:
-    return a.bitwise_or(b)
+    pass
 
 
 @_operator_fn
 def bitwise_and_op(a: Any, b: Any) -> Any:
-    return a.bitwise_and(b)
+    pass
 
 
 @_operator_fn
 def bitwise_not_op(a: Any) -> Any:
-    return a.bitwise_not()
+    pass
 
 
 @_operator_fn
 def bitwise_lshift_op(a: Any, b: Any) -> Any:
-    return a.bitwise_lshift(b)
+    pass
 
 
 @_operator_fn
 def bitwise_rshift_op(a: Any, b: Any) -> Any:
-    return a.bitwise_rshift(b)
+    pass
 
 
 @_operator_fn
@@ -2648,7 +2616,7 @@ def null_op(a: Any, b: Any) -> Any:
     .. versionadded:: 2.1
 
     """
-    return a._null_operate(b)
+    pass
 
 
 def is_comparison(op: OperatorType) -> bool:
@@ -2656,11 +2624,11 @@ def is_comparison(op: OperatorType) -> bool:
 
 
 def is_commutative(op: OperatorType) -> bool:
-    return op in _commutative
+    pass
 
 
 def is_ordering_modifier(op: OperatorType) -> bool:
-    return op in (asc_op, desc_op, nulls_first_op, nulls_last_op)
+    pass
 
 
 def is_natural_self_precedent(op: OperatorType) -> bool:
@@ -2694,11 +2662,11 @@ _associative = _commutative.union([concat_op, and_, or_]).difference([eq, ne])
 
 
 def is_associative(op: OperatorType) -> bool:
-    return op in _associative
+    pass
 
 
 def is_order_by_modifier(op: Optional[OperatorType]) -> bool:
-    return op in _order_by_modifier
+    pass
 
 
 _order_by_modifier = {desc_op, asc_op, nulls_first_op, nulls_last_op}

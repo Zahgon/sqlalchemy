@@ -255,7 +255,7 @@ class QueryableAttribute(
 
     @property
     def _impl_uses_objects(self) -> bool:
-        return self.impl.uses_objects
+        pass
 
     def get_history(
         self, instance: Any, passive: PassiveFlag = PASSIVE_OFF
@@ -326,49 +326,13 @@ class QueryableAttribute(
     """
 
     def _memoized_attr_expression(self) -> ColumnElement[_T]:
-        annotations: _AnnotationDict
-
-        # applies only to Proxy() as used by hybrid.
-        # currently is an exception to typing rather than feeding through
-        # non-string keys.
-        # ideally Proxy() would have a separate set of methods to deal
-        # with this case.
-        entity_namespace = self._entity_namespace
-        assert isinstance(entity_namespace, HasCacheKey)
-
-        if self.key is _UNKNOWN_ATTR_KEY:
-            annotations = {"entity_namespace": entity_namespace}
-        else:
-            annotations = {
-                "proxy_key": self.key,
-                "proxy_owner": self._parententity,
-                "entity_namespace": entity_namespace,
-            }
-
-        ce = self.comparator.__clause_element__()
-        try:
-            if TYPE_CHECKING:
-                assert isinstance(ce, ColumnElement)
-            anno = ce._annotate
-        except AttributeError as ae:
-            raise exc.InvalidRequestError(
-                'When interpreting attribute "%s" as a SQL expression, '
-                "expected __clause_element__() to return "
-                "a ClauseElement object, got: %r" % (self, ce)
-            ) from ae
-        else:
-            return anno(annotations)
+        pass
 
     def _memoized_attr__propagate_attrs(self) -> _PropagateAttrsType:
         # this suits the case in coercions where we don't actually
         # call ``__clause_element__()`` but still need to get
         # resolved._propagate_attrs.  See #6558.
-        return util.immutabledict(
-            {
-                "compile_state_plugin": "orm",
-                "plugin_subject": self._parentmapper,
-            }
-        )
+        pass
 
     @property
     def _entity_namespace(self) -> _InternalEntityType[Any]:
@@ -376,7 +340,7 @@ class QueryableAttribute(
 
     @property
     def _annotations(self) -> _AnnotationDict:
-        return self.__clause_element__()._annotations
+        pass
 
     def __clause_element__(self) -> ColumnElement[_T_co]:
         return self.expression
@@ -389,8 +353,7 @@ class QueryableAttribute(
         self, value: Any
     ) -> Sequence[Tuple[_DMLColumnArgument, Any]]:
         """Return setter tuples for a bulk UPDATE."""
-
-        return self.comparator._bulk_update_tuples(value)
+        pass
 
     def _bulk_dml_setter(self, key: str) -> Optional[Callable[..., Any]]:
         """return a callable that will process a bulk INSERT value"""
@@ -461,7 +424,7 @@ class QueryableAttribute(
     def reverse_operate(
         self, op: OperatorType, other: Any, **kwargs: Any
     ) -> ColumnElement[Any]:
-        return op(other, self.comparator, **kwargs)  # type: ignore[no-any-return]  # noqa: E501
+        pass
 
     def hasparent(
         self, state: InstanceState[Any], optimistic: bool = False
@@ -495,7 +458,7 @@ class QueryableAttribute(
         return f"{self.class_.__name__}.{self.key}"
 
     def _memoized_attr_property(self) -> Optional[MapperProperty[Any]]:
-        return self.comparator.property
+        pass
 
 
 def _queryable_attribute_unreduce(
@@ -506,10 +469,7 @@ def _queryable_attribute_unreduce(
 ) -> Any:
     # this method is only used in terms of the
     # sqlalchemy.ext.serializer extension
-    if insp_is_aliased_class(parententity):
-        return entity._get_from_serialized(key, mapped_class, parententity)
-    else:
-        return getattr(entity, key)
+    pass
 
 
 class InstrumentedAttribute(QueryableAttribute[_T_co]):
@@ -589,7 +549,7 @@ class _AdHocHasEntityNamespace(HasCacheKey):
 
     @property
     def entity_namespace(self):
-        return self._entity_namespace.entity_namespace
+        pass
 
 
 def _create_proxied_attribute(
@@ -821,7 +781,7 @@ class AttributeEventToken:
 
     @property
     def key(self):
-        return self.impl.key
+        pass
 
     def hasparent(self, state):
         return self.impl.hasparent(state)
@@ -951,11 +911,10 @@ class _AttributeImpl:
 
     def _get_active_history(self):
         """Backwards compat for impl.active_history"""
-
-        return self.dispatch._active_history
+        pass
 
     def _set_active_history(self, value):
-        self.dispatch._active_history = value
+        pass
 
     active_history = property(_get_active_history, _set_active_history)
 
@@ -1296,20 +1255,7 @@ class _ScalarAttributeImpl(_AttributeImpl):
         check_old: Optional[object] = None,
         pop: bool = False,
     ) -> None:
-        if value is DONT_SET:
-            return
-
-        if self.dispatch._active_history:
-            old = self.get(state, dict_, PASSIVE_RETURN_NO_VALUE)
-        else:
-            old = dict_.get(self.key, NO_VALUE)
-
-        if self.dispatch.set:
-            value = self.fire_replace_event(
-                state, dict_, value, old, initiator
-            )
-        state._modified_event(dict_, self, old)
-        dict_[self.key] = value
+        pass
 
     def fire_replace_event(
         self,
@@ -1319,11 +1265,7 @@ class _ScalarAttributeImpl(_AttributeImpl):
         previous: Any,
         initiator: Optional[AttributeEventToken],
     ) -> _T:
-        for fn in self.dispatch.set:
-            value = fn(
-                state, value, previous, initiator or self._replace_token
-            )
-        return value
+        pass
 
     def fire_remove_event(
         self,
@@ -1464,42 +1406,7 @@ class _ScalarObjectAttributeImpl(_ScalarAttributeImpl):
         pop: bool = False,
     ) -> None:
         """Set a value on the given InstanceState."""
-
-        if value is DONT_SET:
-            return
-
-        if self.dispatch._active_history:
-            old = self.get(
-                state,
-                dict_,
-                passive=PASSIVE_ONLY_PERSISTENT
-                | NO_AUTOFLUSH
-                | LOAD_AGAINST_COMMITTED,
-            )
-        else:
-            old = self.get(
-                state,
-                dict_,
-                passive=PASSIVE_NO_FETCH ^ INIT_OK
-                | LOAD_AGAINST_COMMITTED
-                | NO_RAISE,
-            )
-
-        if (
-            check_old is not None
-            and old is not PASSIVE_NO_RESULT
-            and check_old is not old
-        ):
-            if pop:
-                return
-            else:
-                raise ValueError(
-                    "Object %s not associated with %s on attribute '%s'"
-                    % (instance_str(check_old), state_str(state), self.key)
-                )
-
-        value = self.fire_replace_event(state, dict_, value, old, initiator)
-        dict_[self.key] = value
+        pass
 
     def fire_remove_event(
         self,
@@ -1528,26 +1435,7 @@ class _ScalarObjectAttributeImpl(_ScalarAttributeImpl):
         previous: Any,
         initiator: Optional[AttributeEventToken],
     ) -> _T:
-        if self.trackparent:
-            if previous is not value and previous not in (
-                None,
-                PASSIVE_NO_RESULT,
-                NO_VALUE,
-            ):
-                self.sethasparent(instance_state(previous), state, False)
-
-        for fn in self.dispatch.set:
-            value = fn(
-                state, value, previous, initiator or self._replace_token
-            )
-
-        state._modified_event(dict_, self, previous)
-
-        if self.trackparent:
-            if value is not None:
-                self.sethasparent(instance_state(value), state, True)
-
-        return value
+        pass
 
 
 class _HasCollectionAdapter:
@@ -1702,7 +1590,7 @@ class _CollectionAttributeImpl(_HasCollectionAdapter, _AttributeImpl):
                 collection._sa_linker(None)
 
     def __copy(self, item):
-        return [y for y in collections.collection_adapter(item)]
+        pass
 
     def get_history(
         self,
@@ -1953,77 +1841,7 @@ class _CollectionAttributeImpl(_HasCollectionAdapter, _AttributeImpl):
         _adapt: bool = True,
     ) -> None:
 
-        if value is DONT_SET:
-            return
-
-        iterable = orig_iterable = value
-        new_keys = None
-
-        # pulling a new collection first so that an adaptation exception does
-        # not trigger a lazy load of the old collection.
-        new_collection, user_data = self._initialize_collection(state)
-        if _adapt:
-            setting_type = util.duck_type_collection(iterable)
-            receiving_type = self._duck_typed_as
-
-            if setting_type is not receiving_type:
-                given = (
-                    "None" if iterable is None else iterable.__class__.__name__
-                )
-                wanted = (
-                    "None"
-                    if self._duck_typed_as is None
-                    else self._duck_typed_as.__name__
-                )
-                raise TypeError(
-                    "Incompatible collection type: %s is not %s-like"
-                    % (given, wanted)
-                )
-
-            # If the object is an adapted collection, return the (iterable)
-            # adapter.
-            if hasattr(iterable, "_sa_iterator"):
-                iterable = iterable._sa_iterator()
-            elif setting_type is dict:
-                new_keys = list(iterable)
-                iterable = iterable.values()
-            else:
-                iterable = iter(iterable)
-        elif util.duck_type_collection(iterable) is dict:
-            new_keys = list(value)
-
-        new_values = list(iterable)
-
-        evt = self._bulk_replace_token
-
-        self.dispatch.bulk_replace(state, new_values, evt, keys=new_keys)
-
-        # propagate NO_RAISE in passive through to the get() for the
-        # existing object (ticket #8862)
-        old = self.get(
-            state,
-            dict_,
-            passive=PASSIVE_ONLY_PERSISTENT ^ (passive & PassiveFlag.NO_RAISE),
-        )
-        if old is PASSIVE_NO_RESULT:
-            old = self._default_value(state, dict_)
-        elif old is orig_iterable:
-            # ignore re-assignment of the current collection, as happens
-            # implicitly with in-place operators (foo.collection |= other)
-            return
-
-        # place a copy of "old" in state.committed_state
-        state._modified_event(dict_, self, old, True)
-
-        old_collection = old._sa_adapter
-
-        dict_[self.key] = user_data
-
-        collections.bulk_replace(
-            new_values, old_collection, new_collection, initiator=evt
-        )
-
-        self._dispose_previous_collection(state, old, old_collection, True)
+        pass
 
     def _dispose_previous_collection(
         self,
@@ -2386,10 +2204,7 @@ class History(NamedTuple):
 
     def sum(self) -> Sequence[Any]:
         """Return a collection of added + unchanged + deleted."""
-
-        return (
-            (self.added or []) + (self.unchanged or []) + (self.deleted or [])
-        )
+        pass
 
     def non_deleted(self) -> Sequence[Any]:
         """Return a collection of added + unchanged."""
@@ -2691,7 +2506,7 @@ def _register_descriptor(
 
 
 def _unregister_attribute(class_: Type[Any], key: str) -> None:
-    manager_of_class(class_).uninstrument_attribute(key)
+    pass
 
 
 def init_collection(obj: object, key: str) -> CollectionAdapter:
@@ -2791,8 +2606,7 @@ def set_attribute(
      chain of events.
 
     """
-    state, dict_ = instance_state(instance), instance_dict(instance)
-    state.manager[key].impl.set(state, dict_, value, initiator)
+    pass
 
 
 def get_attribute(instance: object, key: str) -> Any:
@@ -2805,8 +2619,7 @@ def get_attribute(instance: object, key: str) -> Any:
     by SQLAlchemy.
 
     """
-    state, dict_ = instance_state(instance), instance_dict(instance)
-    return state.manager[key].impl.get(state, dict_)
+    pass
 
 
 def del_attribute(instance: object, key: str) -> None:
@@ -2819,8 +2632,7 @@ def del_attribute(instance: object, key: str) -> None:
     by SQLAlchemy.
 
     """
-    state, dict_ = instance_state(instance), instance_dict(instance)
-    state.manager[key].impl.delete(state, dict_)
+    pass
 
 
 def flag_modified(instance: object, key: str) -> None:
@@ -2863,6 +2675,4 @@ def flag_dirty(instance: object) -> None:
         :func:`.attributes.flag_modified`
 
     """
-
-    state, dict_ = instance_state(instance), instance_dict(instance)
-    state._modified_event(dict_, None, NO_VALUE, is_userland=True)
+    pass

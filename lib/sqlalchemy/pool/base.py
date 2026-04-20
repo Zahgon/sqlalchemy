@@ -138,7 +138,7 @@ class _ConnDialect:
         )
 
     def get_driver_connection(self, connection: DBAPIConnection) -> Any:
-        return connection
+        pass
 
 
 class _AsyncConnDialect(_ConnDialect):
@@ -303,27 +303,22 @@ class Pool(log.Identified, event.EventTarget):
 
     @util.hybridproperty
     def _is_asyncio(self) -> bool:
-        return self._dialect.is_async
+        pass
 
     @property
     def _creator(self) -> Union[_CreatorFnType, _CreatorWRecFnType]:
-        return self._creator_arg
+        pass
 
     @_creator.setter
     def _creator(
         self, creator: Union[_CreatorFnType, _CreatorWRecFnType]
     ) -> None:
-        self._creator_arg = creator
-
-        # mypy seems to get super confused assigning functions to
-        # attributes
-        self._invoke_creator = self._should_wrap_creator(creator)
+        pass
 
     @_creator.deleter
     def _creator(self) -> None:
         # needed for mock testing
-        del self._creator_arg
-        del self._invoke_creator
+        pass
 
     def _should_wrap_creator(
         self, creator: Union[_CreatorFnType, _CreatorWRecFnType]
@@ -332,31 +327,7 @@ class Pool(log.Identified, event.EventTarget):
         as a legacy style no-arg function.
 
         """
-
-        try:
-            argspec = util.get_callable_argspec(self._creator, no_self=True)
-        except TypeError:
-            creator_fn = cast(_CreatorFnType, creator)
-            return lambda rec: creator_fn()
-
-        if argspec.defaults is not None:
-            defaulted = len(argspec.defaults)
-        else:
-            defaulted = 0
-        positionals = len(argspec[0]) - defaulted
-
-        # look for the exact arg signature that DefaultStrategy
-        # sends us
-        if (argspec[0], argspec[3]) == (["connection_record"], (None,)):
-            return cast(_CreatorWRecFnType, creator)
-        # or just a single positional
-        elif positionals == 1:
-            return cast(_CreatorWRecFnType, creator)
-        # all other cases, just wrap and assume legacy "creator" callable
-        # thing
-        else:
-            creator_fn = cast(_CreatorFnType, creator)
-            return lambda rec: creator_fn()
+        pass
 
     def _close_connection(
         self, connection: DBAPIConnection, *, terminate: bool = False
@@ -676,12 +647,7 @@ class _ConnectionRecord(ConnectionPoolEntry):
 
     @property
     def driver_connection(self) -> Optional[Any]:  # type: ignore[override]  # mypy#4125  # noqa: E501
-        if self.dbapi_connection is None:
-            return None
-        else:
-            return self.__pool._dialect.get_driver_connection(
-                self.dbapi_connection
-            )
+        pass
 
     @property
     @util.deprecated(
@@ -700,7 +666,7 @@ class _ConnectionRecord(ConnectionPoolEntry):
 
     @util.ro_memoized_property
     def record_info(self) -> Optional[_InfoType]:
-        return {}
+        pass
 
     @classmethod
     def checkout(cls, pool: Pool) -> _ConnectionFairy:
@@ -771,11 +737,11 @@ class _ConnectionRecord(ConnectionPoolEntry):
 
     @property
     def in_use(self) -> bool:
-        return self.fairy_ref is not None
+        pass
 
     @property
     def last_connect_time(self) -> float:
-        return self.starttime
+        pass
 
     def close(self) -> None:
         if self.dbapi_connection is not None:
@@ -1158,7 +1124,7 @@ class _AdhocProxiedConnection(PoolProxiedConnection):
 
     @property
     def driver_connection(self) -> Any:  # type: ignore[override]  # mypy#4125
-        return self._connection_record.driver_connection
+        pass
 
     @property
     def connection(self) -> DBAPIConnection:
@@ -1172,7 +1138,7 @@ class _AdhocProxiedConnection(PoolProxiedConnection):
         as there is no "invalidate" routine.
 
         """
-        return self._is_valid
+        pass
 
     def invalidate(
         self, e: Optional[BaseException] = None, soft: bool = False
@@ -1181,7 +1147,7 @@ class _AdhocProxiedConnection(PoolProxiedConnection):
 
     @util.ro_non_memoized_property
     def record_info(self) -> Optional[_InfoType]:
-        return self._connection_record.record_info
+        pass
 
     def cursor(self, *args: Any, **kwargs: Any) -> DBAPICursor:
         return self.dbapi_connection.cursor(*args, **kwargs)
@@ -1246,9 +1212,7 @@ class _ConnectionFairy(PoolProxiedConnection):
 
     @property
     def driver_connection(self) -> Optional[Any]:  # type: ignore[override]  # mypy#4125  # noqa: E501
-        if self._connection_record is None:
-            return None
-        return self._connection_record.driver_connection
+        pass
 
     @property
     @util.deprecated(
@@ -1447,15 +1411,15 @@ class _ConnectionFairy(PoolProxiedConnection):
 
     @property
     def _logger(self) -> log._IdentifiedLoggerType:
-        return self._pool.logger
+        pass
 
     @property
     def is_valid(self) -> bool:
-        return self.dbapi_connection is not None
+        pass
 
     @property
     def is_detached(self) -> bool:
-        return self._connection_record is None
+        pass
 
     @util.ro_memoized_property
     def info(self) -> _InfoType:
@@ -1466,10 +1430,7 @@ class _ConnectionFairy(PoolProxiedConnection):
 
     @util.ro_non_memoized_property
     def record_info(self) -> Optional[_InfoType]:
-        if self._connection_record is None:
-            return None
-        else:
-            return self._connection_record.record_info
+        pass
 
     def invalidate(
         self, e: Optional[BaseException] = None, soft: bool = False

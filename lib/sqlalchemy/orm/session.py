@@ -221,13 +221,7 @@ class _SessionClassMethods:
         This is an alias of :func:`.util.identity_key`.
 
         """
-        return util.preloaded.orm_util.identity_key(
-            class_,
-            ident,
-            instance=instance,
-            row=row,
-            identity_token=identity_token,
-        )
+        pass
 
     @classmethod
     def object_session(cls, instance: object) -> Optional[Session]:
@@ -434,55 +428,7 @@ class ORMExecuteState(util.MemoizedSlots):
 
 
         """
-
-        if statement is None:
-            statement = self.statement
-
-        _bind_arguments = dict(self.bind_arguments)
-        if bind_arguments:
-            _bind_arguments.update(bind_arguments)
-        _bind_arguments["_sa_skip_events"] = True
-
-        _params: Optional[_CoreAnyExecuteParams]
-        if params:
-            if self.is_executemany:
-                _params = []
-                exec_many_parameters = cast(
-                    "List[Dict[str, Any]]", self.parameters
-                )
-                for _existing_params, _new_params in itertools.zip_longest(
-                    exec_many_parameters,
-                    cast("List[Dict[str, Any]]", params),
-                ):
-                    if _existing_params is None or _new_params is None:
-                        raise sa_exc.InvalidRequestError(
-                            f"Can't apply executemany parameters to "
-                            f"statement; number of parameter sets passed to "
-                            f"Session.execute() ({len(exec_many_parameters)}) "
-                            f"does not match number of parameter sets given "
-                            f"to ORMExecuteState.invoke_statement() "
-                            f"({len(params)})"
-                        )
-                    _existing_params = dict(_existing_params)
-                    _existing_params.update(_new_params)
-                    _params.append(_existing_params)
-            else:
-                _params = dict(cast("Dict[str, Any]", self.parameters))
-                _params.update(cast("Dict[str, Any]", params))
-        else:
-            _params = self.parameters
-
-        _execution_options = self.local_execution_options
-        if execution_options:
-            _execution_options = _execution_options.union(execution_options)
-
-        return self.session._execute_internal(
-            statement,
-            _params,
-            execution_options=_execution_options,
-            bind_arguments=_bind_arguments,
-            _parent_execute_state=self,
-        )
+        pass
 
     @property
     def bind_mapper(self) -> Optional[Mapper[Any]]:
@@ -510,8 +456,7 @@ class ORMExecuteState(util.MemoizedSlots):
 
 
         """
-        mp: Optional[Mapper[Any]] = self.bind_arguments.get("mapper", None)
-        return mp
+        pass
 
     @property
     def all_mappers(self) -> Sequence[Mapper[Any]]:
@@ -532,23 +477,7 @@ class ORMExecuteState(util.MemoizedSlots):
 
 
         """
-        if not self.is_orm_statement:
-            return []
-        elif isinstance(self.statement, (Select, FromStatement)):
-            result = []
-            seen = set()
-            for d in self.statement.column_descriptions:
-                ent = d["entity"]
-                if ent:
-                    insp = inspect(ent, raiseerr=False)
-                    if insp and insp.mapper and insp.mapper not in seen:
-                        seen.add(insp.mapper)
-                        result.append(insp.mapper)
-            return result
-        elif self.statement.is_dml and self.bind_mapper:
-            return [self.bind_mapper]
-        else:
-            return []
+        pass
 
     @property
     def is_orm_statement(self) -> bool:
@@ -561,7 +490,7 @@ class ORMExecuteState(util.MemoizedSlots):
         and no ORM-level automation takes place.
 
         """
-        return self._compile_state_cls is not None
+        pass
 
     @property
     def is_executemany(self) -> bool:
@@ -571,7 +500,7 @@ class ORMExecuteState(util.MemoizedSlots):
         .. versionadded:: 2.0
 
         """
-        return isinstance(self.parameters, list)
+        pass
 
     @property
     def is_select(self) -> bool:
@@ -583,7 +512,7 @@ class ORMExecuteState(util.MemoizedSlots):
            ``select(Entity).from_statement(select(..))``
 
         """
-        return self.statement.is_select
+        pass
 
     @property
     def is_from_statement(self) -> bool:
@@ -600,7 +529,7 @@ class ORMExecuteState(util.MemoizedSlots):
         .. versionadded:: 2.0.30
 
         """
-        return self.statement.is_from_statement
+        pass
 
     @property
     def is_insert(self) -> bool:
@@ -612,7 +541,7 @@ class ORMExecuteState(util.MemoizedSlots):
            ``select(Entity).from_statement(insert(..))``
 
         """
-        return self.statement.is_dml and self.statement.is_insert
+        pass
 
     @property
     def is_update(self) -> bool:
@@ -624,7 +553,7 @@ class ORMExecuteState(util.MemoizedSlots):
            ``select(Entity).from_statement(update(..))``
 
         """
-        return self.statement.is_dml and self.statement.is_update
+        pass
 
     @property
     def is_delete(self) -> bool:
@@ -636,11 +565,11 @@ class ORMExecuteState(util.MemoizedSlots):
            ``select(Entity).from_statement(delete(..))``
 
         """
-        return self.statement.is_dml and self.statement.is_delete
+        pass
 
     @property
     def _is_crud(self) -> bool:
-        return isinstance(self.statement, (dml.Update, dml.Delete))
+        pass
 
     def update_execution_options(self, **opts: Any) -> None:
         """Update the local execution options with new values."""
@@ -654,19 +583,7 @@ class ORMExecuteState(util.MemoizedSlots):
             Type[context._ORMCompileState.default_compile_options],
         ]
     ]:
-        if not self.is_select:
-            return None
-        try:
-            opts = self.statement._compile_options
-        except AttributeError:
-            return None
-
-        if opts is not None and opts.isinstance(
-            context._ORMCompileState.default_compile_options
-        ):
-            return opts  # type: ignore
-        else:
-            return None
+        pass
 
     @property
     def lazy_loaded_from(self) -> Optional[InstanceState[Any]]:
@@ -681,7 +598,7 @@ class ORMExecuteState(util.MemoizedSlots):
         compilation time.
 
         """
-        return self.load_options._lazy_loaded_from
+        pass
 
     @property
     def loader_strategy_path(self) -> Optional[PathRegistry]:
@@ -691,11 +608,7 @@ class ORMExecuteState(util.MemoizedSlots):
         when a particular object or collection is being loaded.
 
         """
-        opts = self._orm_compile_options()
-        if opts is not None:
-            return opts._current_path
-        else:
-            return None
+        pass
 
     @property
     def is_column_load(self) -> bool:
@@ -721,8 +634,7 @@ class ORMExecuteState(util.MemoizedSlots):
             :attr:`_orm.ORMExecuteState.is_relationship_load`
 
         """
-        opts = self._orm_compile_options()
-        return opts is not None and opts._for_refresh_state
+        pass
 
     @property
     def is_relationship_load(self) -> bool:
@@ -744,11 +656,7 @@ class ORMExecuteState(util.MemoizedSlots):
             :attr:`_orm.ORMExecuteState.is_column_load`
 
         """
-        opts = self._orm_compile_options()
-        if opts is None:
-            return False
-        path = self.loader_strategy_path
-        return path is not None and not path.is_root
+        pass
 
     @property
     def load_options(
@@ -758,20 +666,7 @@ class ORMExecuteState(util.MemoizedSlots):
         Type[context.QueryContext.default_load_options],
     ]:
         """Return the load_options that will be used for this execution."""
-
-        if not self.is_select:
-            raise sa_exc.InvalidRequestError(
-                "This ORM execution is not against a SELECT statement "
-                "so there are no load options."
-            )
-
-        lo: Union[
-            context.QueryContext.default_load_options,
-            Type[context.QueryContext.default_load_options],
-        ] = self.execution_options.get(
-            "_sa_orm_load_options", context.QueryContext.default_load_options
-        )
-        return lo
+        pass
 
     @property
     def update_delete_options(
@@ -782,28 +677,11 @@ class ORMExecuteState(util.MemoizedSlots):
     ]:
         """Return the update_delete_options that will be used for this
         execution."""
-
-        if not self._is_crud:
-            raise sa_exc.InvalidRequestError(
-                "This ORM execution is not against an UPDATE or DELETE "
-                "statement so there are no update options."
-            )
-        uo: Union[
-            bulk_persistence._BulkUDCompileState.default_update_options,
-            Type[bulk_persistence._BulkUDCompileState.default_update_options],
-        ] = self.execution_options.get(
-            "_sa_orm_update_options",
-            bulk_persistence._BulkUDCompileState.default_update_options,
-        )
-        return uo
+        pass
 
     @property
     def _non_compile_orm_options(self) -> Sequence[ORMOption]:
-        return [
-            opt
-            for opt in self.statement._with_options
-            if is_orm_option(opt) and not opt._is_compile_state
-        ]
+        pass
 
     @property
     def user_defined_options(self) -> Sequence[UserDefinedOption]:
@@ -811,11 +689,7 @@ class ORMExecuteState(util.MemoizedSlots):
         associated with the statement being invoked.
 
         """
-        return [
-            opt
-            for opt in self.statement._with_options
-            if is_user_defined_option(opt)
-        ]
+        pass
 
 
 class SessionTransactionOrigin(Enum):
@@ -1013,18 +887,15 @@ class SessionTransaction(_StateChange, TransactionalContext):
         this is a SAVEPOINT, and if ``False``, indicates this a subtransaction.
 
         """
-        return self._parent
+        pass
 
     @property
     def is_active(self) -> bool:
-        return (
-            self.session is not None
-            and self._state is SessionTransactionState.ACTIVE
-        )
+        pass
 
     @property
     def _is_transaction_boundary(self) -> bool:
-        return self.nested or not self._parent
+        pass
 
     @_StateChange.declare_states(
         (SessionTransactionState.ACTIVE,), _StateChangeStates.NO_CHANGE
@@ -1867,8 +1738,7 @@ class Session(_SessionClassMethods, EventTarget):
         .. versionadded:: 1.4
 
         """
-
-        return self._nested_transaction
+        pass
 
     @util.memoized_property
     def info(self) -> _InfoType:
@@ -2711,7 +2581,7 @@ class Session(_SessionClassMethods, EventTarget):
 
 
         """
-        self._add_bind(mapper, bind)
+        pass
 
     def bind_table(self, table: TableClause, bind: _SessionBind) -> None:
         """Associate a :class:`_schema.Table` with a "bind", e.g. an
@@ -2739,7 +2609,7 @@ class Session(_SessionClassMethods, EventTarget):
 
 
         """
-        self._add_bind(table, bind)
+        pass
 
     def get_bind(
         self,
@@ -3095,12 +2965,7 @@ class Session(_SessionClassMethods, EventTarget):
         where the uncompleted object should not yet be flushed.
 
         """
-        autoflush = self.autoflush
-        self.autoflush = False
-        try:
-            yield self
-        finally:
-            self.autoflush = autoflush
+        pass
 
     @util.langhelpers.tag_method_for_warnings(
         "This warning originated from the Session 'autoflush' process, "
@@ -3278,8 +3143,7 @@ class Session(_SessionClassMethods, EventTarget):
             :meth:`_orm.Query.populate_existing`
 
         """
-        for state in self.identity_map.all_states():
-            state._expire(state.dict, self.identity_map._modified)
+        pass
 
     def expire(
         self, instance: object, attribute_names: Optional[Iterable[str]] = None
@@ -3554,12 +3418,7 @@ class Session(_SessionClassMethods, EventTarget):
             :ref:`session_adding` - at :ref:`session_basics`
 
         """
-
-        if self._warn_on_events:
-            self._flush_warning("Session.add_all()")
-
-        for instance in instances:
-            self.add(instance, _warn=False)
+        pass
 
     def _save_or_update_state(self, state: InstanceState[Any]) -> None:
         state._orphaned_outside_of_session = False
@@ -3609,12 +3468,7 @@ class Session(_SessionClassMethods, EventTarget):
         .. versionadded:: 2.1
 
         """
-
-        if self._warn_on_events:
-            self._flush_warning("Session.delete_all()")
-
-        for instance in instances:
-            self._delete_impl(object_state(instance), instance, head=True)
+        pass
 
     def _delete_impl(
         self, state: InstanceState[Any], obj: object, head: bool
@@ -3809,24 +3663,7 @@ class Session(_SessionClassMethods, EventTarget):
               key
 
         """
-
-        instance = self.get(
-            entity,
-            ident,
-            options=options,
-            populate_existing=populate_existing,
-            with_for_update=with_for_update,
-            identity_token=identity_token,
-            execution_options=execution_options,
-            bind_arguments=bind_arguments,
-        )
-
-        if instance is None:
-            raise sa_exc.NoResultFound(
-                "No row was found when one was required"
-            )
-
-        return instance
+        pass
 
     def _get_impl(
         self,
@@ -4048,25 +3885,7 @@ class Session(_SessionClassMethods, EventTarget):
         .. versionadded:: 2.1
 
         """
-
-        if self._warn_on_events:
-            self._flush_warning("Session.merge_all()")
-
-        if load:
-            # flush current contents if we expect to load data
-            self._autoflush()
-
-        return [
-            self._merge(
-                object_state(instance),
-                attributes.instance_dict(instance),
-                load=load,
-                options=options,
-                _recursive={},
-                _resolve_conflict_map={},
-            )
-            for instance in instances
-        ]
+        pass
 
     def _merge(
         self,
@@ -4350,15 +4169,7 @@ class Session(_SessionClassMethods, EventTarget):
             will unexpire attributes on access.
 
         """
-        try:
-            state = attributes.instance_state(obj)
-        except exc.NO_STATE as err:
-            raise exc.UnmappedInstanceError(obj) from err
-
-        to_attach = self._before_attach(state, obj)
-        state._load_pending = True
-        if to_attach:
-            self._after_attach(state, obj)
+        pass
 
     def _before_attach(self, state: InstanceState[Any], obj: object) -> bool:
         self._autobegin_t()
@@ -4663,38 +4474,7 @@ class Session(_SessionClassMethods, EventTarget):
             :meth:`.Session.bulk_update_mappings`
 
         """
-
-        obj_states: Iterable[InstanceState[Any]]
-
-        obj_states = (attributes.instance_state(obj) for obj in objects)
-
-        if not preserve_order:
-            # the purpose of this sort is just so that common mappers
-            # and persistence states are grouped together, so that groupby
-            # will return a single group for a particular type of mapper.
-            # it's not trying to be deterministic beyond that.
-            obj_states = sorted(
-                obj_states,
-                key=lambda state: (id(state.mapper), state.key is not None),
-            )
-
-        def grouping_key(
-            state: InstanceState[_O],
-        ) -> Tuple[Mapper[_O], bool]:
-            return (state.mapper, state.key is not None)
-
-        for (mapper, isupdate), states in itertools.groupby(
-            obj_states, grouping_key
-        ):
-            self._bulk_save_mappings(
-                mapper,
-                states,
-                isupdate=isupdate,
-                isstates=True,
-                return_defaults=return_defaults,
-                update_changed_only=update_changed_only,
-                render_nulls=False,
-            )
+        pass
 
     def bulk_insert_mappings(
         self,
@@ -4769,15 +4549,7 @@ class Session(_SessionClassMethods, EventTarget):
             :meth:`.Session.bulk_update_mappings`
 
         """
-        self._bulk_save_mappings(
-            mapper,
-            mappings,
-            isupdate=False,
-            isstates=False,
-            return_defaults=return_defaults,
-            update_changed_only=False,
-            render_nulls=render_nulls,
-        )
+        pass
 
     def bulk_update_mappings(
         self, mapper: Mapper[Any], mappings: Iterable[Dict[str, Any]]
@@ -4817,15 +4589,7 @@ class Session(_SessionClassMethods, EventTarget):
             :meth:`.Session.bulk_save_objects`
 
         """
-        self._bulk_save_mappings(
-            mapper,
-            mappings,
-            isupdate=True,
-            isstates=False,
-            return_defaults=False,
-            update_changed_only=False,
-            render_nulls=False,
-        )
+        pass
 
     def _bulk_save_mappings(
         self,
@@ -4838,35 +4602,7 @@ class Session(_SessionClassMethods, EventTarget):
         update_changed_only: bool,
         render_nulls: bool,
     ) -> None:
-        mapper = _class_to_mapper(mapper)
-        self._flushing = True
-
-        transaction = self._autobegin_t()._begin()
-        try:
-            if isupdate:
-                bulk_persistence._bulk_update(
-                    mapper,
-                    mappings,
-                    transaction,
-                    isstates=isstates,
-                    update_changed_only=update_changed_only,
-                )
-            else:
-                bulk_persistence._bulk_insert(
-                    mapper,
-                    mappings,
-                    transaction,
-                    isstates=isstates,
-                    return_defaults=return_defaults,
-                    render_nulls=render_nulls,
-                )
-            transaction.commit()
-
-        except:
-            with util.safe_reraise():
-                transaction.rollback(_capture_exception=True)
-        finally:
-            self._flushing = False
+        pass
 
     def is_modified(
         self, instance: object, include_collections: bool = True
@@ -4921,28 +4657,7 @@ class Session(_SessionClassMethods, EventTarget):
          instance upon flush.
 
         """
-        state = object_state(instance)
-
-        if not state.modified:
-            return False
-
-        dict_ = state.dict
-
-        for attr in state.manager.attributes:
-            if (
-                not include_collections
-                and hasattr(attr.impl, "get_collection")
-            ) or not hasattr(attr.impl, "get_history"):
-                continue
-
-            (added, unchanged, deleted) = attr.impl.get_history(
-                state, dict_, passive=PassiveFlag.NO_CHANGE
-            )
-
-            if added or deleted:
-                return True
-        else:
-            return False
+        pass
 
     @property
     def is_active(self) -> bool:
@@ -4972,7 +4687,7 @@ class Session(_SessionClassMethods, EventTarget):
             :meth:`_orm.Session.in_transaction`
 
         """
-        return self._transaction is None or self._transaction.is_active
+        pass
 
     @property
     def _dirty_states(self) -> Iterable[InstanceState[Any]]:
@@ -4982,7 +4697,7 @@ class Session(_SessionClassMethods, EventTarget):
         those that were possibly deleted.
 
         """
-        return self.identity_map._dirty_states()
+        pass
 
     @property
     def dirty(self) -> IdentitySet:
@@ -5008,25 +4723,17 @@ class Session(_SessionClassMethods, EventTarget):
         attributes, use the :meth:`.Session.is_modified` method.
 
         """
-        return IdentitySet(
-            [
-                state.obj()
-                for state in self._dirty_states
-                if state not in self._deleted
-            ]
-        )
+        pass
 
     @property
     def deleted(self) -> IdentitySet:
         "The set of all instances marked as 'deleted' within this ``Session``"
-
-        return util.IdentitySet(list(self._deleted.values()))
+        pass
 
     @property
     def new(self) -> IdentitySet:
         "The set of all instances marked as 'new' within this ``Session``."
-
-        return util.IdentitySet(list(self._new.values()))
+        pass
 
 
 _S = TypeVar("_S", bound="Session")
@@ -5254,7 +4961,7 @@ class sessionmaker(_SessionClassMethods, Generic[_S]):
 
             Session.configure(bind=create_engine("sqlite://"))
         """
-        self.kw.update(new_kw)
+        pass
 
     def __repr__(self) -> str:
         return "%s(class_=%r, %s)" % (

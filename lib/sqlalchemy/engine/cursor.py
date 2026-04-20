@@ -1575,15 +1575,15 @@ class _NoResultMetaData(ResultMetaData):
 
     @property
     def _keymap(self) -> NoReturn:  # type: ignore[override]
-        self._we_dont_return_rows()
+        pass
 
     @property
     def _key_to_index(self) -> NoReturn:  # type: ignore[override]
-        self._we_dont_return_rows()
+        pass
 
     @property
     def _processors(self) -> NoReturn:  # type: ignore[override]
-        self._we_dont_return_rows()
+        pass
 
     @property
     def keys(self) -> NoReturn:
@@ -1831,21 +1831,7 @@ class CursorResult(Result[Unpack[_Ts]]):
             :attr:`_engine.CursorResult.inserted_primary_key`
 
         """
-        if not self.context.compiled:
-            raise exc.InvalidRequestError(
-                "Statement is not a compiled expression construct."
-            )
-        elif not self.context.isinsert:
-            raise exc.InvalidRequestError(
-                "Statement is not an insert() expression construct."
-            )
-        elif self.context._is_explicit_returning:
-            raise exc.InvalidRequestError(
-                "Can't call inserted_primary_key "
-                "when returning() "
-                "is used."
-            )
-        return self.context.inserted_primary_key_rows  # type: ignore[no-any-return]  # noqa: E501
+        pass
 
     @property
     def inserted_primary_key(self) -> Optional[Any]:
@@ -1879,19 +1865,7 @@ class CursorResult(Result[Unpack[_Ts]]):
         or is not an insert() construct.
 
         """
-
-        if self.context.executemany:
-            raise exc.InvalidRequestError(
-                "This statement was an executemany call; if primary key "
-                "returning is supported, please "
-                "use .inserted_primary_key_rows."
-            )
-
-        ikp = self.inserted_primary_key_rows
-        if ikp:
-            return ikp[0]
-        else:
-            return None
+        pass
 
     def last_updated_params(
         self,
@@ -1906,18 +1880,7 @@ class CursorResult(Result[Unpack[_Ts]]):
         or is not an update() construct.
 
         """
-        if not self.context.compiled:
-            raise exc.InvalidRequestError(
-                "Statement is not a compiled expression construct."
-            )
-        elif not self.context.isupdate:
-            raise exc.InvalidRequestError(
-                "Statement is not an update() expression construct."
-            )
-        elif self.context.executemany:
-            return self.context.compiled_parameters
-        else:
-            return self.context.compiled_parameters[0]
+        pass
 
     def last_inserted_params(
         self,
@@ -1932,18 +1895,7 @@ class CursorResult(Result[Unpack[_Ts]]):
         or is not an insert() construct.
 
         """
-        if not self.context.compiled:
-            raise exc.InvalidRequestError(
-                "Statement is not a compiled expression construct."
-            )
-        elif not self.context.isinsert:
-            raise exc.InvalidRequestError(
-                "Statement is not an insert() expression construct."
-            )
-        elif self.context.executemany:
-            return self.context.compiled_parameters
-        else:
-            return self.context.compiled_parameters[0]
+        pass
 
     @property
     def returned_defaults_rows(
@@ -1958,7 +1910,7 @@ class CursorResult(Result[Unpack[_Ts]]):
         .. versionadded:: 1.4
 
         """
-        return self.context.returned_default_rows
+        pass
 
     def splice_horizontally(self, other: CursorResult[Any]) -> Self:
         """Return a new :class:`.CursorResult` that "horizontally splices"
@@ -2120,18 +2072,7 @@ class CursorResult(Result[Unpack[_Ts]]):
             :meth:`.ValuesBase.return_defaults`
 
         """
-
-        if self.context.executemany:
-            raise exc.InvalidRequestError(
-                "This statement was an executemany call; if return defaults "
-                "is supported, please use .returned_defaults_rows."
-            )
-
-        rows = self.context.returned_default_rows
-        if rows:
-            return rows[0]
-        else:
-            return None
+        pass
 
     def lastrow_has_defaults(self) -> bool:
         """Return ``lastrow_has_defaults()`` from the underlying
@@ -2140,8 +2081,7 @@ class CursorResult(Result[Unpack[_Ts]]):
         See :class:`.ExecutionContext` for details.
 
         """
-
-        return self.context.lastrow_has_defaults()
+        pass
 
     def postfetch_cols(self) -> Optional[Sequence[Column[Any]]]:
         """Return ``postfetch_cols()`` from the underlying
@@ -2195,8 +2135,7 @@ class CursorResult(Result[Unpack[_Ts]]):
         See :attr:`_engine.CursorResult.rowcount` for background.
 
         """
-
-        return self.dialect.supports_sane_rowcount
+        pass
 
     def supports_sane_multi_rowcount(self) -> bool:
         """Return ``supports_sane_multi_rowcount`` from the dialect.
@@ -2283,11 +2222,7 @@ class CursorResult(Result[Unpack[_Ts]]):
             :paramref:`.Connection.execution_options.preserve_rowcount`
 
         """  # noqa: E501
-        try:
-            return self.context.rowcount
-        except BaseException as e:
-            self.cursor_strategy.handle_exception(self, self.cursor, e)
-            raise  # not called
+        pass
 
     @property
     def lastrowid(self) -> int:
@@ -2305,10 +2240,7 @@ class CursorResult(Result[Unpack[_Ts]]):
         regardless of database backend.
 
         """
-        try:
-            return self.context.get_lastrowid()
-        except BaseException as e:
-            self.cursor_strategy.handle_exception(self, self.cursor, e)
+        pass
 
     @property
     def returns_rows(self) -> bool:
@@ -2341,7 +2273,7 @@ class CursorResult(Result[Unpack[_Ts]]):
             :attr:`.Result.closed`
 
         """
-        return self._metadata.returns_rows
+        pass
 
     @property
     def is_insert(self) -> bool:
@@ -2355,7 +2287,7 @@ class CursorResult(Result[Unpack[_Ts]]):
         a user defined "returning" construct.
 
         """
-        return self.context.isinsert
+        pass
 
     def _fetchiter_impl(self) -> Iterator[Any]:
         fetchone = self.cursor_strategy.fetchone

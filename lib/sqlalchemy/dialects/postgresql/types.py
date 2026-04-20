@@ -249,14 +249,14 @@ class INTERVAL(type_api.NativeForEmulated, sqltypes._AbstractInterval):
 
     @property
     def _type_affinity(self) -> Type[sqltypes.Interval]:
-        return sqltypes.Interval
+        pass
 
     def as_generic(self, allow_nulltype: bool = False) -> sqltypes.Interval:
-        return sqltypes.Interval(native=True, second_precision=self.precision)
+        pass
 
     @property
     def python_type(self) -> Type[dt.timedelta]:
-        return dt.timedelta
+        pass
 
     def literal_processor(
         self, dialect: Dialect
@@ -328,7 +328,7 @@ class BIT(sqltypes.TypeEngine[BitString]):
 
     @property
     def python_type(self) -> type[Any]:
-        return BitString
+        pass
 
     class comparator_factory(TypeEngine.Comparator[BitString]):
         def __lshift__(self, other: Any) -> ColumnOperators:

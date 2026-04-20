@@ -201,10 +201,7 @@ class ResultMetaData:
 
     @property
     def _effective_processors(self) -> Optional[_ProcessorsType]:
-        if not self._processors or NONE_SET.issuperset(self._processors):
-            return None
-        else:
-            return self._processors
+        pass
 
 
 class RMKeyView(typing.KeysView[Any]):
@@ -766,7 +763,7 @@ class Result(_WithKeys, ResultInternal[Row[Unpack[_Ts]]]):
             workaround for SQLAlchemy 2.1.
 
         """
-        return self  # type: ignore
+        pass
 
     @deprecated(
         "2.1.0",
@@ -799,8 +796,7 @@ class Result(_WithKeys, ResultInternal[Row[Unpack[_Ts]]]):
             :attr:`_engine.Row._t` - :class:`_engine.Row` version
 
         """
-
-        return self  # type: ignore
+        pass
 
     def _raw_row_iterator(self) -> Iterator[_RowData]:
         """Return a safe iterator that yields raw row data.
@@ -865,15 +861,7 @@ class Result(_WithKeys, ResultInternal[Row[Unpack[_Ts]]]):
             :ref:`orm_queryguide_yield_per` - in the :ref:`queryguide_toplevel`
 
         """
-
-        getter = self._manyrow_getter
-
-        while True:
-            partition = getter(self, size)
-            if partition:
-                yield partition
-            else:
-                break
+        pass
 
     def fetchall(self) -> Sequence[Row[Unpack[_Ts]]]:
         """A synonym for the :meth:`_engine.Result.all` method."""
@@ -941,8 +929,7 @@ class Result(_WithKeys, ResultInternal[Row[Unpack[_Ts]]]):
             without loading it completely in python.
 
         """
-
-        return self._allrows()
+        pass
 
     def first(self) -> Optional[Row[Unpack[_Ts]]]:
         """Fetch the first row or ``None`` if no row is present.
@@ -1004,9 +991,7 @@ class Result(_WithKeys, ResultInternal[Row[Unpack[_Ts]]]):
             :meth:`_engine.Result.one`
 
         """
-        return self._only_one_row(
-            raise_for_second_row=True, raise_for_none=False, scalar=False
-        )
+        pass
 
     def scalar_one(self: Result[_T, Unpack[TupleAny]]) -> _T:
         """Return exactly one scalar result or raise an exception.
@@ -1021,9 +1006,7 @@ class Result(_WithKeys, ResultInternal[Row[Unpack[_Ts]]]):
             :meth:`_engine.Result.scalars`
 
         """
-        return self._only_one_row(
-            raise_for_second_row=True, raise_for_none=True, scalar=True
-        )
+        pass
 
     def scalar_one_or_none(self: Result[_T, Unpack[TupleAny]]) -> Optional[_T]:
         """Return exactly one scalar result or ``None``.
@@ -1038,9 +1021,7 @@ class Result(_WithKeys, ResultInternal[Row[Unpack[_Ts]]]):
             :meth:`_engine.Result.scalars`
 
         """
-        return self._only_one_row(
-            raise_for_second_row=True, raise_for_none=False, scalar=True
-        )
+        pass
 
     def one(self) -> Row[Unpack[_Ts]]:
         """Return exactly one row or raise an exception.
@@ -1123,8 +1104,7 @@ class Result(_WithKeys, ResultInternal[Row[Unpack[_Ts]]]):
             ORM to implement a result-set cache.
 
         """
-
-        return FrozenResult(self)
+        pass
 
     def merge(
         self, *others: Result[Unpack[TupleAny]]
@@ -1200,7 +1180,7 @@ class FilterResult(ResultInternal[_R]):
 
     @property
     def _soft_closed(self) -> bool:
-        return self._real_result._soft_closed
+        pass
 
     @property
     def closed(self) -> bool:
@@ -1225,7 +1205,7 @@ class FilterResult(ResultInternal[_R]):
 
     @property
     def _attributes(self) -> Dict[Any, Any]:
-        return self._real_result._attributes
+        pass
 
     def _fetchiter_impl(
         self,
@@ -1302,15 +1282,7 @@ class ScalarResult(FilterResult[_R]):
         are returned.
 
         """
-
-        getter = self._manyrow_getter
-
-        while True:
-            partition = getter(self, size)
-            if partition:
-                yield partition
-            else:
-                break
+        pass
 
     def fetchall(self) -> Sequence[_R]:
         """A synonym for the :meth:`_engine.ScalarResult.all` method."""
@@ -1335,7 +1307,7 @@ class ScalarResult(FilterResult[_R]):
         are returned.
 
         """
-        return self._allrows()
+        pass
 
     def __iter__(self) -> Iterator[_R]:
         return self._iter_impl()
@@ -1364,9 +1336,7 @@ class ScalarResult(FilterResult[_R]):
         are returned.
 
         """
-        return self._only_one_row(
-            raise_for_second_row=True, raise_for_none=False, scalar=False
-        )
+        pass
 
     def one(self) -> _R:
         """Return exactly one object or raise an exception.
@@ -1590,15 +1560,7 @@ class MappingResult(_WithKeys, FilterResult[RowMapping]):
         objects, are returned.
 
         """
-
-        getter = self._manyrow_getter
-
-        while True:
-            partition = getter(self, size)
-            if partition:
-                yield partition
-            else:
-                break
+        pass
 
     def fetchall(self) -> Sequence[RowMapping]:
         """A synonym for the :meth:`_engine.MappingResult.all` method."""
@@ -1639,8 +1601,7 @@ class MappingResult(_WithKeys, FilterResult[RowMapping]):
         objects, are returned.
 
         """
-
-        return self._allrows()
+        pass
 
     def __iter__(self) -> Iterator[RowMapping]:
         return self._iter_impl()
@@ -1669,9 +1630,7 @@ class MappingResult(_WithKeys, FilterResult[RowMapping]):
         objects, are returned.
 
         """
-        return self._only_one_row(
-            raise_for_second_row=True, raise_for_none=False, scalar=False
-        )
+        pass
 
     def one(self) -> RowMapping:
         """Return exactly one object or raise an exception.

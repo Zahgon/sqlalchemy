@@ -226,48 +226,27 @@ class ColumnProperty(
 
     @property
     def mapper_property_to_assign(self) -> Optional[MapperProperty[_T]]:
-        return self
+        pass
 
     @property
     def columns_to_assign(self) -> List[Tuple[Column[Any], int]]:
         # mypy doesn't care about the isinstance here
-        return [
-            (c, 0)  # type: ignore
-            for c in self.columns
-            if isinstance(c, Column) and c.table is None
-        ]
+        pass
 
     def _memoized_attr__renders_in_subqueries(self) -> bool:
-        if ("query_expression", True) in self.strategy_key:
-            return self.strategy._have_default_expression  # type: ignore
-
-        return ("deferred", True) not in self.strategy_key or (
-            self not in self.parent._readonly_props
-        )
+        pass
 
     @util.preload_module("sqlalchemy.orm.state", "sqlalchemy.orm.strategies")
     def _memoized_attr__deferred_column_loader(
         self,
     ) -> _InstallLoaderCallableProto[Any]:
-        state = util.preloaded.orm_state
-        strategies = util.preloaded.orm_strategies
-        return state.InstanceState._instance_level_callable_processor(
-            self.parent.class_manager,
-            strategies._LoadDeferredColumns(self.key),
-            self.key,
-        )
+        pass
 
     @util.preload_module("sqlalchemy.orm.state", "sqlalchemy.orm.strategies")
     def _memoized_attr__raise_column_loader(
         self,
     ) -> _InstallLoaderCallableProto[Any]:
-        state = util.preloaded.orm_state
-        strategies = util.preloaded.orm_strategies
-        return state.InstanceState._instance_level_callable_processor(
-            self.parent.class_manager,
-            strategies._LoadDeferredColumns(self.key, True),
-            self.key,
-        )
+        pass
 
     def __clause_element__(self) -> roles.ColumnsClauseRole:
         """Allow the ColumnProperty to work in expression before it is turned
@@ -407,33 +386,7 @@ class ColumnProperty(
             present.
 
             """
-
-            pe = self._parententity
-            annotations: Dict[str, Any] = {
-                "entity_namespace": pe,
-                "parententity": pe,
-                "parentmapper": pe,
-                "proxy_key": self.prop.key,
-            }
-
-            col = column
-
-            # for a mapper with polymorphic_on and an adapter, return
-            # the column against the polymorphic selectable.
-            # see also orm.util._orm_downgrade_polymorphic_columns
-            # for the reverse operation.
-            if self._parentmapper._polymorphic_adapter:
-                mapper_local_col = col
-                col = self._parentmapper._polymorphic_adapter.traverse(col)
-
-                # this is a clue to the ORM Query etc. that this column
-                # was adapted to the mapper's polymorphic_adapter.  the
-                # ORM uses this hint to know which column its adapting.
-                annotations["adapt_column"] = mapper_local_col
-
-            return col._annotate(annotations)._set_propagate_attrs(
-                {"compile_state_plugin": "orm", "plugin_subject": pe}
-            )
+            pass
 
         if TYPE_CHECKING:
 
@@ -442,34 +395,18 @@ class ColumnProperty(
         def _memoized_method___clause_element__(
             self,
         ) -> NamedColumn[_PT]:
-            if self.adapter:
-                return self.adapter(self.prop.columns[0], self.prop.key)
-            else:
-                return self._orm_annotate_column(self.prop.columns[0])
+            pass
 
         def _memoized_attr_info(self) -> _InfoType:
             """The .info dictionary for this attribute."""
-
-            ce = self.__clause_element__()
-            try:
-                return ce.info  # type: ignore
-            except AttributeError:
-                return self.prop.info
+            pass
 
         def _memoized_attr_expressions(self) -> Sequence[NamedColumn[Any]]:
             """The full sequence of columns referenced by this
             attribute, adjusted for any aliasing in progress.
 
             """
-            if self.adapter:
-                return [
-                    self.adapter(col, self.prop.key)
-                    for col in self.prop.columns
-                ]
-            else:
-                return [
-                    self._orm_annotate_column(col) for col in self.prop.columns
-                ]
+            pass
 
         def _fallback_getattr(self, key: str) -> Any:
             """proxy attribute access down to the mapped column.
@@ -486,8 +423,7 @@ class ColumnProperty(
         def reverse_operate(
             self, op: OperatorType, other: Any, **kwargs: Any
         ) -> ColumnElement[Any]:
-            col = self.__clause_element__()
-            return op(col._bind_param(op, other), col, **kwargs)  # type: ignore[no-any-return]  # noqa: E501
+            pass
 
     def __str__(self) -> str:
         if not self.parent or not self.key:
@@ -622,49 +558,15 @@ class MappedColumn(
 
     @property
     def name(self) -> str:
-        return self.column.name
+        pass
 
     @property
     def mapper_property_to_assign(self) -> Optional[MapperProperty[_T]]:
-        effective_deferred = self.deferred
-        if effective_deferred is _NoArg.NO_ARG:
-            effective_deferred = bool(
-                self.deferred_group or self.deferred_raiseload
-            )
-
-        if (
-            effective_deferred
-            or self.active_history
-            or self._default_scalar_value is not _NoArg.NO_ARG
-        ):
-            return ColumnProperty(
-                self.column,
-                deferred=effective_deferred,
-                group=self.deferred_group,
-                raiseload=self.deferred_raiseload,
-                attribute_options=self._attribute_options,
-                active_history=self.active_history,
-                default_scalar_value=(
-                    self._default_scalar_value
-                    if self._default_scalar_value is not _NoArg.NO_ARG
-                    else None
-                ),
-            )
-        else:
-            return None
+        pass
 
     @property
     def columns_to_assign(self) -> List[Tuple[Column[Any], int]]:
-        return [
-            (
-                self.column,
-                (
-                    self._sort_order
-                    if self._sort_order is not _NoArg.NO_ARG
-                    else 0
-                ),
-            )
-        ]
+        pass
 
     def __clause_element__(self) -> Column[_T]:
         return self.column
@@ -677,8 +579,7 @@ class MappedColumn(
     def reverse_operate(
         self, op: OperatorType, other: Any, **kwargs: Any
     ) -> ColumnElement[Any]:
-        col = self.__clause_element__()
-        return op(col._bind_param(op, other), col, **kwargs)  # type: ignore[no-any-return]  # noqa: E501
+        pass
 
     def found_in_pep593_annotated(self) -> Any:
         # return a blank mapped_column().  This mapped_column()'s

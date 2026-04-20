@@ -112,15 +112,11 @@ class WriteOnlyHistory(Generic[_T]):
 
     @property
     def added_plus_unchanged(self) -> List[_T]:
-        return list(self.added_items.union(self.unchanged_items))
+        pass
 
     @property
     def all_items(self) -> List[_T]:
-        return list(
-            self.added_items.union(self.unchanged_items).union(
-                self.deleted_items
-            )
-        )
+        pass
 
     def as_history(self) -> attributes.History:
         if self._reconcile_collection:
@@ -238,11 +234,11 @@ class _WriteOnlyAttributeImpl(
 
     @util.memoized_property
     def _append_token(self) -> attributes.AttributeEventToken:
-        return attributes.AttributeEventToken(self, attributes.OP_APPEND)
+        pass
 
     @util.memoized_property
     def _remove_token(self) -> attributes.AttributeEventToken:
-        return attributes.AttributeEventToken(self, attributes.OP_REMOVE)
+        pass
 
     def fire_append_event(
         self,
@@ -308,55 +304,7 @@ class _WriteOnlyAttributeImpl(
         pop: bool = False,
         _adapt: bool = True,
     ) -> None:
-        if initiator and initiator.parent_token is self.parent_token:
-            return
-
-        if pop and value is None:
-            return
-
-        iterable = value
-        new_values = list(iterable)
-        if state.has_identity:
-            if not self._supports_dynamic_iteration:
-                raise exc.InvalidRequestError(
-                    f'Collection "{self}" does not support implicit '
-                    "iteration; collection replacement operations "
-                    "can't be used"
-                )
-            old_collection = util.IdentitySet(
-                self.get(state, dict_, passive=passive)
-            )
-
-        collection_history = self._modified_event(state, dict_)
-        if not state.has_identity:
-            old_collection = collection_history.added_items
-        else:
-            old_collection = old_collection.union(
-                collection_history.added_items
-            )
-
-        constants = old_collection.intersection(new_values)
-        additions = util.IdentitySet(new_values).difference(constants)
-        removals = old_collection.difference(constants)
-
-        for member in new_values:
-            if member in additions:
-                self.fire_append_event(
-                    state,
-                    dict_,
-                    member,
-                    None,
-                    collection_history=collection_history,
-                )
-
-        for member in removals:
-            self.fire_remove_event(
-                state,
-                dict_,
-                member,
-                None,
-                collection_history=collection_history,
-            )
+        pass
 
     def delete(self, *args: Any, **kwargs: Any) -> NoReturn:
         raise NotImplementedError()
@@ -673,7 +621,7 @@ class WriteOnlyCollection(_AbstractCollectionWriter[_T]):
         the parent instance's collection on the next flush.
 
         """
-        self._add_all_impl(iterator)
+        pass
 
     def add(self, item: _T) -> None:
         """Add an item to this :class:`_orm.WriteOnlyCollection`.

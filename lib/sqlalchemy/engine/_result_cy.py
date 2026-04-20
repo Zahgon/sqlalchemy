@@ -132,113 +132,7 @@ class BaseResultInternal(Generic[_R]):
     def _row_getter(
         self,
     ) -> tuple[Callable[..., _R] | None, Callable[..., Sequence[_R]] | None]:
-        real_result = self if self._real_result is None else self._real_result
-
-        metadata = self._metadata
-        tuple_filters = metadata._tuplefilter
-        flag: cython.char = _FLAG_SIMPLE
-
-        if real_result._source_supports_scalars:
-            if not self._generate_rows:
-                return None, None
-            else:
-                flag = _FLAG_SCALAR_TO_TUPLE
-        elif tuple_filters is not None:
-            flag = _FLAG_TUPLE_FILTER
-
-        processors: tuple
-        proc_valid: tuple
-
-        if metadata._effective_processors is not None:
-            ep = metadata._effective_processors
-            if flag == _FLAG_TUPLE_FILTER:
-                ep = tuple_filters(ep)
-
-            processors = tuple(ep)
-            proc_valid = tuple(
-                [i for i, p in enumerate(processors) if p is not None]
-            )
-        else:
-            processors = ()
-            proc_valid = ()
-
-        proc_size: cython.Py_ssize_t = len(processors)
-        log_row = real_result._row_logging_fn
-        has_log_row: cython.bint = log_row is not None
-
-        key_to_index = metadata._key_to_index
-        _Row = Row
-
-        if flag == _FLAG_SIMPLE and proc_size == 0 and not has_log_row:
-            # just build the rows
-
-            def single_row_simple(input_row: Sequence[Any], /) -> Row:
-                return _Row(metadata, None, key_to_index, input_row)
-
-            if cython.compiled:
-
-                def many_rows_simple(rows: Sequence[Any], /) -> list[Any]:
-                    size: cython.Py_hash_t = len(rows)
-                    i: cython.Py_ssize_t
-                    result: list = PyList_New(size)
-                    for i in range(size):
-                        row: object = _Row(
-                            metadata, None, key_to_index, rows[i]
-                        )
-                        Py_INCREF(row)
-                        PyList_SET_ITEM(result, i, row)
-                    return result
-
-            else:
-
-                def many_rows_simple(rows: Sequence[Any], /) -> list[Any]:
-                    return [
-                        _Row(metadata, None, key_to_index, row) for row in rows
-                    ]
-
-            return single_row_simple, many_rows_simple  # type: ignore[return-value] # noqa: E501
-
-        first_row: cython.bint = True
-
-        def single_row(input_row: Sequence[Any], /) -> Row:
-            nonlocal first_row
-
-            if flag == _FLAG_SCALAR_TO_TUPLE:
-                input_row = (input_row,)
-            elif flag == _FLAG_TUPLE_FILTER:
-                input_row = tuple_filters(input_row)
-
-            if proc_size != 0:
-                if first_row:
-                    first_row = False
-                    assert len(input_row) == proc_size
-                input_row = _apply_processors(
-                    processors, proc_size, proc_valid, input_row
-                )
-
-            row: Row = _Row(metadata, None, key_to_index, input_row)
-            if has_log_row:
-                row = log_row(row)
-            return row
-
-        if cython.compiled:
-
-            def many_rows(rows: Sequence[Any], /) -> list[Any]:
-                size: cython.Py_hash_t = len(rows)
-                i: cython.Py_ssize_t
-                result: list = PyList_New(size)
-                for i in range(size):
-                    row: object = single_row(rows[i])
-                    Py_INCREF(row)
-                    PyList_SET_ITEM(result, i, row)
-                return result
-
-        else:
-
-            def many_rows(rows: Sequence[Any], /) -> list[Any]:
-                return [single_row(row) for row in rows]
-
-        return single_row, many_rows  # type: ignore[return-value]
+        pass
 
     @HasMemoized_ro_memoized_attribute
     def _iterator_getter(self) -> Callable[[], Iterator[_R]]:
@@ -546,33 +440,11 @@ class BaseResultInternal(Generic[_R]):
         return self._iterator_getter()
 
     def _next_impl(self) -> _R:
-        row = self._onerow_getter(self)
-        if row is _NO_ROW:
-            raise StopIteration()
-        else:
-            return row
+        pass
 
     @HasMemoized_ro_memoized_attribute
     def _unique_strategy(self) -> _UniqueFilterStateType:
-        assert self._unique_filter_state is not None
-        uniques, strategy = self._unique_filter_state
-
-        if strategy is None and self._metadata._unique_filters is not None:
-            real_result = (
-                self if self._real_result is None else self._real_result
-            )
-            if (
-                real_result._source_supports_scalars
-                and not self._generate_rows
-            ):
-                strategy = self._metadata._unique_filters[0]
-            else:
-                filters = self._metadata._unique_filters
-                if self._metadata._tuplefilter is not None:
-                    filters = self._metadata._tuplefilter(filters)
-
-                strategy = operator.methodcaller("_filter_on_values", filters)
-        return uniques, strategy
+        pass
 
 
 if cython.compiled:

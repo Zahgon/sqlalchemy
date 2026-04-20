@@ -49,13 +49,11 @@ class PGDialect_psycopg2cffi(PGDialect_psycopg2):
 
     @util.memoized_property
     def _psycopg2_extensions(cls):
-        root = __import__("psycopg2cffi", fromlist=["extensions"])
-        return root.extensions
+        pass
 
     @util.memoized_property
     def _psycopg2_extras(cls):
-        root = __import__("psycopg2cffi", fromlist=["extras"])
-        return root.extras
+        pass
 
 
 dialect = PGDialect_psycopg2cffi

@@ -68,7 +68,7 @@ class _PlainColumnGetter(Generic[_KT]):
         return _SerializableColumnGetterV2._reduce_from_cols(self.cols)
 
     def _cols(self, mapper: Mapper[_KT]) -> Sequence[ColumnElement[_KT]]:
-        return self.cols
+        pass
 
     def __call__(self, value: _KT) -> MissingOr[Union[_KT, Tuple[_KT, ...]]]:
         state = base.instance_state(value)
@@ -121,24 +121,10 @@ class _SerializableColumnGetterV2(_PlainColumnGetter[_KT]):
         Type[_SerializableColumnGetterV2[_KT]],
         Tuple[Sequence[Tuple[Optional[str], Optional[str]]]],
     ]:
-        def _table_key(c: ColumnElement[_KT]) -> Optional[str]:
-            if not isinstance(c.table, expression.TableClause):
-                return None
-            else:
-                return c.table.key  # type: ignore
-
-        colkeys = [(c.key, _table_key(c)) for c in cols]
-        return _SerializableColumnGetterV2, (colkeys,)
+        pass
 
     def _cols(self, mapper: Mapper[_KT]) -> Sequence[ColumnElement[_KT]]:
-        cols: List[ColumnElement[_KT]] = []
-        metadata = getattr(mapper.local_table, "metadata", None)
-        for ckey, tkey in self.colkeys:
-            if tkey is None or metadata is None or tkey not in metadata:
-                cols.append(mapper.local_table.c[ckey])  # type: ignore
-            else:
-                cols.append(metadata.tables[tkey].c[ckey])
-        return cols
+        pass
 
 
 def column_keyed_dict(
@@ -378,11 +364,7 @@ class KeyFuncDict(Dict[_KT, _VT]):
         values: Dict[_KT, _KT],
         adapter: Optional[CollectionAdapter] = None,
     ) -> "KeyFuncDict[_KT, _KT]":
-        mp: KeyFuncDict[_KT, _KT] = KeyFuncDict(keyfunc)
-        mp.update(values)
-        # note that the adapter sets itself up onto this collection
-        # when its `__setstate__` method is called
-        return mp
+        pass
 
     def __reduce__(
         self,
@@ -451,26 +433,7 @@ class KeyFuncDict(Dict[_KT, _VT]):
         _sa_initiator: Union[AttributeEventToken, Literal[None, False]] = None,
     ) -> None:
         """Add an item by value, consulting the keyfunc for the key."""
-
-        key = self.keyfunc(value)
-
-        if key is base.NO_VALUE:
-            if not self.ignore_unpopulated_attribute:
-                self._raise_for_unpopulated(
-                    value, _sa_initiator, warn_only=False
-                )
-            else:
-                return
-        elif key is Missing:
-            if not self.ignore_unpopulated_attribute:
-                self._raise_for_unpopulated(
-                    value, _sa_initiator, warn_only=True
-                )
-                key = None
-            else:
-                return
-
-        self.__setitem__(key, value, _sa_initiator)  # type: ignore[call-arg]
+        pass
 
     @collection.remover  # type: ignore[untyped-decorator]
     @collection.internally_instrumented  # type: ignore[untyped-decorator]

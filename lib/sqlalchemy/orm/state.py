@@ -222,9 +222,7 @@ class InstanceState(interfaces.InspectionAttrInfo, Generic[_O]):
         since the last flush.
 
         """
-        return util.ReadOnlyProperties(
-            {key: AttributeState(self, key) for key in self.manager}
-        )
+        pass
 
     @property
     def transient(self) -> bool:
@@ -235,7 +233,7 @@ class InstanceState(interfaces.InspectionAttrInfo, Generic[_O]):
             :ref:`session_object_states`
 
         """
-        return self.key is None and not self._attached
+        pass
 
     @property
     def pending(self) -> bool:
@@ -246,7 +244,7 @@ class InstanceState(interfaces.InspectionAttrInfo, Generic[_O]):
             :ref:`session_object_states`
 
         """
-        return self.key is None and self._attached
+        pass
 
     @property
     def deleted(self) -> bool:
@@ -274,7 +272,7 @@ class InstanceState(interfaces.InspectionAttrInfo, Generic[_O]):
             :ref:`session_object_states`
 
         """
-        return self.key is not None and self._attached and self._deleted
+        pass
 
     @property
     def was_deleted(self) -> bool:
@@ -310,7 +308,7 @@ class InstanceState(interfaces.InspectionAttrInfo, Generic[_O]):
             :ref:`session_object_states`
 
         """
-        return self.key is not None and self._attached and not self._deleted
+        pass
 
     @property
     def detached(self) -> bool:
@@ -321,15 +319,12 @@ class InstanceState(interfaces.InspectionAttrInfo, Generic[_O]):
             :ref:`session_object_states`
 
         """
-        return self.key is not None and not self._attached
+        pass
 
     @util.non_memoized_property
     @util.preload_module("sqlalchemy.orm.session")
     def _attached(self) -> bool:
-        return (
-            self.session_id is not None
-            and self.session_id in util.preloaded.orm_session._sessions
-        )
+        pass
 
     def _track_last_known_value(self, key: str) -> None:
         """Track the last known value of a particular key after expiration
@@ -360,12 +355,7 @@ class InstanceState(interfaces.InspectionAttrInfo, Generic[_O]):
             :attr:`_orm.InstanceState.async_session`
 
         """
-        if self.session_id:
-            try:
-                return _sessions[self.session_id]
-            except KeyError:
-                pass
-        return None
+        pass
 
     @property
     def async_session(self) -> Optional[AsyncSession]:
@@ -403,7 +393,7 @@ class InstanceState(interfaces.InspectionAttrInfo, Generic[_O]):
         Returns None if the object has been garbage collected
 
         """
-        return self.obj()
+        pass
 
     @property
     def identity(self) -> Optional[Tuple[Any, ...]]:
@@ -435,19 +425,19 @@ class InstanceState(interfaces.InspectionAttrInfo, Generic[_O]):
 
 
         """
-        return self.key
+        pass
 
     @util.memoized_property
     def parents(self) -> Dict[int, Union[Literal[False], InstanceState[Any]]]:
-        return {}
+        pass
 
     @util.memoized_property
     def _pending_mutations(self) -> Dict[str, PendingCollection]:
-        return {}
+        pass
 
     @util.memoized_property
     def _empty_collections(self) -> Dict[str, _AdaptedCollectionProtocol]:
-        return {}
+        pass
 
     @util.memoized_property
     def mapper(self) -> Mapper[_O]:
@@ -462,7 +452,7 @@ class InstanceState(interfaces.InspectionAttrInfo, Generic[_O]):
         expression ``state.persistent`` or ``state.detached``.
 
         """
-        return bool(self.key)
+        pass
 
     @classmethod
     def _detach_states(
@@ -521,21 +511,7 @@ class InstanceState(interfaces.InspectionAttrInfo, Generic[_O]):
         CI circumstances.
 
         """
-
-        # if _strong_obj is set, then our object would not be getting
-        # GC'ed (at least within the scope of what we use this for in tests).
-        # so make sure this is not set
-        assert self._strong_obj is None
-
-        obj = self.obj()
-        if obj is None:
-            # object was GC'ed and we're done!  woop
-            return
-
-        del obj
-
-        self._cleanup(self.obj)
-        self.obj = lambda: None  # type: ignore
+        pass
 
     def _cleanup(self, ref: weakref.ref[_O]) -> None:
         """Weakref callback cleanup.
@@ -579,23 +555,10 @@ class InstanceState(interfaces.InspectionAttrInfo, Generic[_O]):
         collected, this accessor returns a blank dictionary.
 
         """
-        o = self.obj()
-        if o is not None:
-            return base.instance_dict(o)
-        else:
-            return {}
+        pass
 
     def _initialize_instance(*mixed: Any, **kwargs: Any) -> None:
-        self, instance, args = mixed[0], mixed[1], mixed[2:]  # noqa
-        manager = self.manager
-
-        manager.dispatch.init(self, args, kwargs)
-
-        try:
-            manager.original_init(*mixed[1:], **kwargs)
-        except:
-            with util.safe_reraise():
-                manager.dispatch.init_failure(self, args, kwargs)
+        pass
 
     def get_history(self, key: str, passive: PassiveFlag) -> History:
         return self.manager[key].impl.get_history(self, self.dict, passive)
@@ -843,8 +806,7 @@ class InstanceState(interfaces.InspectionAttrInfo, Generic[_O]):
     @property
     def unmodified(self) -> Set[str]:
         """Return the set of keys which have no uncommitted changes"""
-
-        return set(self.manager).difference(self.committed_state)
+        pass
 
     def unmodified_intersection(self, keys: Iterable[str]) -> Set[str]:
         """Return self.unmodified.intersection(keys)."""
@@ -863,11 +825,7 @@ class InstanceState(interfaces.InspectionAttrInfo, Generic[_O]):
         populated or modified.
 
         """
-        return (
-            set(self.manager)
-            .difference(self.committed_state)
-            .difference(self.dict)
-        )
+        pass
 
     @property
     @util.deprecated(
@@ -882,15 +840,11 @@ class InstanceState(interfaces.InspectionAttrInfo, Generic[_O]):
         point and should be considered to be private.
 
         """
-        return self.unloaded
+        pass
 
     @property
     def _unloaded_non_object(self) -> Set[str]:
-        return self.unloaded.intersection(
-            attr
-            for attr in self.manager
-            if self.manager[attr].impl.accepts_scalar_loader
-        )
+        pass
 
     def _modified_event(
         self,
@@ -1072,7 +1026,7 @@ class AttributeState:
         in the object's dictionary, returns NO_VALUE.
 
         """
-        return self.state.dict.get(self.key, NO_VALUE)
+        pass
 
     @property
     def value(self) -> Any:
@@ -1083,9 +1037,7 @@ class AttributeState:
         off any pending loader callables if needed.
 
         """
-        return self.state.manager[self.key].__get__(
-            self.state.obj(), self.state.class_
-        )
+        pass
 
     @property
     def history(self) -> History:
@@ -1113,7 +1065,7 @@ class AttributeState:
             :func:`.attributes.get_history` - underlying function
 
         """
-        return self.state.get_history(self.key, PASSIVE_NO_INITIALIZE)
+        pass
 
     def load_history(self) -> History:
         """Return the current **pre-flush** change history for
@@ -1138,7 +1090,7 @@ class AttributeState:
             :func:`.attributes.get_history` - underlying function
 
         """
-        return self.state.get_history(self.key, PASSIVE_OFF ^ INIT_OK)
+        pass
 
 
 class PendingCollection:

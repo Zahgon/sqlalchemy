@@ -827,49 +827,7 @@ class OracleCompiler_cx_oracle(OracleCompiler):
     )
 
     def bindparam_string(self, name, **kw):
-        quote = getattr(name, "quote", None)
-        if (
-            quote is True
-            or quote is not False
-            and self.preparer._bindparam_requires_quotes(name)
-            # bind param quoting for Oracle doesn't work with post_compile
-            # params.  For those, the default bindparam_string will escape
-            # special chars, and the appending of a number "_1" etc. will
-            # take care of reserved words
-            and not kw.get("post_compile", False)
-        ):
-            # interesting to note about expanding parameters - since the
-            # new parameters take the form <paramname>_<int>, at least if
-            # they are originally formed from reserved words, they no longer
-            # need quoting :).    names that include illegal characters
-            # won't work however.
-            quoted_name = '"%s"' % name
-            kw["escaped_from"] = name
-            name = quoted_name
-            return OracleCompiler.bindparam_string(self, name, **kw)
-
-        # TODO: we could likely do away with quoting altogether for
-        # Oracle parameters and use the custom escaping here
-        escaped_from = kw.get("escaped_from", None)
-        if not escaped_from:
-            if self._bind_translate_re.search(name):
-                # not quite the translate use case as we want to
-                # also get a quick boolean if we even found
-                # unusual characters in the name
-                new_name = self._bind_translate_re.sub(
-                    lambda m: self._bind_translate_chars[m.group(0)],
-                    name,
-                )
-                if new_name[0].isdigit() or new_name[0] == "_":
-                    new_name = "D" + new_name
-                kw["escaped_from"] = name
-                name = new_name
-            elif name[0].isdigit() or name[0] == "_":
-                new_name = "D" + name
-                kw["escaped_from"] = name
-                name = new_name
-
-        return OracleCompiler.bindparam_string(self, name, **kw)
+        pass
 
 
 class OracleExecutionContext_cx_oracle(OracleExecutionContext):
@@ -996,10 +954,7 @@ class OracleExecutionContext_cx_oracle(OracleExecutionContext):
             self.cursor.outputtypehandler = output_type_handler
 
     def _get_cx_oracle_type_handler(self, impl):
-        if hasattr(impl, "_cx_oracle_outputtypehandler"):
-            return impl._cx_oracle_outputtypehandler(self.dialect)
-        else:
-            return None
+        pass
 
     def pre_exec(self):
         super().pre_exec()

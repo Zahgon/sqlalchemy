@@ -329,39 +329,11 @@ class URL(NamedTuple):
             :meth:`_engine.URL.update_query_dict`
 
         """
-
-        kw: Dict[str, Any] = {}
-        if drivername is not None:
-            kw["drivername"] = drivername
-        if username is not None:
-            kw["username"] = username
-        if password is not None:
-            kw["password"] = password
-        if host is not None:
-            kw["host"] = host
-        if port is not None:
-            kw["port"] = port
-        if database is not None:
-            kw["database"] = database
-        if query is not None:
-            kw["query"] = query
-
-        return self._assert_replace(**kw)
+        pass
 
     def _assert_replace(self, **kw: Any) -> URL:
         """argument checks before calling _replace()"""
-
-        if "drivername" in kw:
-            self._assert_str(kw["drivername"], "drivername")
-        for name in "username", "host", "database":
-            if name in kw:
-                self._assert_none_str(kw[name], name)
-        if "port" in kw:
-            self._assert_port(kw["port"])
-        if "query" in kw:
-            kw["query"] = self._str_dict(kw["query"])
-
-        return self._replace(**kw)
+        pass
 
     def update_query_string(
         self, query_string: str, append: bool = False
@@ -604,13 +576,7 @@ class URL(NamedTuple):
             immutabledict({'alt_host': ('host1', 'host2'), 'ssl_cipher': ('/path/to/crt',)})
 
         """  # noqa: E501
-
-        return util.immutabledict(
-            {
-                k: (v,) if not isinstance(v, tuple) else v
-                for k, v in self.query.items()
-            }
-        )
+        pass
 
     @util.deprecated(
         "1.4",
@@ -637,34 +603,7 @@ class URL(NamedTuple):
          in the string unless this is set to False.
 
         """
-        s = self.drivername + "://"
-        if self.username is not None:
-            s += quote(self.username, safe=" +")
-            if self.password is not None:
-                s += ":" + (
-                    "***"
-                    if hide_password
-                    else quote(str(self.password), safe=" +")
-                )
-            s += "@"
-        if self.host is not None:
-            if ":" in self.host:
-                s += f"[{self.host}]"
-            else:
-                s += self.host
-        if self.port is not None:
-            s += ":" + str(self.port)
-        if self.database is not None:
-            s += "/" + quote(self.database, safe=" +/")
-        if self.query:
-            keys = list(self.query)
-            keys.sort()
-            s += "?" + "&".join(
-                f"{quote_plus(k)}={quote_plus(element)}"
-                for k in keys
-                for element in util.to_list(self.query[k])
-            )
-        return s
+        pass
 
     def __repr__(self) -> str:
         return self.render_as_string()

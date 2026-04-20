@@ -619,19 +619,19 @@ class AsyncAdapt_asyncpg_cursor(AsyncAdapt_dbapi_cursor):
 
     @property
     def description(self) -> Optional[_DBAPICursorDescription]:
-        return self._description
+        pass
 
     @property
     def rowcount(self) -> int:
-        return self._rowcount
+        pass
 
     @property
     def arraysize(self) -> int:
-        return self._arraysize
+        pass
 
     @arraysize.setter
     def arraysize(self, value: int) -> None:
-        self._arraysize = value
+        pass
 
     async def _executemany(self, operation, seq_of_parameters):
         adapt_connection = self._adapt_connection
@@ -942,7 +942,7 @@ class AsyncAdapt_asyncpg_connection(
 
     @staticmethod
     def _default_name_func():
-        return None
+        pass
 
 
 class AsyncAdapt_asyncpg_dbapi(AsyncAdapt_dbapi_module):
@@ -1045,25 +1045,10 @@ class AsyncAdapt_asyncpg_dbapi(AsyncAdapt_dbapi_module):
 
     @util.memoized_property
     def _asyncpg_error_translate(self):
-        import asyncpg
-
-        return {
-            asyncpg.exceptions.IntegrityConstraintViolationError: self.IntegrityError,  # noqa: E501
-            asyncpg.exceptions.PostgresError: self.Error,
-            asyncpg.exceptions.SyntaxOrAccessError: self.ProgrammingError,
-            asyncpg.exceptions.InterfaceError: self.InterfaceError,
-            asyncpg.exceptions.InvalidCachedStatementError: self.InvalidCachedStatementError,  # noqa: E501
-            asyncpg.exceptions.InternalServerError: self.InternalServerError,
-            asyncpg.exceptions.RestrictViolationError: self.RestrictViolationError,  # noqa: E501
-            asyncpg.exceptions.NotNullViolationError: self.NotNullViolationError,  # noqa: E501
-            asyncpg.exceptions.ForeignKeyViolationError: self.ForeignKeyViolationError,  # noqa: E501
-            asyncpg.exceptions.UniqueViolationError: self.UniqueViolationError,
-            asyncpg.exceptions.CheckViolationError: self.CheckViolationError,
-            asyncpg.exceptions.ExclusionViolationError: self.ExclusionViolationError,  # noqa: E501
-        }
+        pass
 
     def Binary(self, value):
-        return value
+        pass
 
 
 class PGDialect_asyncpg(PGDialect):
@@ -1143,12 +1128,7 @@ class PGDialect_asyncpg(PGDialect):
 
     @util.memoized_property
     def _isolation_lookup(self):
-        return {
-            "AUTOCOMMIT": "autocommit",
-            "READ COMMITTED": "read_committed",
-            "REPEATABLE READ": "repeatable_read",
-            "SERIALIZABLE": "serializable",
-        }
+        pass
 
     def get_isolation_level_values(self, dbapi_connection):
         return list(self._isolation_lookup)
@@ -1163,13 +1143,13 @@ class PGDialect_asyncpg(PGDialect):
         connection.readonly = value
 
     def get_readonly(self, connection):
-        return connection.readonly
+        pass
 
     def set_deferrable(self, connection, value):
         connection.deferrable = value
 
     def get_deferrable(self, connection):
-        return connection.deferrable
+        pass
 
     def do_terminate(self, dbapi_connection) -> None:
         dbapi_connection.terminate()
@@ -1317,7 +1297,7 @@ class PGDialect_asyncpg(PGDialect):
         return connect
 
     def get_driver_connection(self, connection):
-        return connection._connection
+        pass
 
 
 dialect = PGDialect_asyncpg

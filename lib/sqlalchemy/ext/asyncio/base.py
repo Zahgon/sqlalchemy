@@ -68,7 +68,7 @@ class ReversibleProxy(Generic[_PT]):
         ref: weakref.ref[_PT],
         proxy_ref: Optional[weakref.ref[Self]] = None,  # noqa: U100
     ) -> None:
-        cls._proxy_objects.pop(ref, None)
+        pass
 
     @classmethod
     def _regenerate_proxy_for_target(

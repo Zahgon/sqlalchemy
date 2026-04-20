@@ -105,9 +105,7 @@ class ENUM(type_api.NativeForEmulated, sqltypes.Enum, _StringType):
             return super()._object_value_for_elem(elem)
 
     def repr_struct(self) -> util.GenericRepr:
-        return util.GenericRepr(
-            self, to_inspect=[ENUM, _StringType, sqltypes.Enum]
-        )
+        pass
 
 
 # TODO: SET is a string as far as configuration but does not act like
@@ -185,12 +183,7 @@ class SET(_StringType):
     def column_expression(
         self, colexpr: ColumnElement[Any]
     ) -> ColumnElement[Any]:
-        if self.retrieve_as_bitwise:
-            return sql.type_coerce(
-                sql.type_coerce(colexpr, sqltypes.Integer) + 0, self
-            )
-        else:
-            return colexpr
+        pass
 
     def result_processor(
         self, dialect: Dialect, coltype: Any
@@ -268,10 +261,4 @@ class SET(_StringType):
         return util.constructor_copy(self, cls, *self.values, **kw)
 
     def repr_struct(self) -> util.GenericRepr:
-        return util.GenericRepr(
-            self,
-            to_inspect=[SET, _StringType],
-            additional_kw=[
-                ("retrieve_as_bitwise", False),
-            ],
-        )
+        pass

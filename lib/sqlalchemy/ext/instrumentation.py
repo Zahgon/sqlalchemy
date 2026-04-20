@@ -68,7 +68,7 @@ attribute.
 
 def find_native_user_instrumentation_hook(cls):
     """Find user-specified instrumentation management for a class."""
-    return getattr(cls, INSTRUMENTATION_MANAGER, None)
+    pass
 
 
 instrumentation_finders = [find_native_user_instrumentation_hook]
@@ -200,18 +200,10 @@ class ExtendedInstrumentationRegistry(InstrumentationFactory):
             return manager
 
     def state_of(self, instance):
-        if instance is None:
-            raise AttributeError("None has no persistent state.")
-        return self._state_finders.get(
-            instance.__class__, _default_state_getter
-        )(instance)
+        pass
 
     def dict_of(self, instance):
-        if instance is None:
-            raise AttributeError("None has no persistent state.")
-        return self._dict_finders.get(
-            instance.__class__, _default_dict_getter
-        )(instance)
+        pass
 
 
 orm_instrumentation._instrumentation_factory = _instrumentation_factory = (
@@ -287,7 +279,7 @@ class InstrumentationManager:
         setattr(instance, "_default_state", state)
 
     def remove_state(self, class_, instance):
-        delattr(instance, "_default_state")
+        pass
 
     def state_getter(self, class_):
         return lambda instance: getattr(instance, "_default_state")
@@ -360,10 +352,7 @@ class _ClassInstrumentationAdapter(ClassManager):
 
         A private convenience method used by the __init__ decorator.
         """
-        if self.has_state(instance):
-            return False
-        else:
-            return self.setup_instance(instance)
+        pass
 
     def setup_instance(self, instance, state=None):
         self._adapted.initialize_instance_dict(self.class_, instance)
@@ -376,15 +365,10 @@ class _ClassInstrumentationAdapter(ClassManager):
         return state
 
     def teardown_instance(self, instance):
-        self._adapted.remove_state(self.class_, instance)
+        pass
 
     def has_state(self, instance):
-        try:
-            self._get_state(instance)
-        except orm_exc.NO_STATE:
-            return False
-        else:
-            return True
+        pass
 
     def state_getter(self):
         return self._get_state
@@ -418,15 +402,7 @@ def _install_instrumented_lookups():
 
 def _reinstall_default_lookups():
     """Restore simplified lookups."""
-    _install_lookups(
-        dict(
-            instance_state=_default_state_getter,
-            instance_dict=_default_dict_getter,
-            manager_of_class=_default_manager_getter,
-            opt_manager_of_class=_default_opt_manager_getter,
-        )
-    )
-    _instrumentation_factory._extended = False
+    pass
 
 
 def _install_lookups(lookups):

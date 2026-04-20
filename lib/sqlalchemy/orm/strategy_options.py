@@ -1019,12 +1019,7 @@ class Load(_AbstractLoad):
     def _construct_for_existing_path(
         cls, path: _AbstractEntityRegistry
     ) -> Load:
-        load = cls.__new__(cls)
-        load.path = path
-        load.context = ()
-        load.propagate_to_loaders = False
-        load.additional_source_entities = ()
-        return load
+        pass
 
     def _adapt_cached_option_to_uncached_option(
         self, context: QueryContext, uncached_opt: ORMOption
@@ -1577,7 +1572,7 @@ class _LoadElement(
 
     @property
     def is_opts_only(self) -> bool:
-        return bool(self.local_opts and self.strategy is None)
+        pass
 
     def _clone(self, **kw: Any) -> Self:
         cls = self.__class__
@@ -1587,9 +1582,7 @@ class _LoadElement(
         return s
 
     def _update_opts(self, **kw: Any) -> _LoadElement:
-        new = self._clone()
-        new.local_opts = new.local_opts.union(kw)
-        return new
+        pass
 
     def __getstate__(self) -> Dict[str, Any]:
         d = self._shallow_to_dict()

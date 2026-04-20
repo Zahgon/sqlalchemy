@@ -240,27 +240,7 @@ def association_proxy(
 
 
     """
-    return AssociationProxy(
-        target_collection,
-        attr,
-        creator=creator,
-        getset_factory=getset_factory,
-        proxy_factory=proxy_factory,
-        proxy_bulk_set=proxy_bulk_set,
-        info=info,
-        cascade_scalar_deletes=cascade_scalar_deletes,
-        create_on_none_assignment=create_on_none_assignment,
-        attribute_options=_AttributeOptions(
-            init,
-            repr,
-            default,
-            default_factory,
-            compare,
-            kw_only,
-            hash,
-            dataclass_metadata,
-        ),
-    )
+    pass
 
 
 class AssociationProxyExtensionType(InspectionAttrExtensionType):
@@ -491,7 +471,7 @@ class AssociationProxy(
          complete path.
 
         """
-        return self._as_instance(class_, obj)
+        pass
 
     def _as_instance(
         self, class_: Any, obj: Any
@@ -733,9 +713,7 @@ class AssociationProxyInstance(SQLORMOperations[_T]):
     def _unwrap_target_assoc_proxy(
         self,
     ) -> Optional[AssociationProxyInstance[_T]]:
-        return self._cls_unwrap_target_assoc_proxy(
-            self.target_class, self.value_attr
-        )
+        pass
 
     @property
     def remote_attr(self) -> SQLORMOperations[_T]:
@@ -749,9 +727,7 @@ class AssociationProxyInstance(SQLORMOperations[_T]):
             :attr:`.AssociationProxyInstance.local_attr`
 
         """
-        return cast(
-            "SQLORMOperations[_T]", getattr(self.target_class, self.value_attr)
-        )
+        pass
 
     @property
     def local_attr(self) -> SQLORMOperations[Any]:
@@ -765,10 +741,7 @@ class AssociationProxyInstance(SQLORMOperations[_T]):
             :attr:`.AssociationProxyInstance.remote_attr`
 
         """
-        return cast(
-            "SQLORMOperations[Any]",
-            getattr(self.owning_class, self.target_collection),
-        )
+        pass
 
     @property
     def attr(self) -> Tuple[SQLORMOperations[Any], SQLORMOperations[_T]]:
@@ -799,7 +772,7 @@ class AssociationProxyInstance(SQLORMOperations[_T]):
             :attr:`.AssociationProxyInstance.remote_attr`
 
         """
-        return (self.local_attr, self.remote_attr)
+        pass
 
     @util.memoized_property
     def scalar(self) -> bool:
@@ -813,11 +786,7 @@ class AssociationProxyInstance(SQLORMOperations[_T]):
 
     @util.memoized_property
     def _value_is_scalar(self) -> bool:
-        return (
-            not self._get_property()
-            .mapper.get_property(self.value_attr)
-            .uselist
-        )
+        pass
 
     @property
     def _target_is_object(self) -> bool:
@@ -899,32 +868,7 @@ class AssociationProxyInstance(SQLORMOperations[_T]):
             return proxy
 
     def set(self, obj: Any, values: _T) -> None:
-        if self.scalar:
-            creator = cast(
-                "_PlainCreatorProtocol[_T]",
-                (
-                    self.parent.creator
-                    if self.parent.creator
-                    else self.target_class
-                ),
-            )
-            target = getattr(obj, self.target_collection)
-            if target is None:
-                if (
-                    values is None
-                    and not self.parent.create_on_none_assignment
-                ):
-                    return
-                setattr(obj, self.target_collection, creator(values))
-            else:
-                self._scalar_set(target, values)
-                if values is None and self.parent.cascade_scalar_deletes:
-                    setattr(obj, self.target_collection, None)
-        else:
-            proxy = self.get(obj)
-            assert self.collection_class is not None
-            if proxy is not values:
-                proxy._bulk_replace(self, values)
+        pass
 
     def delete(self, obj: Any) -> None:
         if self.owning_class is None:
@@ -1020,22 +964,7 @@ class AssociationProxyInstance(SQLORMOperations[_T]):
             )
 
     def _inflate(self, proxy: _AssociationCollection[Any]) -> None:
-        creator = (
-            self.parent.creator
-            and self.parent.creator
-            or cast(_CreatorProtocol, self.target_class)
-        )
-
-        if self.parent.getset_factory:
-            getter, setter = self.parent.getset_factory(
-                self.collection_class, self
-            )
-        else:
-            getter, setter = self.parent._default_getset(self.collection_class)
-
-        proxy.creator = creator
-        proxy.getter = getter
-        proxy.setter = setter
+        pass
 
     def _criterion_exists(
         self,
@@ -1083,16 +1012,7 @@ class AssociationProxyInstance(SQLORMOperations[_T]):
         operators of the underlying proxied attributes.
 
         """
-        if self._unwrap_target_assoc_proxy is None and (
-            self.scalar
-            and (not self._target_is_object or self._value_is_scalar)
-        ):
-            raise exc.InvalidRequestError(
-                "'any()' not implemented for scalar attributes. Use has()."
-            )
-        return self._criterion_exists(
-            criterion=criterion, is_has=False, **kwargs
-        )
+        pass
 
     def has(
         self,
@@ -1160,7 +1080,7 @@ class AmbiguousAssociationProxyInstance(AssociationProxyInstance[_T]):
         criterion: Optional[_ColumnExpressionArgument[bool]] = None,
         **kwargs: Any,
     ) -> NoReturn:
-        self._ambiguous()
+        pass
 
     def has(
         self,
@@ -1174,7 +1094,7 @@ class AmbiguousAssociationProxyInstance(AssociationProxyInstance[_T]):
         # mapping of <subclass>->AssociationProxyInstance.
         # e.g. proxy is A-> A.b -> B -> B.b_attr, but B.b_attr doesn't exist;
         # only B1(B) and B2(B) have "b_attr", keys in here would be B1, B2
-        return {}
+        pass
 
     def _non_canonical_get_for_object(
         self, parent_instance: Any
@@ -1322,10 +1242,7 @@ class AliasedAssociationProxyInstance(ObjectAssociationProxyInstance[_T]):
             :attr:`.AssociationProxyInstance.remote_attr`
 
         """
-        return cast(
-            "SQLORMOperations[Any]",
-            getattr(self.aliased_insp.entity, self.target_collection),
-        )
+        pass
 
 
 class ColumnAssociationProxyInstance(AssociationProxyInstance[_T]):
@@ -1461,8 +1378,7 @@ class _AssociationSingleItem(_AssociationCollection[_T]):
     def _bulk_replace(
         self, assoc_proxy: AssociationProxyInstance[Any], values: Iterable[_IT]
     ) -> None:
-        self.clear()
-        assoc_proxy._set(self, values)
+        pass
 
 
 class _AssociationList(_AssociationSingleItem[_T], MutableSequence[_T]):
@@ -1815,19 +1731,7 @@ class _AssociationDict(_AssociationCollection[_VT], MutableMapping[_KT, _VT]):
         assoc_proxy: AssociationProxyInstance[Any],
         values: Mapping[_KT, _VT],
     ) -> None:
-        existing = set(self)
-        constants = existing.intersection(values or ())
-        additions = set(values or ()).difference(constants)
-        removals = existing.difference(constants)
-
-        for key, member in values.items() or ():
-            if key in additions:
-                self[key] = member
-            elif key in constants:
-                self[key] = member
-
-        for key in removals:
-            del self[key]
+        pass
 
     def copy(self) -> Dict[_KT, _VT]:
         return dict(self.items())
@@ -1909,22 +1813,7 @@ class _AssociationSet(_AssociationSingleItem[_T], MutableSet[_T]):
                 self.add(value)
 
     def _bulk_replace(self, assoc_proxy: Any, values: Iterable[_T]) -> None:
-        existing = set(self)
-        constants = existing.intersection(values or ())
-        additions = set(values or ()).difference(constants)
-        removals = existing.difference(constants)
-
-        appender = self.add
-        remover = self.remove
-
-        for member in values or ():
-            if member in additions:
-                appender(member)
-            elif member in constants:
-                appender(member)
-
-        for member in removals:
-            remover(member)
+        pass
 
     def __ior__(  # type: ignore
         self, other: AbstractSet[_S]
@@ -1975,15 +1864,7 @@ class _AssociationSet(_AssociationSingleItem[_T], MutableSet[_T]):
         return self.intersection(s)
 
     def intersection_update(self, *s: Iterable[Any]) -> None:
-        for other in s:
-            want, have = self.intersection(other), set(self)
-
-            remove, add = have - want, want - have
-
-            for value in remove:
-                self.remove(value)
-            for value in add:
-                self.add(value)
+        pass
 
     def __iand__(self, s: AbstractSet[Any]) -> Self:
         if not collections._set_binops_check_strict(self, s):
@@ -2008,14 +1889,7 @@ class _AssociationSet(_AssociationSingleItem[_T], MutableSet[_T]):
         return self.symmetric_difference(s)
 
     def symmetric_difference_update(self, other: Iterable[Any]) -> None:
-        want, have = self.symmetric_difference(other), set(self)
-
-        remove, add = have - want, want - have
-
-        for value in remove:
-            self.remove(value)
-        for value in add:
-            self.add(value)
+        pass
 
     def __ixor__(self, other: AbstractSet[_S]) -> MutableSet[Union[_T, _S]]:  # type: ignore  # noqa: E501
         if not collections._set_binops_check_strict(self, other):

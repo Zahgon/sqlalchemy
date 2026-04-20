@@ -174,8 +174,7 @@ class AsyncAttrs:
             some_collection = await a1.awaitable_attrs.some_collection
 
         """  # noqa: E501
-
-        return AsyncAttrs._AsyncAttrGetitem(self)
+        pass
 
 
 @util.create_proxy_methods(
@@ -398,10 +397,7 @@ class AsyncSession(ReversibleProxy[Session]):
 
             :ref:`session_run_sync`
         '''  # noqa: E501
-
-        return await greenlet_spawn(
-            fn, self.sync_session, *arg, _require_await=False, **kw
-        )
+        pass
 
     @overload
     async def execute(
@@ -642,17 +638,7 @@ class AsyncSession(ReversibleProxy[Session]):
             :meth:`_orm.Session.get_one` - main documentation for get_one
 
         """
-
-        return await greenlet_spawn(
-            cast("Callable[..., _O]", self.sync_session.get_one),
-            entity,
-            ident,
-            options=options,
-            populate_existing=populate_existing,
-            with_for_update=with_for_update,
-            identity_token=identity_token,
-            execution_options=execution_options,
-        )
+        pass
 
     @overload
     async def stream(
@@ -689,23 +675,7 @@ class AsyncSession(ReversibleProxy[Session]):
         :class:`_asyncio.AsyncResult` object.
 
         """
-
-        if execution_options:
-            execution_options = util.immutabledict(execution_options).union(
-                _STREAM_OPTIONS
-            )
-        else:
-            execution_options = _STREAM_OPTIONS
-
-        result = await greenlet_spawn(
-            self.sync_session.execute,
-            statement,
-            params=params,
-            execution_options=execution_options,
-            bind_arguments=bind_arguments,
-            **kw,
-        )
-        return AsyncResult(result)
+        pass
 
     @overload
     async def stream_scalars(
@@ -751,15 +721,7 @@ class AsyncSession(ReversibleProxy[Session]):
             :meth:`_asyncio.AsyncSession.scalars` - non streaming version
 
         """
-
-        result = await self.stream(
-            statement,
-            params=params,
-            execution_options=execution_options,
-            bind_arguments=bind_arguments,
-            **kw,
-        )
-        return result.scalars()
+        pass
 
     async def delete(self, instance: object) -> None:
         """Mark an instance as deleted.
@@ -784,7 +746,7 @@ class AsyncSession(ReversibleProxy[Session]):
             :meth:`_orm.Session.delete_all` - main documentation for delete_all
 
         """
-        await greenlet_spawn(self.sync_session.delete_all, instances)
+        pass
 
     async def merge(
         self,
@@ -819,9 +781,7 @@ class AsyncSession(ReversibleProxy[Session]):
             :meth:`_orm.Session.merge_all` - main documentation for merge_all
 
         """
-        return await greenlet_spawn(
-            self.sync_session.merge_all, instances, load=load, options=options
-        )
+        pass
 
     async def flush(self, objects: Optional[Sequence[Any]] = None) -> None:
         """Flush all the object changes to the database.
@@ -859,14 +819,7 @@ class AsyncSession(ReversibleProxy[Session]):
         .. versionadded:: 1.4.18
 
         """
-
-        trans = self.sync_session.get_nested_transaction()
-        if trans is not None:
-            return AsyncSessionTransaction._retrieve_proxy_for_target(
-                trans, async_session=self
-            )
-        else:
-            return None
+        pass
 
     def get_bind(
         self,
@@ -1108,7 +1061,7 @@ class AsyncSession(ReversibleProxy[Session]):
     )
     async def close_all(cls) -> None:
         """Close all :class:`_asyncio.AsyncSession` sessions."""
-        await close_all_sessions()
+        pass
 
     async def __aenter__(self: _AS) -> _AS:
         return self
@@ -1208,8 +1161,7 @@ class AsyncSession(ReversibleProxy[Session]):
 
 
         """  # noqa: E501
-
-        return self._proxied.add_all(instances)
+        pass
 
     def expire(
         self, instance: object, attribute_names: Optional[Iterable[str]] = None
@@ -1297,8 +1249,7 @@ class AsyncSession(ReversibleProxy[Session]):
 
 
         """  # noqa: E501
-
-        return self._proxied.expire_all()
+        pass
 
     def expunge(self, instance: object) -> None:
         r"""Remove the `instance` from this ``Session``.
@@ -1391,10 +1342,7 @@ class AsyncSession(ReversibleProxy[Session]):
 
 
         """  # noqa: E501
-
-        return self._proxied.is_modified(
-            instance, include_collections=include_collections
-        )
+        pass
 
     def in_transaction(self) -> bool:
         r"""Return True if this :class:`_orm.Session` has begun a transaction.
@@ -1462,8 +1410,7 @@ class AsyncSession(ReversibleProxy[Session]):
 
 
         """  # noqa: E501
-
-        return self._proxied.dirty
+        pass
 
     @property
     def deleted(self) -> Any:
@@ -1475,8 +1422,7 @@ class AsyncSession(ReversibleProxy[Session]):
             on behalf of the :class:`_asyncio.AsyncSession` class.
 
         """  # noqa: E501
-
-        return self._proxied.deleted
+        pass
 
     @property
     def new(self) -> Any:
@@ -1488,8 +1434,7 @@ class AsyncSession(ReversibleProxy[Session]):
             on behalf of the :class:`_asyncio.AsyncSession` class.
 
         """  # noqa: E501
-
-        return self._proxied.new
+        pass
 
     @property
     def identity_map(self) -> IdentityMap:
@@ -1497,12 +1442,11 @@ class AsyncSession(ReversibleProxy[Session]):
         on behalf of the :class:`_asyncio.AsyncSession` class.
 
         """  # noqa: E501
-
-        return self._proxied.identity_map
+        pass
 
     @identity_map.setter
     def identity_map(self, attr: IdentityMap) -> None:
-        self._proxied.identity_map = attr
+        pass
 
     @property
     def is_active(self) -> Any:
@@ -1538,8 +1482,7 @@ class AsyncSession(ReversibleProxy[Session]):
 
 
         """  # noqa: E501
-
-        return self._proxied.is_active
+        pass
 
     @property
     def autoflush(self) -> bool:
@@ -1580,8 +1523,7 @@ class AsyncSession(ReversibleProxy[Session]):
 
 
         """  # noqa: E501
-
-        return self._proxied.no_autoflush
+        pass
 
     @property
     def info(self) -> Any:
@@ -1653,14 +1595,7 @@ class AsyncSession(ReversibleProxy[Session]):
 
 
         """  # noqa: E501
-
-        return Session.identity_key(
-            class_=class_,
-            ident=ident,
-            instance=instance,
-            row=row,
-            identity_token=identity_token,
-        )
+        pass
 
     # END PROXY METHODS AsyncSession
 
@@ -1830,8 +1765,7 @@ class async_sessionmaker(Generic[_AS]):
 
             AsyncSession.configure(bind=create_async_engine("sqlite+aiosqlite://"))
         """  # noqa E501
-
-        self.kw.update(new_kw)
+        pass
 
     def __repr__(self) -> str:
         return "%s(class_=%r, %s)" % (
@@ -1895,10 +1829,7 @@ class AsyncSessionTransaction(
 
     @property
     def is_active(self) -> bool:
-        return (
-            self._sync_transaction() is not None
-            and self._sync_transaction().is_active
-        )
+        pass
 
     def _sync_transaction(self) -> SessionTransaction:
         if not self.sync_transaction:

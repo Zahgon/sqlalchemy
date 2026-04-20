@@ -453,17 +453,17 @@ class declared_attr(interfaces._MappedAttribute[_T], _declared_attr_common):
 
     @hybridmethod
     def _stateful(cls, **kw: Any) -> _stateful_declared_attr[_T]:
-        return _stateful_declared_attr(**kw)
+        pass
 
     @hybridproperty
     def directive(cls) -> _declared_directive[Any]:
         # see mapping_api.rst for docstring
-        return _declared_directive  # type: ignore
+        pass
 
     @hybridproperty
     def cascading(cls) -> _stateful_declared_attr[_T]:
         # see mapping_api.rst for docstring
-        return cls._stateful(cascading=True)
+        pass
 
 
 class _stateful_declared_attr(declared_attr[_T]):
@@ -474,9 +474,7 @@ class _stateful_declared_attr(declared_attr[_T]):
 
     @hybridmethod
     def _stateful(self, **kw: Any) -> _stateful_declared_attr[_T]:
-        new_kw = self.kw.copy()
-        new_kw.update(kw)
-        return _stateful_declared_attr(**new_kw)
+        pass
 
     def __call__(self, fn: _DeclaredAttrDecorated[_T]) -> declared_attr[_T]:
         return declared_attr(fn, **self.kw)
@@ -1393,8 +1391,7 @@ class registry(EventTarget):
     @property
     def mappers(self) -> FrozenSet[Mapper[Any]]:
         """read only collection of all :class:`_orm.Mapper` objects."""
-
-        return frozenset(manager.mapper for manager in self._managers)
+        pass
 
     def _set_depends_on(self, registry: RegistryType) -> None:
         if registry is self:
@@ -1510,7 +1507,7 @@ class registry(EventTarget):
         .. versionadded:: 1.4.0b2
 
         """
-        mapperlib._configure_registries({self}, cascade=cascade)
+        pass
 
     def dispose(self, cascade: bool = False) -> None:
         """Dispose of all mappers in this :class:`_orm.registry`.
@@ -1773,8 +1770,7 @@ class registry(EventTarget):
             :meth:`_orm.registry.mapped_as_dataclass`
 
         """
-        _ORMClassConfigurator._as_declarative(self, cls, cls.__dict__)
-        return cls
+        pass
 
     def as_declarative_base(self, **kw: Any) -> Callable[[Type[_T]], Type[_T]]:
         """
@@ -1860,8 +1856,7 @@ class registry(EventTarget):
             :meth:`_orm.registry.map_imperatively`
 
         """
-        _ORMClassConfigurator._as_declarative(self, cls, cls.__dict__)
-        return cls.__mapper__  # type: ignore
+        pass
 
     def map_imperatively(
         self,
@@ -1919,7 +1914,7 @@ class registry(EventTarget):
             :ref:`orm_declarative_mapping`
 
         """
-        return _ORMClassConfigurator._mapper(self, class_, local_table, kw)
+        pass
 
 
 RegistryType = registry
@@ -2181,11 +2176,7 @@ def mapped_as_dataclass(
     DeclarativeMeta, DeclarativeBase, DeclarativeAttributeIntercept
 )
 def _inspect_decl_meta(cls: Type[Any]) -> Optional[Mapper[Any]]:
-    mp: Optional[Mapper[Any]] = _inspect_mapped_class(cls)
-    if mp is None:
-        if _DeferredDeclarativeConfig.has_cls(cls):
-            _DeferredDeclarativeConfig.raise_unmapped_for_cls(cls)
-    return mp
+    pass
 
 
 @compat_typing.dataclass_transform(

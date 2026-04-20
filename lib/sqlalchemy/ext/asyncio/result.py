@@ -127,7 +127,7 @@ class AsyncResult(_WithKeys, AsyncCommon[Row[Unpack[_Ts]]]):
             workaround for SQLAlchemy 2.1.
 
         """
-        return self  # type: ignore
+        pass
 
     @deprecated(
         "2.1.0",
@@ -161,8 +161,7 @@ class AsyncResult(_WithKeys, AsyncCommon[Row[Unpack[_Ts]]]):
             :attr:`_engine.Row.t` - :class:`_engine.Row` version
 
         """
-
-        return self  # type: ignore
+        pass
 
     @_generative
     def unique(self, strategy: Optional[_UniqueFilterType] = None) -> Self:
@@ -202,15 +201,7 @@ class AsyncResult(_WithKeys, AsyncCommon[Row[Unpack[_Ts]]]):
         SQLAlchemy API for a complete behavioral description.
 
         """
-
-        getter = self._manyrow_getter
-
-        while True:
-            partition = await greenlet_spawn(getter, self, size)
-            if partition:
-                yield partition
-            else:
-                break
+        pass
 
     async def fetchall(self) -> Sequence[Row[Unpack[_Ts]]]:
         """A synonym for the :meth:`_asyncio.AsyncResult.all` method.
@@ -275,8 +266,7 @@ class AsyncResult(_WithKeys, AsyncCommon[Row[Unpack[_Ts]]]):
         :return: a list of :class:`_engine.Row` objects.
 
         """
-
-        return await greenlet_spawn(self._allrows)
+        pass
 
     def __aiter__(self) -> AsyncResult[Unpack[_Ts]]:
         return self
@@ -345,7 +335,7 @@ class AsyncResult(_WithKeys, AsyncCommon[Row[Unpack[_Ts]]]):
             :meth:`_asyncio.AsyncResult.one`
 
         """
-        return await greenlet_spawn(self._only_one_row, True, False, False)
+        pass
 
     @overload
     async def scalar_one(self: AsyncResult[_T]) -> _T: ...
@@ -366,7 +356,7 @@ class AsyncResult(_WithKeys, AsyncCommon[Row[Unpack[_Ts]]]):
             :meth:`_asyncio.AsyncResult.scalars`
 
         """
-        return await greenlet_spawn(self._only_one_row, True, True, True)
+        pass
 
     @overload
     async def scalar_one_or_none(
@@ -389,7 +379,7 @@ class AsyncResult(_WithKeys, AsyncCommon[Row[Unpack[_Ts]]]):
             :meth:`_asyncio.AsyncResult.scalars`
 
         """
-        return await greenlet_spawn(self._only_one_row, True, False, True)
+        pass
 
     async def one(self) -> Row[Unpack[_Ts]]:
         """Return exactly one row or raise an exception.
@@ -464,8 +454,7 @@ class AsyncResult(_WithKeys, AsyncCommon[Row[Unpack[_Ts]]]):
             ORM to implement a result-set cache.
 
         """
-
-        return await greenlet_spawn(FrozenResult, self)
+        pass
 
     @overload
     def scalars(
@@ -569,15 +558,7 @@ class AsyncScalarResult(AsyncCommon[_R]):
         are returned.
 
         """
-
-        getter = self._manyrow_getter
-
-        while True:
-            partition = await greenlet_spawn(getter, self, size)
-            if partition:
-                yield partition
-            else:
-                break
+        pass
 
     async def fetchall(self) -> Sequence[_R]:
         """A synonym for the :meth:`_asyncio.AsyncScalarResult.all` method."""
@@ -602,7 +583,7 @@ class AsyncScalarResult(AsyncCommon[_R]):
         are returned.
 
         """
-        return await greenlet_spawn(self._allrows)
+        pass
 
     def __aiter__(self) -> AsyncScalarResult[_R]:
         return self
@@ -632,7 +613,7 @@ class AsyncScalarResult(AsyncCommon[_R]):
         are returned.
 
         """
-        return await greenlet_spawn(self._only_one_row, True, False, False)
+        pass
 
     async def one(self) -> _R:
         """Return exactly one object or raise an exception.
@@ -699,15 +680,7 @@ class AsyncMappingResult(_WithKeys, AsyncCommon[RowMapping]):
         objects, are returned.
 
         """
-
-        getter = self._manyrow_getter
-
-        while True:
-            partition = await greenlet_spawn(getter, self, size)
-            if partition:
-                yield partition
-            else:
-                break
+        pass
 
     async def fetchall(self) -> Sequence[RowMapping]:
         """A synonym for the :meth:`_asyncio.AsyncMappingResult.all` method."""
@@ -750,8 +723,7 @@ class AsyncMappingResult(_WithKeys, AsyncCommon[RowMapping]):
         objects, are returned.
 
         """
-
-        return await greenlet_spawn(self._allrows)
+        pass
 
     def __aiter__(self) -> AsyncMappingResult:
         return self
@@ -781,7 +753,7 @@ class AsyncMappingResult(_WithKeys, AsyncCommon[RowMapping]):
         objects, are returned.
 
         """
-        return await greenlet_spawn(self._only_one_row, True, False, False)
+        pass
 
     async def one(self) -> RowMapping:
         """Return exactly one object or raise an exception.

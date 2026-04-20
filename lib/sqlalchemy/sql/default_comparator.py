@@ -58,87 +58,7 @@ def _boolean_compare(
     result_type: Optional[TypeEngine[bool]] = None,
     **kwargs: Any,
 ) -> OperatorExpression[bool]:
-    if result_type is None:
-        result_type = type_api.BOOLEANTYPE
-
-    if isinstance(obj, _python_is_types + (Null, True_, False_)):
-        # allow x ==/!= True/False to be treated as a literal.
-        # this comes out to "== / != true/false" or "1/0" if those
-        # constants aren't supported and works on all platforms
-        if op in (operators.eq, operators.ne) and isinstance(
-            obj, (bool, True_, False_)
-        ):
-            return OperatorExpression._construct_for_op(
-                expr,
-                coercions.expect(roles.ConstExprRole, obj),
-                op,
-                type_=result_type,
-                negate=negate_op,
-                modifiers=kwargs,
-            )
-        elif op in (
-            operators.is_distinct_from,
-            operators.is_not_distinct_from,
-        ):
-            return OperatorExpression._construct_for_op(
-                expr,
-                coercions.expect(roles.ConstExprRole, obj),
-                op,
-                type_=result_type,
-                negate=negate_op,
-                modifiers=kwargs,
-            )
-        elif expr._is_collection_aggregate:
-            obj = coercions.expect(
-                roles.ConstExprRole, element=obj, operator=op, expr=expr
-            )
-        else:
-            # all other None uses IS, IS NOT
-            if op in (operators.eq, operators.is_):
-                return OperatorExpression._construct_for_op(
-                    expr,
-                    coercions.expect(roles.ConstExprRole, obj),
-                    operators.is_,
-                    negate=operators.is_not,
-                    type_=result_type,
-                )
-            elif op in (operators.ne, operators.is_not):
-                return OperatorExpression._construct_for_op(
-                    expr,
-                    coercions.expect(roles.ConstExprRole, obj),
-                    operators.is_not,
-                    negate=operators.is_,
-                    type_=result_type,
-                )
-            else:
-                raise exc.ArgumentError(
-                    "Only '=', '!=', 'is_()', 'is_not()', "
-                    "'is_distinct_from()', 'is_not_distinct_from()' "
-                    "operators can be used with None/True/False"
-                )
-    else:
-        obj = coercions.expect(
-            roles.BinaryElementRole, element=obj, operator=op, expr=expr
-        )
-
-    if reverse:
-        return OperatorExpression._construct_for_op(
-            obj,
-            expr,
-            op,
-            type_=result_type,
-            negate=negate_op,
-            modifiers=kwargs,
-        )
-    else:
-        return OperatorExpression._construct_for_op(
-            expr,
-            obj,
-            op,
-            type_=result_type,
-            negate=negate_op,
-            modifiers=kwargs,
-        )
+    pass
 
 
 def _custom_op_operate(
@@ -149,15 +69,7 @@ def _custom_op_operate(
     result_type: Optional[TypeEngine[Any]] = None,
     **kw: Any,
 ) -> ColumnElement[Any]:
-    if result_type is None:
-        if op.return_type:
-            result_type = op.return_type
-        elif op.is_comparison:
-            result_type = type_api.BOOLEANTYPE
-
-    return _binary_operate(
-        expr, op, obj, reverse=reverse, result_type=result_type, **kw
-    )
+    pass
 
 
 def _binary_operate(
@@ -169,34 +81,13 @@ def _binary_operate(
     result_type: Optional[TypeEngine[_T]] = None,
     **kw: Any,
 ) -> OperatorExpression[_T]:
-    coerced_obj = coercions.expect(
-        roles.BinaryElementRole, obj, expr=expr, operator=op
-    )
-
-    if reverse:
-        left, right = coerced_obj, expr
-    else:
-        left, right = expr, coerced_obj
-
-    if result_type is None:
-        op, result_type = left.comparator._adapt_expression(
-            op, right.comparator
-        )
-
-    return OperatorExpression._construct_for_op(
-        left, right, op, type_=result_type, modifiers=kw
-    )
+    pass
 
 
 def _conjunction_operate(
     expr: ColumnElement[Any], op: OperatorType, other: Any, **kw: Any
 ) -> ColumnElement[Any]:
-    if op is operators.and_:
-        return and_(expr, other)
-    elif op is operators.or_:
-        return or_(expr, other)
-    else:
-        raise NotImplementedError()
+    pass
 
 
 def _scalar(
@@ -205,7 +96,7 @@ def _scalar(
     fn: Callable[[ColumnElement[Any]], ColumnElement[Any]],
     **kw: Any,
 ) -> ColumnElement[Any]:
-    return fn(expr)
+    pass
 
 
 def _in_impl(
@@ -215,31 +106,13 @@ def _in_impl(
     negate_op: OperatorType,
     **kw: Any,
 ) -> ColumnElement[Any]:
-    seq_or_selectable = coercions.expect(
-        roles.InElementRole, seq_or_selectable, expr=expr, operator=op
-    )
-    if "in_ops" in seq_or_selectable._annotations:
-        op, negate_op = seq_or_selectable._annotations["in_ops"]
-
-    return _boolean_compare(
-        expr, op, seq_or_selectable, negate_op=negate_op, **kw
-    )
+    pass
 
 
 def _getitem_impl(
     expr: ColumnElement[Any], op: OperatorType, other: Any, **kw: Any
 ) -> ColumnElement[Any]:
-    if (
-        isinstance(expr.type, type_api.INDEXABLE)
-        or isinstance(expr.type, type_api.TypeDecorator)
-        and isinstance(expr.type.impl_instance, type_api.INDEXABLE)
-    ):
-        other = coercions.expect(
-            roles.BinaryElementRole, other, expr=expr, operator=op
-        )
-        return _binary_operate(expr, op, other, **kw)
-    else:
-        _unsupported_impl(expr, op, other, **kw)
+    pass
 
 
 def _unsupported_impl(
@@ -254,63 +127,35 @@ def _inv_impl(
     expr: ColumnElement[Any], op: OperatorType, **kw: Any
 ) -> ColumnElement[Any]:
     """See :meth:`.ColumnOperators.__inv__`."""
-
-    # undocumented element currently used by the ORM for
-    # relationship.contains()
-    if hasattr(expr, "negation_clause"):
-        return expr.negation_clause
-    else:
-        return expr._negate()
+    pass
 
 
 def _neg_impl(
     expr: ColumnElement[Any], op: OperatorType, **kw: Any
 ) -> ColumnElement[Any]:
     """See :meth:`.ColumnOperators.__neg__`."""
-    return UnaryExpression(expr, operator=operators.neg, type_=expr.type)
+    pass
 
 
 def _bitwise_not_impl(
     expr: ColumnElement[Any], op: OperatorType, **kw: Any
 ) -> ColumnElement[Any]:
     """See :meth:`.ColumnOperators.bitwise_not`."""
-
-    return UnaryExpression(
-        expr, operator=operators.bitwise_not_op, type_=expr.type
-    )
+    pass
 
 
 def _match_impl(
     expr: ColumnElement[Any], op: OperatorType, other: Any, **kw: Any
 ) -> ColumnElement[Any]:
     """See :meth:`.ColumnOperators.match`."""
-
-    return _boolean_compare(
-        expr,
-        operators.match_op,
-        coercions.expect(
-            roles.BinaryElementRole,
-            other,
-            expr=expr,
-            operator=operators.match_op,
-        ),
-        result_type=type_api.MATCHTYPE,
-        negate_op=(
-            operators.not_match_op
-            if op is operators.match_op
-            else operators.match_op
-        ),
-        **kw,
-    )
+    pass
 
 
 def _distinct_impl(
     expr: ColumnElement[Any], op: OperatorType, **kw: Any
 ) -> ColumnElement[Any]:
     """See :meth:`.ColumnOperators.distinct`."""
-    return UnaryExpression(
-        expr, operator=operators.distinct_op, type_=expr.type
-    )
+    pass
 
 
 def _between_impl(
@@ -321,33 +166,7 @@ def _between_impl(
     **kw: Any,
 ) -> ColumnElement[Any]:
     """See :meth:`.ColumnOperators.between`."""
-    return BinaryExpression(
-        expr,
-        ExpressionClauseList._construct_for_list(
-            operators.and_,
-            type_api.NULLTYPE,
-            coercions.expect(
-                roles.BinaryElementRole,
-                cleft,
-                expr=expr,
-                operator=operators.and_,
-            ),
-            coercions.expect(
-                roles.BinaryElementRole,
-                cright,
-                expr=expr,
-                operator=operators.and_,
-            ),
-            group=False,
-        ),
-        op,
-        negate=(
-            operators.not_between_op
-            if op is operators.between_op
-            else operators.between_op
-        ),
-        modifiers=kw,
-    )
+    pass
 
 
 def _pow_impl(
@@ -357,16 +176,13 @@ def _pow_impl(
     reverse: bool = False,
     **kw: Any,
 ) -> ColumnElement[Any]:
-    if reverse:
-        return functions.pow(other, expr)
-    else:
-        return functions.pow(expr, other)
+    pass
 
 
 def _collate_impl(
     expr: ColumnElement[str], op: OperatorType, collation: str, **kw: Any
 ) -> ColumnElement[str]:
-    return CollationClause._create_collation_expression(expr, collation)
+    pass
 
 
 def _regexp_match_impl(
@@ -376,18 +192,7 @@ def _regexp_match_impl(
     flags: Optional[str],
     **kw: Any,
 ) -> ColumnElement[Any]:
-    return BinaryExpression(
-        expr,
-        coercions.expect(
-            roles.BinaryElementRole,
-            pattern,
-            expr=expr,
-            operator=operators.comma_op,
-        ),
-        op,
-        negate=operators.not_regexp_match_op,
-        modifiers={"flags": flags},
-    )
+    pass
 
 
 def _regexp_replace_impl(
@@ -398,28 +203,7 @@ def _regexp_replace_impl(
     flags: Optional[str],
     **kw: Any,
 ) -> ColumnElement[Any]:
-    return BinaryExpression(
-        expr,
-        ExpressionClauseList._construct_for_list(
-            operators.comma_op,
-            type_api.NULLTYPE,
-            coercions.expect(
-                roles.BinaryElementRole,
-                pattern,
-                expr=expr,
-                operator=operators.comma_op,
-            ),
-            coercions.expect(
-                roles.BinaryElementRole,
-                replacement,
-                expr=expr,
-                operator=operators.comma_op,
-            ),
-            group=False,
-        ),
-        op,
-        modifiers={"flags": flags},
-    )
+    pass
 
 
 operator_lookup: util.immutabledict[

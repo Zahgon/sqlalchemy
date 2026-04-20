@@ -89,7 +89,7 @@ class ConnectionCharacteristic(abc.ABC):
            to the :class:`_engine.Connection` itself.
 
         """
-        return self.get_characteristic(dialect, dbapi_conn)
+        pass
 
 
 class IsolationLevelCharacteristic(ConnectionCharacteristic):
@@ -100,7 +100,7 @@ class IsolationLevelCharacteristic(ConnectionCharacteristic):
     def reset_characteristic(
         self, dialect: Dialect, dbapi_conn: DBAPIConnection
     ) -> None:
-        dialect.reset_isolation_level(dbapi_conn)
+        pass
 
     def set_characteristic(
         self, dialect: Dialect, dbapi_conn: DBAPIConnection, value: Any
@@ -110,7 +110,7 @@ class IsolationLevelCharacteristic(ConnectionCharacteristic):
     def get_characteristic(
         self, dialect: Dialect, dbapi_conn: DBAPIConnection
     ) -> Any:
-        return dialect.get_isolation_level(dbapi_conn)
+        pass
 
 
 class LoggingTokenCharacteristic(ConnectionCharacteristic):
@@ -152,4 +152,4 @@ class LoggingTokenCharacteristic(ConnectionCharacteristic):
     def get_connection_characteristic(
         self, dialect: Dialect, conn: Connection, dbapi_conn: DBAPIConnection
     ) -> Any:
-        return conn._execution_options.get("logging_token", None)
+        pass

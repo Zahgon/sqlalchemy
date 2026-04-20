@@ -285,7 +285,7 @@ class _AbstractORMCompileState(CompileState):
         FromStatement._compiler_dispatch() that would be called by
         SQLCompiler.process().
         """
-        return super().create_for_statement(statement, compiler, **kw)
+        pass
 
     @classmethod
     def orm_pre_session_exec(
@@ -454,12 +454,7 @@ class _ORMCompileState(_AbstractORMCompileState):
         compiler: SQLCompiler,
         **kw: Any,
     ) -> _ORMCompileState:
-        return cls._create_orm_context(
-            cast("Union[Select, FromStatement]", statement),
-            toplevel=not compiler.stack,
-            compiler=compiler,
-            **kw,
-        )
+        pass
 
     @classmethod
     def _create_orm_context(
@@ -473,10 +468,7 @@ class _ORMCompileState(_AbstractORMCompileState):
         raise NotImplementedError()
 
     def _append_dedupe_col_collection(self, obj, col_collection):
-        dedupe = self.dedupe_columns
-        if obj not in dedupe:
-            dedupe.add(obj)
-            col_collection.append(obj)
+        pass
 
     @classmethod
     def _column_naming_convention(
@@ -496,7 +488,7 @@ class _ORMCompileState(_AbstractORMCompileState):
 
     @classmethod
     def get_column_descriptions(cls, statement):
-        return _column_descriptions(statement)
+        pass
 
     @classmethod
     def orm_pre_session_exec(
@@ -633,9 +625,7 @@ class _ORMCompileState(_AbstractORMCompileState):
         with_entities(), with_only_columns()
 
         """
-        return [
-            ent for ent in self._entities if isinstance(ent, _MapperEntity)
-        ]
+        pass
 
     def _create_with_polymorphic_adapter(self, ext_info, selectable):
         """given MapperEntity or ORMColumnEntity, setup polymorphic loading
@@ -929,29 +919,7 @@ class _ORMFromStatementCompileState(_ORMCompileState):
         for RETURNING to return ORM objects and expressions
 
         """
-        target_mapper = self.statement._propagate_attrs.get(
-            "plugin_subject", None
-        )
-
-        if self.statement.is_insert:
-            adapter = _DMLBulkInsertReturningColFilter(
-                target_mapper, dml_mapper
-            )
-        elif self.statement.is_update or self.statement.is_delete:
-            adapter = _DMLUpdateDeleteReturningColFilter(
-                target_mapper, dml_mapper
-            )
-        else:
-            adapter = None
-
-        if self.compile_options._is_star and (len(self._entities) != 1):
-            raise sa_exc.CompileError(
-                "Can't generate ORM query that includes multiple expressions "
-                "at the same time as '*'; query for '*' alone if present"
-            )
-
-        for entity in self._entities:
-            entity.setup_dml_returning_compile_state(self, adapter)
+        pass
 
 
 class FromStatement(GroupedElement, Generative, TypedReturnsRows[Unpack[_Ts]]):
@@ -1043,10 +1011,7 @@ class FromStatement(GroupedElement, Generative, TypedReturnsRows[Unpack[_Ts]]):
             :ref:`queryguide_inspection` - ORM background
 
         """
-        meth = cast(
-            _ORMSelectCompileState, SelectState.get_plugin_class(self)
-        ).get_column_descriptions
-        return meth(self)
+        pass
 
     def _ensure_disambiguated_names(self):
         return self
@@ -1059,19 +1024,19 @@ class FromStatement(GroupedElement, Generative, TypedReturnsRows[Unpack[_Ts]]):
 
     @property
     def _all_selected_columns(self):
-        return self.element._all_selected_columns
+        pass
 
     @property
     def _return_defaults(self):
-        return self.element._return_defaults if is_dml(self.element) else None
+        pass
 
     @property
     def _returning(self):
-        return self.element._returning if is_dml(self.element) else None
+        pass
 
     @property
     def _inline(self):
-        return self.element._inline if is_insert_update(self.element) else None
+        pass
 
 
 @sql.base.CompileState.plugin_for("orm", "compound_select")
@@ -1264,16 +1229,7 @@ class _ORMSelectCompileState(_ORMCompileState, SelectState):
         return self
 
     def _dump_option_struct(self):
-        print("\n---------------------------------------------------\n")
-        print(f"current path: {self.current_path}")
-        for key in self.attributes:
-            if isinstance(key, tuple) and key[0] == "loader":
-                print(f"\nLoader:           {PathRegistry.coerce(key[1])}")
-                print(f"    {self.attributes[key]}")
-                print(f"    {self.attributes[key].__dict__}")
-            elif isinstance(key, tuple) and key[0] == "path_with_polymorphic":
-                print(f"\nWith Polymorphic: {PathRegistry.coerce(key[1])}")
-                print(f"    {self.attributes[key]}")
+        pass
 
     def _setup_for_generate(self):
         query = self.select_statement
@@ -1469,87 +1425,19 @@ class _ORMSelectCompileState(_ORMCompileState, SelectState):
 
         .. versionadded:: 2.1
         """
-
-        def _setup_join_targets(collection):
-            for (target, *_) in collection:
-                if isinstance(target, attributes.QueryableAttribute):
-                    yield target.entity
-                elif "_no_filter_by" not in target._annotations:
-                    yield target
-
-        entities = set(_setup_join_targets(statement._setup_joins))
-
-        for memoized in statement._memoized_select_entities:
-            entities.update(_setup_join_targets(memoized._setup_joins))
-
-        entities.update(
-            (
-                from_obj._annotations["parententity"]
-                if "parententity" in from_obj._annotations
-                else from_obj
-            )
-            for from_obj in statement._from_obj
-            if "_no_filter_by" not in from_obj._annotations
-        )
-
-        for element in statement._raw_columns:
-            if "entity_namespace" in element._annotations:
-                ens = element._annotations["entity_namespace"]
-                entities.add(ens)
-            elif "_no_filter_by" not in element._annotations:
-                entities.update(element._from_objects)
-
-        return entities
+        pass
 
     @classmethod
     def all_selected_columns(cls, statement):
-        for element in statement._raw_columns:
-            if (
-                element.is_selectable
-                and "entity_namespace" in element._annotations
-            ):
-                ens = element._annotations["entity_namespace"]
-                if not ens.is_mapper and not ens.is_aliased_class:
-                    yield from _select_iterables([element])
-                else:
-                    yield from _select_iterables(ens._all_column_expressions)
-            else:
-                yield from _select_iterables([element])
+        pass
 
     @classmethod
     def get_columns_clause_froms(cls, statement):
-        return cls._normalize_froms(
-            itertools.chain.from_iterable(
-                (
-                    element._from_objects
-                    if "parententity" not in element._annotations
-                    else [
-                        element._annotations[
-                            "parententity"
-                        ].__clause_element__()
-                    ]
-                )
-                for element in statement._raw_columns
-            )
-        )
+        pass
 
     @classmethod
     def from_statement(cls, statement, from_statement):
-        from_statement = coercions.expect(
-            roles.ReturnsRowsRole,
-            from_statement,
-            apply_propagate_attrs=statement,
-        )
-
-        stmt = FromStatement(statement._raw_columns, from_statement)
-
-        stmt.__dict__.update(
-            _with_options=statement._with_options,
-            _compile_state_funcs=statement._compile_state_funcs,
-            _execution_options=statement._execution_options,
-            _propagate_attrs=statement._propagate_attrs,
-        )
-        return stmt
+        pass
 
     def _set_select_from_alias(self):
         """used only for legacy Query cases"""
@@ -1600,15 +1488,7 @@ class _ORMSelectCompileState(_ORMCompileState, SelectState):
         """Return the 'entity' (mapper or AliasedClass) associated
         with the first QueryEntity, or alternatively the 'select from'
         entity if specified."""
-
-        for ent in self.from_clauses:
-            if "parententity" in ent._annotations:
-                return ent._annotations["parententity"]
-        for qent in self._entities:
-            if qent.entity_zero:
-                return qent.entity_zero
-
-        return None
+        pass
 
     def _only_full_mapper_zero(self, methname):
         if self._entities != [self._primary_entity]:
@@ -1619,13 +1499,7 @@ class _ORMSelectCompileState(_ORMCompileState, SelectState):
         return self._primary_entity.entity_zero
 
     def _only_entity_zero(self, rationale=None):
-        if len(self._entities) > 1:
-            raise sa_exc.InvalidRequestError(
-                rationale
-                or "This operation requires a Query "
-                "against a single mapper."
-            )
-        return self._entity_zero()
+        pass
 
     def _all_equivs(self):
         equivs = {}
@@ -1837,22 +1711,7 @@ class _ORMSelectCompileState(_ORMCompileState, SelectState):
         return statement
 
     def _adapt_polymorphic_element(self, element):
-        if "parententity" in element._annotations:
-            search = element._annotations["parententity"]
-            alias = self._polymorphic_adapters.get(search, None)
-            if alias:
-                return alias.adapt_clause(element)
-
-        if isinstance(element, expression.FromClause):
-            search = element
-        elif hasattr(element, "table"):
-            search = element.table
-        else:
-            return None
-
-        alias = self._polymorphic_adapters.get(search, None)
-        if alias:
-            return alias.adapt_clause(element)
+        pass
 
     def _adapt_col_list(self, cols, current_adapter):
         if current_adapter:
@@ -2459,45 +2318,11 @@ class _ORMSelectCompileState(_ORMCompileState, SelectState):
 
     @property
     def _select_args(self):
-        return {
-            "limit_clause": self.select_statement._limit_clause,
-            "offset_clause": self.select_statement._offset_clause,
-            "distinct": self.distinct,
-            "distinct_on": self.distinct_on,
-            "prefixes": self.select_statement._prefixes,
-            "suffixes": self.select_statement._suffixes,
-            "group_by": self.group_by or None,
-            "fetch_clause": self.select_statement._fetch_clause,
-            "fetch_clause_options": (
-                self.select_statement._fetch_clause_options
-            ),
-            "independent_ctes": self.select_statement._independent_ctes,
-            "independent_ctes_opts": (
-                self.select_statement._independent_ctes_opts
-            ),
-            "syntax_extensions": self.syntax_extensions,
-        }
+        pass
 
     @property
     def _should_nest_selectable(self):
-        kwargs = self._select_args
-
-        if not self.eager_adding_joins:
-            return False
-
-        return (
-            (
-                kwargs.get("limit_clause") is not None
-                and self.multi_row_eager_loaders
-            )
-            or (
-                kwargs.get("offset_clause") is not None
-                and self.multi_row_eager_loaders
-            )
-            or kwargs.get("distinct", False)
-            or kwargs.get("distinct_on", ())
-            or kwargs.get("group_by", False)
-        )
+        pass
 
     def _get_extra_criteria(self, ext_info):
         if (
@@ -2875,11 +2700,11 @@ class _MapperEntity(_QueryEntity):
 
     @property
     def type(self):
-        return self.mapper.class_
+        pass
 
     @property
     def entity_zero_or_selectable(self):
-        return self.entity_zero
+        pass
 
     def corresponds_to(self, entity):
         return _entity_corresponds_to(self.entity_zero, entity)
@@ -2939,17 +2764,7 @@ class _MapperEntity(_QueryEntity):
         compile_state: _ORMCompileState,
         adapter: Optional[_DMLReturningColFilter],
     ) -> None:
-        loading._setup_entity_query(
-            compile_state,
-            self.mapper,
-            self,
-            self.path,
-            adapter,
-            compile_state.primary_columns,
-            with_polymorphic=self._with_polymorphic_mappers,
-            only_load_props=compile_state.compile_options._only_load_props,
-            polymorphic_discriminator=self._polymorphic_discriminator,
-        )
+        pass
 
     def setup_compile_state(self, compile_state):
         adapter = self._get_entity_clauses(compile_state)
@@ -3068,12 +2883,7 @@ class _BundleEntity(_QueryEntity):
 
     @property
     def entity_zero(self):
-        for ent in self._entities:
-            ezero = ent.entity_zero
-            if ezero is not None:
-                return ezero
-        else:
-            return None
+        pass
 
     def corresponds_to(self, entity):
         # TODO: we might be able to implement this but for now
@@ -3082,12 +2892,7 @@ class _BundleEntity(_QueryEntity):
 
     @property
     def entity_zero_or_selectable(self):
-        for ent in self._entities:
-            ezero = ent.entity_zero_or_selectable
-            if ezero is not None:
-                return ezero
-        else:
-            return None
+        pass
 
     def setup_compile_state(self, compile_state):
         for ent in self._entities:
@@ -3098,7 +2903,7 @@ class _BundleEntity(_QueryEntity):
         compile_state: _ORMCompileState,
         adapter: Optional[_DMLReturningColFilter],
     ) -> None:
-        return self.setup_compile_state(compile_state)
+        pass
 
     def row_processor(self, context, result):
         procs, labels, extra = zip(
@@ -3170,15 +2975,15 @@ class _ColumnEntity(_QueryEntity):
 
     @property
     def type(self):
-        return self.column.type
+        pass
 
     @property
     def _non_hashable_value(self):
-        return not self.column.type.hashable
+        pass
 
     @property
     def _null_column_type(self):
-        return self.column.type._isnull
+        pass
 
     def row_processor(self, context, result):
         compile_state = context.compile_state
@@ -3288,7 +3093,7 @@ class _RawColumnEntity(_ColumnEntity):
         compile_state: _ORMCompileState,
         adapter: Optional[_DMLReturningColFilter],
     ) -> None:
-        return self.setup_compile_state(compile_state)
+        pass
 
     def setup_compile_state(self, compile_state):
         current_adapter = compile_state._get_current_adapter()
@@ -3406,13 +3211,7 @@ class _ORMColumnEntity(_ColumnEntity):
         adapter: Optional[_DMLReturningColFilter],
     ) -> None:
 
-        self._fetch_column = column = self.column
-        if adapter:
-            column = adapter(column, False)
-
-        if column is not None:
-            compile_state.dedupe_columns.add(column)
-            compile_state.primary_columns.append(column)
+        pass
 
     def setup_compile_state(self, compile_state):
         current_adapter = compile_state._get_current_adapter()

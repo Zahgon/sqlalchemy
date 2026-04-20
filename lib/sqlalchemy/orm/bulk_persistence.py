@@ -408,154 +408,27 @@ class _ORMDMLState(_AbstractORMCompileState):
     def _get_orm_crud_kv_pairs(
         cls, mapper, statement, kv_iterator, needs_to_be_cacheable
     ):
-        core_get_crud_kv_pairs = UpdateDMLState._get_crud_kv_pairs
-
-        for k, v in kv_iterator:
-            k = coercions.expect(roles.DMLColumnRole, k)
-
-            if isinstance(k, str):
-                desc = _entity_namespace_key(mapper, k, default=NO_VALUE)
-                if not isinstance(desc, PropComparator):
-                    yield (
-                        coercions.expect(roles.DMLColumnRole, k),
-                        (
-                            coercions.expect(
-                                roles.ExpressionElementRole,
-                                v,
-                                type_=sqltypes.NullType(),
-                                is_crud=True,
-                            )
-                            if needs_to_be_cacheable
-                            else v
-                        ),
-                    )
-                else:
-                    yield from core_get_crud_kv_pairs(
-                        statement,
-                        desc._bulk_update_tuples(v),
-                        needs_to_be_cacheable,
-                    )
-            elif "entity_namespace" in k._annotations:
-                k_anno = k._annotations
-                attr = _entity_namespace_key(
-                    k_anno["entity_namespace"], k_anno["proxy_key"]
-                )
-                assert isinstance(attr, PropComparator)
-                yield from core_get_crud_kv_pairs(
-                    statement,
-                    attr._bulk_update_tuples(v),
-                    needs_to_be_cacheable,
-                )
-            else:
-                yield (
-                    k,
-                    (
-                        v
-                        if not needs_to_be_cacheable
-                        else coercions.expect(
-                            roles.ExpressionElementRole,
-                            v,
-                            type_=sqltypes.NullType(),
-                            is_crud=True,
-                        )
-                    ),
-                )
+        pass
 
     @classmethod
     def _get_dml_plugin_subject(cls, statement):
-        plugin_subject = statement.table._propagate_attrs.get("plugin_subject")
-
-        if (
-            not plugin_subject
-            or not plugin_subject.mapper
-            or plugin_subject
-            is not statement._propagate_attrs["plugin_subject"]
-        ):
-            return None
-        return plugin_subject
+        pass
 
     @classmethod
     def _get_multi_crud_kv_pairs(cls, statement, kv_iterator):
-        plugin_subject = cls._get_dml_plugin_subject(statement)
-
-        if not plugin_subject:
-            return UpdateDMLState._get_multi_crud_kv_pairs(
-                statement, kv_iterator
-            )
-
-        return [
-            dict(
-                cls._get_orm_crud_kv_pairs(
-                    plugin_subject.mapper, statement, value_dict.items(), False
-                )
-            )
-            for value_dict in kv_iterator
-        ]
+        pass
 
     @classmethod
     def _get_crud_kv_pairs(cls, statement, kv_iterator, needs_to_be_cacheable):
-        assert (
-            needs_to_be_cacheable
-        ), "no test coverage for needs_to_be_cacheable=False"
-
-        plugin_subject = cls._get_dml_plugin_subject(statement)
-
-        if not plugin_subject:
-            return UpdateDMLState._get_crud_kv_pairs(
-                statement, kv_iterator, needs_to_be_cacheable
-            )
-        return list(
-            cls._get_orm_crud_kv_pairs(
-                plugin_subject.mapper,
-                statement,
-                kv_iterator,
-                needs_to_be_cacheable,
-            )
-        )
+        pass
 
     @classmethod
     def get_entity_description(cls, statement):
-        ext_info = statement.table._annotations["parententity"]
-        mapper = ext_info.mapper
-        if ext_info.is_aliased_class:
-            _label_name = ext_info.name
-        else:
-            _label_name = mapper.class_.__name__
-
-        return {
-            "name": _label_name,
-            "type": mapper.class_,
-            "expr": ext_info.entity,
-            "entity": ext_info.entity,
-            "table": mapper.local_table,
-        }
+        pass
 
     @classmethod
     def get_returning_column_descriptions(cls, statement):
-        def _ent_for_col(c):
-            return c._annotations.get("parententity", None)
-
-        def _attr_for_col(c, ent):
-            if ent is None:
-                return c
-            proxy_key = c._annotations.get("proxy_key", None)
-            if not proxy_key:
-                return c
-            else:
-                return getattr(ent.entity, proxy_key, c)
-
-        return [
-            {
-                "name": c.key,
-                "type": c.type,
-                "expr": _attr_for_col(c, ent),
-                "aliased": ent.is_aliased_class,
-                "entity": ent.entity,
-            }
-            for c, ent in [
-                (c, _ent_for_col(c)) for c in statement._all_selected_columns
-            ]
-        ]
+        pass
 
     def _setup_orm_returning(
         self,
@@ -576,55 +449,7 @@ class _ORMDMLState(_AbstractORMCompileState):
         state that we first established here.
 
         """
-
-        if orm_level_statement._returning:
-            fs = FromStatement(
-                orm_level_statement._returning,
-                dml_level_statement,
-                _adapt_on_names=False,
-            )
-            fs = fs.execution_options(**orm_level_statement._execution_options)
-            fs = fs.options(*orm_level_statement._with_options)
-            self.select_statement = fs
-            self.from_statement_ctx = fsc = (
-                _ORMFromStatementCompileState.create_for_statement(
-                    fs, compiler
-                )
-            )
-            fsc.setup_dml_returning_compile_state(dml_mapper)
-
-            dml_level_statement = dml_level_statement._generate()
-            dml_level_statement._returning = ()
-
-            cols_to_return = [c for c in fsc.primary_columns if c is not None]
-
-            # since we are splicing result sets together, make sure there
-            # are columns of some kind returned in each result set
-            if not cols_to_return:
-                cols_to_return.extend(dml_mapper.primary_key)
-
-            if use_supplemental_cols:
-                dml_level_statement = dml_level_statement.return_defaults(
-                    # this is a little weird looking, but by passing
-                    # primary key as the main list of cols, this tells
-                    # return_defaults to omit server-default cols (and
-                    # actually all cols, due to some weird thing we should
-                    # clean up in crud.py).
-                    # Since we have cols_to_return, just return what we asked
-                    # for (plus primary key, which ORM persistence needs since
-                    # we likely set bookkeeping=True here, which is another
-                    # whole thing...).   We dont want to clutter the
-                    # statement up with lots of other cols the user didn't
-                    # ask for.  see #9685
-                    *dml_mapper.primary_key,
-                    supplemental_cols=cols_to_return,
-                )
-            else:
-                dml_level_statement = dml_level_statement.returning(
-                    *cols_to_return
-                )
-
-        return dml_level_statement
+        pass
 
     @classmethod
     def _return_orm_returning(
@@ -1351,47 +1176,14 @@ class _BulkORMInsert(_ORMDMLState, InsertDMLState):
 
     @classmethod
     def create_for_statement(cls, statement, compiler, **kw) -> _BulkORMInsert:
-        self = cast(
-            _BulkORMInsert,
-            super().create_for_statement(statement, compiler, **kw),
-        )
-
-        if compiler is not None:
-            toplevel = not compiler.stack
-        else:
-            toplevel = True
-        if not toplevel:
-            return self
-
-        mapper = statement._propagate_attrs["plugin_subject"]
-        dml_strategy = statement._annotations.get("dml_strategy", "raw")
-        if dml_strategy == "bulk":
-            self._setup_for_bulk_insert(compiler)
-        elif dml_strategy == "orm":
-            self._setup_for_orm_insert(compiler, mapper)
-
-        return self
+        pass
 
     @classmethod
     def _resolved_keys_as_col_keys(cls, mapper, resolved_value_dict):
-        return {
-            col.key if col is not None else k: v
-            for col, k, v in (
-                (mapper.c.get(k), k, v) for k, v in resolved_value_dict.items()
-            )
-        }
+        pass
 
     def _setup_for_orm_insert(self, compiler, mapper):
-        statement = orm_level_statement = cast(dml.Insert, self.statement)
-
-        statement = self._setup_orm_returning(
-            compiler,
-            orm_level_statement,
-            statement,
-            dml_mapper=mapper,
-            use_supplemental_cols=False,
-        )
-        self.statement = statement
+        pass
 
     def _setup_for_bulk_insert(self, compiler):
         """establish an INSERT statement within the context of
@@ -1401,165 +1193,17 @@ class _BulkORMInsert(_ORMDMLState, InsertDMLState):
         by persistence._emit_insert_statement().
 
         """
-        statement = orm_level_statement = cast(dml.Insert, self.statement)
-        an = statement._annotations
-
-        emit_insert_table, emit_insert_mapper = (
-            an["_emit_insert_table"],
-            an["_emit_insert_mapper"],
-        )
-
-        statement = statement._clone()
-
-        statement.table = emit_insert_table
-        if self._dict_parameters:
-            self._dict_parameters = {
-                col: val
-                for col, val in self._dict_parameters.items()
-                if col.table is emit_insert_table
-            }
-
-        statement = self._setup_orm_returning(
-            compiler,
-            orm_level_statement,
-            statement,
-            dml_mapper=emit_insert_mapper,
-            use_supplemental_cols=True,
-        )
-
-        if (
-            self.from_statement_ctx is not None
-            and self.from_statement_ctx.compile_options._is_star
-        ):
-            raise sa_exc.CompileError(
-                "Can't use RETURNING * with bulk ORM INSERT.  "
-                "Please use a different INSERT form, such as INSERT..VALUES "
-                "or INSERT with a Core Connection"
-            )
-
-        self.statement = statement
+        pass
 
 
 @CompileState.plugin_for("orm", "update")
 class _BulkORMUpdate(_BulkUDCompileState, UpdateDMLState):
     @classmethod
     def create_for_statement(cls, statement, compiler, **kw):
-        self = cls.__new__(cls)
-
-        dml_strategy = statement._annotations.get(
-            "dml_strategy", "unspecified"
-        )
-
-        toplevel = not compiler.stack
-
-        if toplevel and dml_strategy == "bulk":
-            self._setup_for_bulk_update(statement, compiler)
-        elif (
-            dml_strategy == "core_only"
-            or dml_strategy == "unspecified"
-            and "parententity" not in statement.table._annotations
-        ):
-            UpdateDMLState.__init__(self, statement, compiler, **kw)
-        elif not toplevel or dml_strategy in ("orm", "unspecified"):
-            self._setup_for_orm_update(statement, compiler)
-
-        return self
+        pass
 
     def _setup_for_orm_update(self, statement, compiler, **kw):
-        orm_level_statement = statement
-
-        toplevel = not compiler.stack
-
-        ext_info = statement.table._annotations["parententity"]
-
-        self.mapper = mapper = ext_info.mapper
-
-        self._resolved_values = self._get_resolved_values(mapper, statement)
-
-        self._init_global_attributes(
-            statement,
-            compiler,
-            toplevel=toplevel,
-            process_criteria_for_toplevel=toplevel,
-        )
-
-        if statement._values:
-            self._resolved_values = dict(self._resolved_values)
-
-        new_stmt = statement._clone()
-
-        if new_stmt.table._annotations["parententity"] is mapper:
-            new_stmt.table = mapper.local_table
-
-        # note if the statement has _multi_values, these
-        # are passed through to the new statement, which will then raise
-        # InvalidRequestError because UPDATE doesn't support multi_values
-        # right now.
-        if statement._values:
-            new_stmt._values = self._resolved_values
-
-        new_crit = self._adjust_for_extra_criteria(
-            self.global_attributes, mapper
-        )
-        if new_crit:
-            new_stmt = new_stmt.where(*new_crit)
-
-        # if we are against a lambda statement we might not be the
-        # topmost object that received per-execute annotations
-
-        # do this first as we need to determine if there is
-        # UPDATE..FROM
-
-        UpdateDMLState.__init__(self, new_stmt, compiler, **kw)
-
-        use_supplemental_cols = False
-
-        if not toplevel:
-            synchronize_session = None
-        else:
-            synchronize_session = compiler._annotations.get(
-                "synchronize_session", None
-            )
-        can_use_returning = compiler._annotations.get(
-            "can_use_returning", None
-        )
-        if can_use_returning is not False:
-            # even though pre_exec has determined basic
-            # can_use_returning for the dialect, if we are to use
-            # RETURNING we need to run can_use_returning() at this level
-            # unconditionally because is_delete_using was not known
-            # at the pre_exec level
-            can_use_returning = (
-                synchronize_session == "fetch"
-                and self.can_use_returning(
-                    compiler.dialect, mapper, is_multitable=self.is_multitable
-                )
-            )
-
-        if synchronize_session == "fetch" and can_use_returning:
-            use_supplemental_cols = True
-
-            # NOTE: we might want to RETURNING the actual columns to be
-            # synchronized also.  however this is complicated and difficult
-            # to align against the behavior of "evaluate".  Additionally,
-            # in a large number (if not the majority) of cases, we have the
-            # "evaluate" answer, usually a fixed value, in memory already and
-            # there's no need to re-fetch the same value
-            # over and over again.   so perhaps if it could be RETURNING just
-            # the elements that were based on a SQL expression and not
-            # a constant.   For now it doesn't quite seem worth it
-            new_stmt = new_stmt.return_defaults(*new_stmt.table.primary_key)
-
-        if toplevel:
-            new_stmt = self._setup_orm_returning(
-                compiler,
-                orm_level_statement,
-                new_stmt,
-                dml_mapper=mapper,
-                use_supplemental_cols=use_supplemental_cols,
-            )
-
-        self.statement = new_stmt
+        pass
 
     def _setup_for_bulk_update(self, statement, compiler, **kw):
         """establish an UPDATE statement within the context of
@@ -1569,33 +1213,7 @@ class _BulkORMUpdate(_BulkUDCompileState, UpdateDMLState):
         by persistence._emit_update_statement().
 
         """
-        statement = cast(dml.Update, statement)
-        an = statement._annotations
-
-        emit_update_table, _ = (
-            an["_emit_update_table"],
-            an["_emit_update_mapper"],
-        )
-
-        statement = statement._clone()
-        statement.table = emit_update_table
-
-        UpdateDMLState.__init__(self, statement, compiler, **kw)
-
-        if self._maintain_values_ordering:
-            raise sa_exc.InvalidRequestError(
-                "bulk ORM UPDATE does not support ordered_values() for "
-                "custom UPDATE statements with bulk parameter sets.  Use a "
-                "non-bulk UPDATE statement or use values()."
-            )
-
-        if self._dict_parameters:
-            self._dict_parameters = {
-                col: val
-                for col, val in self._dict_parameters.items()
-                if col.table is emit_update_table
-            }
-        self.statement = statement
+        pass
 
     @classmethod
     def orm_execute_statement(
@@ -1929,95 +1547,7 @@ class _BulkORMUpdate(_BulkUDCompileState, UpdateDMLState):
 class _BulkORMDelete(_BulkUDCompileState, DeleteDMLState):
     @classmethod
     def create_for_statement(cls, statement, compiler, **kw):
-        self = cls.__new__(cls)
-
-        dml_strategy = statement._annotations.get(
-            "dml_strategy", "unspecified"
-        )
-
-        if (
-            dml_strategy == "core_only"
-            or dml_strategy == "unspecified"
-            and "parententity" not in statement.table._annotations
-        ):
-            DeleteDMLState.__init__(self, statement, compiler, **kw)
-            return self
-
-        toplevel = not compiler.stack
-
-        orm_level_statement = statement
-
-        ext_info = statement.table._annotations["parententity"]
-        self.mapper = mapper = ext_info.mapper
-
-        self._init_global_attributes(
-            statement,
-            compiler,
-            toplevel=toplevel,
-            process_criteria_for_toplevel=toplevel,
-        )
-
-        new_stmt = statement._clone()
-
-        if new_stmt.table._annotations["parententity"] is mapper:
-            new_stmt.table = mapper.local_table
-
-        new_crit = cls._adjust_for_extra_criteria(
-            self.global_attributes, mapper
-        )
-        if new_crit:
-            new_stmt = new_stmt.where(*new_crit)
-
-        # do this first as we need to determine if there is
-        # DELETE..FROM
-        DeleteDMLState.__init__(self, new_stmt, compiler, **kw)
-
-        use_supplemental_cols = False
-
-        if not toplevel:
-            synchronize_session = None
-        else:
-            synchronize_session = compiler._annotations.get(
-                "synchronize_session", None
-            )
-        can_use_returning = compiler._annotations.get(
-            "can_use_returning", None
-        )
-        if can_use_returning is not False:
-            # even though pre_exec has determined basic
-            # can_use_returning for the dialect, if we are to use
-            # RETURNING we need to run can_use_returning() at this level
-            # unconditionally because is_delete_using was not known
-            # at the pre_exec level
-            can_use_returning = (
-                synchronize_session == "fetch"
-                and self.can_use_returning(
-                    compiler.dialect,
-                    mapper,
-                    is_multitable=self.is_multitable,
-                    is_delete_using=compiler._annotations.get(
-                        "is_delete_using", False
-                    ),
-                )
-            )
-
-        if can_use_returning:
-            use_supplemental_cols = True
-
-            new_stmt = new_stmt.return_defaults(*new_stmt.table.primary_key)
-
-        if toplevel:
-            new_stmt = self._setup_orm_returning(
-                compiler,
-                orm_level_statement,
-                new_stmt,
-                dml_mapper=mapper,
-                use_supplemental_cols=use_supplemental_cols,
-            )
-
-        self.statement = new_stmt
-
-        return self
+        pass
 
     @classmethod
     def orm_execute_statement(

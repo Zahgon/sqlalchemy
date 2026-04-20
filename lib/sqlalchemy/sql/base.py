@@ -150,20 +150,7 @@ class _DefaultDescriptionTuple(NamedTuple):
     def _from_column_default(
         cls, default: Optional[DefaultGenerator]
     ) -> _DefaultDescriptionTuple:
-        return (
-            _DefaultDescriptionTuple(
-                default.arg,  # type: ignore
-                default.is_scalar,
-                default.is_callable,
-                default.is_sentinel,
-            )
-            if default
-            and (
-                default.has_arg
-                or (not default.for_update and default.is_sentinel)
-            )
-            else _DefaultDescriptionTuple(None, None, None, None)
-        )
+        pass
 
 
 _never_select_column: operator.attrgetter[Any] = operator.attrgetter(
@@ -471,10 +458,7 @@ class _DialectArgDict(MutableMapping[str, Any]):
 
 @util.preload_module("sqlalchemy.dialects")
 def _kw_reg_for_dialect(dialect_name: str) -> Optional[Dict[Any, Any]]:
-    dialect_cls = util.preloaded.dialects.registry.load(dialect_name)
-    if dialect_cls.construct_arguments is None:
-        return None
-    return dict(dialect_cls.construct_arguments)
+    pass
 
 
 class DialectKWArgs:
@@ -520,54 +504,7 @@ class DialectKWArgs:
          dialect, a deprecation warning will be emitted.
 
         """
-
-        registry = DialectKWArgs._kw_registry[dialect.name]
-        if registry is None:
-            return else_
-
-        if argument_name in registry.get(self.__class__, {}):
-            if (
-                deprecated_fallback is None
-                or dialect.name == deprecated_fallback
-            ):
-                return self.dialect_options[dialect.name][argument_name]
-
-            # deprecated_fallback is present; need to look in two places
-
-            # Current dialect has this option registered.
-            # Check if user explicitly set it.
-            if (
-                dialect.name in self.dialect_options
-                and argument_name
-                in self.dialect_options[dialect.name]._non_defaults
-            ):
-                # User explicitly set this dialect's option - use it
-                return self.dialect_options[dialect.name][argument_name]
-
-            # User didn't set current dialect's option.
-            # Check for deprecated fallback.
-            elif (
-                deprecated_fallback in self.dialect_options
-                and argument_name
-                in self.dialect_options[deprecated_fallback]._non_defaults
-            ):
-                # User set fallback option but not current dialect's option
-                warn_deprecated(
-                    f"Using '{deprecated_fallback}_{argument_name}' "
-                    f"with the '{dialect.name}' dialect is deprecated; "
-                    f"please additionally specify "
-                    f"'{dialect.name}_{argument_name}'.",
-                    version="2.1",
-                )
-                return self.dialect_options[deprecated_fallback][argument_name]
-
-            # Return default value
-            return self.dialect_options[dialect.name][argument_name]
-        else:
-            # Current dialect doesn't have the option registered at all.
-            # Don't warn - if a third-party dialect doesn't support an
-            # option, that's their choice, not a deprecation case.
-            return else_
+        pass
 
     @classmethod
     def argument_for(
@@ -608,18 +545,7 @@ class DialectKWArgs:
         :param default: default value of the parameter.
 
         """
-
-        construct_arg_dictionary: Optional[Dict[Any, Any]] = (
-            DialectKWArgs._kw_registry[dialect_name]
-        )
-        if construct_arg_dictionary is None:
-            raise exc.ArgumentError(
-                "Dialect '%s' does have keyword-argument "
-                "validation and defaults enabled configured" % dialect_name
-            )
-        if cls not in construct_arg_dictionary:
-            construct_arg_dictionary[cls] = {}
-        construct_arg_dictionary[cls][argument_name] = default
+        pass
 
     @property
     def dialect_kwargs(self) -> _DialectArgView:
@@ -640,12 +566,12 @@ class DialectKWArgs:
             :attr:`.DialectKWArgs.dialect_options` - nested dictionary form
 
         """
-        return _DialectArgView(self)
+        pass
 
     @property
     def kwargs(self) -> _DialectArgView:
         """A synonym for :attr:`.DialectKWArgs.dialect_kwargs`."""
-        return self.dialect_kwargs
+        pass
 
     _kw_registry: util.PopulateDict[str, Optional[Dict[Any, Any]]] = (
         util.PopulateDict(_kw_reg_for_dialect)
@@ -653,16 +579,7 @@ class DialectKWArgs:
 
     @classmethod
     def _kw_reg_for_dialect_cls(cls, dialect_name: str) -> _DialectArgDict:
-        construct_arg_dictionary = DialectKWArgs._kw_registry[dialect_name]
-        d = _DialectArgDict()
-
-        if construct_arg_dictionary is None:
-            d._defaults.update({"*": None})
-        else:
-            for cls in reversed(cls.__mro__):
-                if cls in construct_arg_dictionary:
-                    d._defaults.update(construct_arg_dictionary[cls])
-        return d
+        pass
 
     @util.memoized_property
     def dialect_options(self) -> util.PopulateDict[str, _DialectArgDict]:
@@ -682,8 +599,7 @@ class DialectKWArgs:
             :attr:`.DialectKWArgs.dialect_kwargs` - flat dictionary form
 
         """
-
-        return util.PopulateDict(self._kw_reg_for_dialect_cls)
+        pass
 
     def _validate_dialect_kwargs(self, kwargs: Dict[str, Any]) -> None:
         # validate remaining kwargs that they all specify DB prefixes
@@ -764,27 +680,7 @@ class CompileState:
     ) -> CompileState:
         # factory construction.
 
-        if statement._propagate_attrs:
-            plugin_name = statement._propagate_attrs.get(
-                "compile_state_plugin", "default"
-            )
-            klass = cls.plugins.get(
-                (plugin_name, statement._effective_plugin_target), None
-            )
-            if klass is None:
-                klass = cls.plugins[
-                    ("default", statement._effective_plugin_target)
-                ]
-
-        else:
-            klass = cls.plugins[
-                ("default", statement._effective_plugin_target)
-            ]
-
-        if klass is cls:
-            return cls(statement, compiler, **kw)
-        else:
-            return klass.create_for_statement(statement, compiler, **kw)
+        pass
 
     def __init__(self, statement, compiler, **kw):
         self.statement = statement
@@ -966,15 +862,15 @@ class Options(metaclass=_MetaOptions):
 
     @classmethod
     def isinstance(cls, klass: Type[Any]) -> bool:
-        return issubclass(cls, klass)
+        pass
 
     @hybridmethod
     def add_to_element(self, name: str, value: str) -> Any:
-        return self + {name: getattr(self, name) + value}
+        pass
 
     @hybridmethod
     def _state_dict_inst(self) -> Mapping[str, Any]:
-        return self.__dict__
+        pass
 
     _state_dict_const: util.immutabledict[str, Any] = util.EMPTY_DICT
 
@@ -1077,7 +973,7 @@ class CacheableOptions(Options, HasCacheKey):
     def _gen_cache_key_inst(
         self, anon_map: Any, bindparams: List[BindParameter[Any]]
     ) -> Optional[Tuple[Any]]:
-        return HasCacheKey._gen_cache_key(self, anon_map, bindparams)
+        pass
 
     @_gen_cache_key_inst.classlevel
     def _gen_cache_key(
@@ -1248,8 +1144,7 @@ class HasSyntaxExtensions(Generic[_L]):
         return res
 
     def _set_syntax_extensions(self, **extensions: SyntaxExtension) -> None:
-        for name, value in extensions.items():
-            setattr(self, self._position_map[name], value)  # type: ignore[index]  # noqa: E501
+        pass
 
 
 class SyntaxExtension(roles.SyntaxExtensionRole):
@@ -1292,8 +1187,7 @@ class SyntaxExtension(roles.SyntaxExtensionRole):
             in :class:`_dml.Insert`, :class:`_dml.Delete`, :class:`_dml.Update`
 
         """  # noqa: E501
-        cls = type(self)
-        return [*(e for e in existing if not isinstance(e, cls)), self]  # type: ignore[list-item] # noqa: E501
+        pass
 
     def apply_to_select(self, select_stmt: Select[Unpack[_Ts]]) -> None:
         """Apply this :class:`.SyntaxExtension` to a :class:`.Select`"""
@@ -1394,7 +1288,7 @@ class Executable(roles.StatementRole):
 
     @property
     def _effective_plugin_target(self) -> str:
-        return self.__visit_name__
+        pass
 
     @_generative
     def options(self, *options: ExecutableOption) -> Self:
@@ -1435,17 +1329,12 @@ class Executable(roles.StatementRole):
         :param compile_options: appropriate CacheableOptions structure
 
         """
-
-        self._compile_options = compile_options
-        return self
+        pass
 
     @_generative
     def _update_compile_options(self, options: CacheableOptions) -> Self:
         """update the _compile_options with new keys."""
-
-        assert self._compile_options is not None
-        self._compile_options += options
-        return self
+        pass
 
     @_generative
     def _add_compile_state_func(
@@ -1620,7 +1509,7 @@ class Executable(roles.StatementRole):
 
             :meth:`.Executable.execution_options`
         """
-        return self._execution_options
+        pass
 
 
 class ExecutableStatement(Executable):
@@ -1749,7 +1638,7 @@ class _ColumnMetrics(Generic[_COL_co]):
                 pi[eps_col].add(self)
 
     def get_expanded_proxy_set(self) -> FrozenSet[ColumnElement[Any]]:
-        return self.column._expanded_proxy_set
+        pass
 
     def dispose(self, collection: ColumnCollection[_COLKEY, _COL_co]) -> None:
         pi = collection._proxy_index
@@ -1896,7 +1785,7 @@ class ColumnCollection(Generic[_COLKEY, _COL_co]):
 
     @property
     def _all_columns(self) -> List[_COL_co]:
-        return [col for (_, col, _) in self._collection]
+        pass
 
     def keys(self) -> List[_COLKEY]:
         """Return a sequence of string key names for all columns in this

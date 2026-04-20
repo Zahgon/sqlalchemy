@@ -166,18 +166,7 @@ def _key_is_empty(
     object itself.
 
     """
-    if key not in decl_class_registry:
-        return True
-
-    thing = decl_class_registry[key]
-    if isinstance(thing, _MultipleClassMarker):
-        for sub_thing in thing.contents:
-            if test(sub_thing):
-                return False
-        else:
-            raise NotImplementedError("unknown codepath")
-    else:
-        return not test(thing)
+    pass
 
 
 class _ClsRegistryToken:
@@ -293,7 +282,7 @@ class _ModuleMarker(_ClsRegistryToken):
             _registries.discard(self)
 
     def resolve_attr(self, key: str) -> Union[_ModNS, Type[Any]]:
-        return self.mod_ns.__getattr__(key)
+        pass
 
     def get_module(self, name: str) -> _ModuleMarker:
         if name not in self.contents:
@@ -405,9 +394,7 @@ class _GetTable:
 
 
 def _determine_container(key: str, value: Any) -> _GetColumns:
-    if isinstance(value, _MultipleClassMarker):
-        value = value.attempt_get([], key)
-    return _GetColumns(value)
+    pass
 
 
 class _class_resolver:
@@ -445,93 +432,13 @@ class _class_resolver:
         self.tables_only = tables_only
 
     def _access_cls(self, key: str) -> Any:
-        cls = self.cls
-
-        manager = attributes.manager_of_class(cls)
-        decl_base = manager.registry
-        assert decl_base is not None
-        decl_class_registry = decl_base._class_registry
-        metadata = decl_base.metadata
-
-        if self.tables_only:
-            if key in metadata.tables:
-                return metadata.tables[key]
-            elif key in metadata._schemas:
-                return _GetTable(key, getattr(cls, "metadata", metadata))
-
-        if key in decl_class_registry:
-            dt = _determine_container(key, decl_class_registry[key])
-            if self.tables_only:
-                return dt.cls
-            else:
-                return dt
-
-        if not self.tables_only:
-            if key in metadata.tables:
-                return metadata.tables[key]
-            elif key in metadata._schemas:
-                return _GetTable(key, getattr(cls, "metadata", metadata))
-
-        if "_sa_module_registry" in decl_class_registry and key in cast(
-            _ModuleMarker, decl_class_registry["_sa_module_registry"]
-        ):
-            registry = cast(
-                _ModuleMarker, decl_class_registry["_sa_module_registry"]
-            )
-            return registry.resolve_attr(key)
-
-        if self._resolvers:
-            for resolv in self._resolvers:
-                value = resolv(key)
-                if value is not None:
-                    return value
-
-        return self.fallback[key]
+        pass
 
     def _raise_for_name(self, name: str, err: Exception) -> NoReturn:
-        generic_match = re.match(r"(.+)\[(.+)\]", name)
-
-        if generic_match:
-            clsarg = generic_match.group(2).strip("'")
-            raise exc.InvalidRequestError(
-                f"When initializing mapper {self.prop.parent}, "
-                f'expression "relationship({self.arg!r})" seems to be '
-                "using a generic class as the argument to relationship(); "
-                "please state the generic argument "
-                "using an annotation, e.g. "
-                f'"{self.prop.key}: Mapped[{generic_match.group(1)}'
-                f"['{clsarg}']] = relationship()\""
-            ) from err
-        else:
-            raise exc.InvalidRequestError(
-                "When initializing mapper %s, expression %r failed to "
-                "locate a name (%r). If this is a class name, consider "
-                "adding this relationship() to the %r class after "
-                "both dependent classes have been defined."
-                % (self.prop.parent, self.arg, name, self.cls)
-            ) from err
+        pass
 
     def _resolve_name(self) -> Union[Table, Type[Any], _ModNS]:
-        name = self.arg
-        d = self._dict
-        rval = None
-        try:
-            for token in name.split("."):
-                if rval is None:
-                    rval = d[token]
-                else:
-                    rval = getattr(rval, token)
-        except KeyError as err:
-            self._raise_for_name(name, err)
-        except NameError as n:
-            self._raise_for_name(n.args[0], n)
-        else:
-            if isinstance(rval, _GetColumns):
-                return rval.cls
-            else:
-                if TYPE_CHECKING:
-                    assert isinstance(rval, (type, Table, _ModNS))
-                return rval
+        pass
 
     def __call__(self) -> Any:
         if self.tables_only:

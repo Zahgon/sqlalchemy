@@ -1073,16 +1073,7 @@ class _DateTimeMixin:
         TIME_CHAR.
 
         """
-        spec = self._storage_format % {
-            "year": 0,
-            "month": 0,
-            "day": 0,
-            "hour": 0,
-            "minute": 0,
-            "second": 0,
-            "microsecond": 0,
-        }
-        return bool(re.search(r"[^0-9]", spec))
+        pass
 
     def adapt(self, cls, **kw):
         if issubclass(cls, _DateTimeMixin):
@@ -1450,17 +1441,13 @@ class SQLiteCompiler(compiler.SQLCompiler):
     )
 
     def visit_truediv_binary(self, binary, operator, **kw):
-        return (
-            self.process(binary.left, **kw)
-            + " / "
-            + "(%s + 0.0)" % self.process(binary.right, **kw)
-        )
+        pass
 
     def visit_now_func(self, fn, **kw):
-        return "CURRENT_TIMESTAMP"
+        pass
 
     def visit_localtimestamp_func(self, func, **kw):
-        return "DATETIME(CURRENT_TIMESTAMP, 'localtime')"
+        pass
 
     def visit_true(self, expr, **kw):
         return "1"
@@ -1469,29 +1456,16 @@ class SQLiteCompiler(compiler.SQLCompiler):
         return "0"
 
     def visit_char_length_func(self, fn, **kw):
-        return "length%s" % self.function_argspec(fn)
+        pass
 
     def visit_aggregate_strings_func(self, fn, **kw):
-        return super().visit_aggregate_strings_func(
-            fn, use_function_name="group_concat", **kw
-        )
+        pass
 
     def visit_cast(self, cast, **kwargs):
-        if self.dialect.supports_cast:
-            return super().visit_cast(cast, **kwargs)
-        else:
-            return self.process(cast.clause, **kwargs)
+        pass
 
     def visit_extract(self, extract, **kw):
-        try:
-            return "CAST(STRFTIME('%s', %s) AS INTEGER)" % (
-                self.extract_map[extract.field],
-                self.process(extract.expr, **kw),
-            )
-        except KeyError as err:
-            raise exc.CompileError(
-                "%s is not a valid extract argument." % extract.field
-            ) from err
+        pass
 
     def returning_clause(
         self,
@@ -1501,87 +1475,35 @@ class SQLiteCompiler(compiler.SQLCompiler):
         populate_result_map,
         **kw,
     ):
-        kw["include_table"] = False
-        return super().returning_clause(
-            stmt, returning_cols, populate_result_map=populate_result_map, **kw
-        )
+        pass
 
     def limit_clause(self, select, **kw):
-        text = ""
-        if select._limit_clause is not None:
-            text += "\n LIMIT " + self.process(select._limit_clause, **kw)
-        if select._offset_clause is not None:
-            if select._limit_clause is None:
-                text += "\n LIMIT " + self.process(sql.literal(-1))
-            text += " OFFSET " + self.process(select._offset_clause, **kw)
-        else:
-            text += " OFFSET " + self.process(sql.literal(0), **kw)
-        return text
+        pass
 
     def for_update_clause(self, select, **kw):
         # sqlite has no "FOR UPDATE" AFAICT
-        return ""
+        pass
 
     def update_from_clause(
         self, update_stmt, from_table, extra_froms, from_hints, **kw
     ):
-        kw["asfrom"] = True
-        return "FROM " + ", ".join(
-            t._compiler_dispatch(self, fromhints=from_hints, **kw)
-            for t in extra_froms
-        )
+        pass
 
     def visit_is_distinct_from_binary(self, binary, operator, **kw):
-        return "%s IS NOT %s" % (
-            self.process(binary.left),
-            self.process(binary.right),
-        )
+        pass
 
     def visit_is_not_distinct_from_binary(self, binary, operator, **kw):
-        return "%s IS %s" % (
-            self.process(binary.left),
-            self.process(binary.right),
-        )
+        pass
 
     def visit_json_getitem_op_binary(
         self, binary, operator, _cast_applied=False, **kw
     ):
-        if (
-            not _cast_applied
-            and binary.type._type_affinity is not sqltypes.JSON
-        ):
-            kw["_cast_applied"] = True
-            return self.process(sql.cast(binary, binary.type), **kw)
-
-        if binary.type._type_affinity is sqltypes.JSON:
-            expr = "JSON_QUOTE(JSON_EXTRACT(%s, %s))"
-        else:
-            expr = "JSON_EXTRACT(%s, %s)"
-
-        return expr % (
-            self.process(binary.left, **kw),
-            self.process(binary.right, **kw),
-        )
+        pass
 
     def visit_json_path_getitem_op_binary(
         self, binary, operator, _cast_applied=False, **kw
     ):
-        if (
-            not _cast_applied
-            and binary.type._type_affinity is not sqltypes.JSON
-        ):
-            kw["_cast_applied"] = True
-            return self.process(sql.cast(binary, binary.type), **kw)
-
-        if binary.type._type_affinity is sqltypes.JSON:
-            expr = "JSON_QUOTE(JSON_EXTRACT(%s, %s))"
-        else:
-            expr = "JSON_EXTRACT(%s, %s)"
-
-        return expr % (
-            self.process(binary.left, **kw),
-            self.process(binary.right, **kw),
-        )
+        pass
 
     def visit_empty_set_op_expr(self, type_, expand_op, **kw):
         # slightly old SQLite versions don't seem to be able to handle
@@ -1595,361 +1517,82 @@ class SQLiteCompiler(compiler.SQLCompiler):
         )
 
     def visit_regexp_match_op_binary(self, binary, operator, **kw):
-        return self._generate_generic_binary(binary, " REGEXP ", **kw)
+        pass
 
     def visit_not_regexp_match_op_binary(self, binary, operator, **kw):
-        return self._generate_generic_binary(binary, " NOT REGEXP ", **kw)
+        pass
 
     def _on_conflict_target(self, clause, **kw):
-        if clause.inferred_target_elements is not None:
-            target_text = "(%s)" % ", ".join(
-                (
-                    self.preparer.quote(c)
-                    if isinstance(c, str)
-                    else self.process(c, include_table=False, use_schema=False)
-                )
-                for c in clause.inferred_target_elements
-            )
-            if clause.inferred_target_whereclause is not None:
-                whereclause_kw = dict(kw)
-                whereclause_kw.update(
-                    include_table=False,
-                    use_schema=False,
-                    literal_execute=True,
-                )
-                target_text += " WHERE %s" % self.process(
-                    clause.inferred_target_whereclause,
-                    **whereclause_kw,
-                )
-
-        else:
-            target_text = ""
-
-        return target_text
+        pass
 
     def visit_on_conflict_do_nothing(self, on_conflict, **kw):
-        target_text = self._on_conflict_target(on_conflict, **kw)
-
-        if target_text:
-            return "ON CONFLICT %s DO NOTHING" % target_text
-        else:
-            return "ON CONFLICT DO NOTHING"
+        pass
 
     def visit_on_conflict_do_update(self, on_conflict, **kw):
-        clause = on_conflict
-
-        target_text = self._on_conflict_target(on_conflict, **kw)
-
-        action_set_ops = []
-
-        set_parameters = dict(clause.update_values_to_set)
-        # create a list of column assignment clauses as tuples
-
-        insert_statement = self.stack[-1]["selectable"]
-        cols = insert_statement.table.c
-        set_kw = dict(kw)
-        set_kw.update(use_schema=False)
-        for c in cols:
-            col_key = c.key
-
-            if col_key in set_parameters:
-                value = set_parameters.pop(col_key)
-            elif c in set_parameters:
-                value = set_parameters.pop(c)
-            else:
-                continue
-
-            if (
-                isinstance(value, elements.BindParameter)
-                and value.type._isnull
-            ):
-                value = value._with_binary_element_type(c.type)
-
-            value_text = self.process(
-                value.self_group(), is_upsert_set=True, **set_kw
-            )
-
-            key_text = self.preparer.quote(c.name)
-            action_set_ops.append("%s = %s" % (key_text, value_text))
-
-        # check for names that don't match columns
-        if set_parameters:
-            util.warn(
-                "Additional column names not matching "
-                "any column keys in table '%s': %s"
-                % (
-                    self.current_executable.table.name,
-                    (", ".join("'%s'" % c for c in set_parameters)),
-                )
-            )
-            for k, v in set_parameters.items():
-                key_text = (
-                    self.preparer.quote(k)
-                    if isinstance(k, str)
-                    else self.process(k, **set_kw)
-                )
-                value_text = self.process(
-                    coercions.expect(roles.ExpressionElementRole, v),
-                    is_upsert_set=True,
-                    **set_kw,
-                )
-                action_set_ops.append("%s = %s" % (key_text, value_text))
-
-        action_text = ", ".join(action_set_ops)
-        if clause.update_whereclause is not None:
-            where_kw = dict(kw)
-            where_kw.update(include_table=True, use_schema=False)
-            action_text += " WHERE %s" % self.process(
-                clause.update_whereclause, **where_kw
-            )
-
-        return "ON CONFLICT %s DO UPDATE SET %s" % (target_text, action_text)
+        pass
 
     def visit_bitwise_xor_op_binary(self, binary, operator, **kw):
         # sqlite has no xor. Use "a XOR b" = "(a | b) - (a & b)".
-        kw["eager_grouping"] = True
-        or_ = self._generate_generic_binary(binary, " | ", **kw)
-        and_ = self._generate_generic_binary(binary, " & ", **kw)
-        return f"({or_} - {and_})"
+        pass
 
 
 class SQLiteDDLCompiler(compiler.DDLCompiler):
     def get_column_specification(self, column, **kwargs):
-        coltype = self.dialect.type_compiler_instance.process(
-            column.type, type_expression=column
-        )
-        colspec = self.preparer.format_column(column) + " " + coltype
-        default = self.get_column_default_string(column)
-        if default is not None:
-
-            if not re.match(r"""^\s*[\'\"\(]""", default) and re.match(
-                r".*\W.*", default
-            ):
-                colspec += f" DEFAULT ({default})"
-            else:
-                colspec += f" DEFAULT {default}"
-
-        if not column.nullable:
-            colspec += " NOT NULL"
-
-            on_conflict_clause = column.dialect_options["sqlite"][
-                "on_conflict_not_null"
-            ]
-            if on_conflict_clause is not None:
-                colspec += " ON CONFLICT " + on_conflict_clause
-
-        if column.primary_key:
-            if (
-                column.autoincrement is True
-                and len(column.table.primary_key.columns) != 1
-            ):
-                raise exc.CompileError(
-                    "SQLite does not support autoincrement for "
-                    "composite primary keys"
-                )
-
-            if (
-                column.table.dialect_options["sqlite"]["autoincrement"]
-                and len(column.table.primary_key.columns) == 1
-                and issubclass(column.type._type_affinity, sqltypes.Integer)
-                and not column.foreign_keys
-            ):
-                colspec += " PRIMARY KEY"
-
-                on_conflict_clause = column.dialect_options["sqlite"][
-                    "on_conflict_primary_key"
-                ]
-                if on_conflict_clause is not None:
-                    colspec += " ON CONFLICT " + on_conflict_clause
-
-                colspec += " AUTOINCREMENT"
-
-        if column.computed is not None:
-            colspec += " " + self.process(column.computed)
-
-        return colspec
+        pass
 
     def visit_primary_key_constraint(self, constraint, **kw):
         # for columns with sqlite_autoincrement=True,
         # the PRIMARY KEY constraint can only be inline
         # with the column itself.
-        if len(constraint.columns) == 1:
-            c = list(constraint)[0]
-            if (
-                c.primary_key
-                and c.table.dialect_options["sqlite"]["autoincrement"]
-                and issubclass(c.type._type_affinity, sqltypes.Integer)
-                and not c.foreign_keys
-            ):
-                return None
-
-        text = super().visit_primary_key_constraint(constraint)
-
-        on_conflict_clause = constraint.dialect_options["sqlite"][
-            "on_conflict"
-        ]
-        if on_conflict_clause is None and len(constraint.columns) == 1:
-            on_conflict_clause = list(constraint)[0].dialect_options["sqlite"][
-                "on_conflict_primary_key"
-            ]
-
-        if on_conflict_clause is not None:
-            text += " ON CONFLICT " + on_conflict_clause
-
-        return text
+        pass
 
     def visit_unique_constraint(self, constraint, **kw):
-        text = super().visit_unique_constraint(constraint)
-
-        on_conflict_clause = constraint.dialect_options["sqlite"][
-            "on_conflict"
-        ]
-        if on_conflict_clause is None and len(constraint.columns) == 1:
-            col1 = list(constraint)[0]
-            if isinstance(col1, schema.SchemaItem):
-                on_conflict_clause = list(constraint)[0].dialect_options[
-                    "sqlite"
-                ]["on_conflict_unique"]
-
-        if on_conflict_clause is not None:
-            text += " ON CONFLICT " + on_conflict_clause
-
-        return text
+        pass
 
     def visit_check_constraint(self, constraint, **kw):
-        text = super().visit_check_constraint(constraint)
-
-        on_conflict_clause = constraint.dialect_options["sqlite"][
-            "on_conflict"
-        ]
-
-        if on_conflict_clause is not None:
-            text += " ON CONFLICT " + on_conflict_clause
-
-        return text
+        pass
 
     def visit_column_check_constraint(self, constraint, **kw):
-        text = super().visit_column_check_constraint(constraint)
-
-        if constraint.dialect_options["sqlite"]["on_conflict"] is not None:
-            raise exc.CompileError(
-                "SQLite does not support on conflict clause for "
-                "column check constraint"
-            )
-
-        return text
+        pass
 
     def visit_foreign_key_constraint(self, constraint, **kw):
-        local_table = constraint.elements[0].parent.table
-        remote_table = constraint.elements[0].column.table
-
-        if local_table.schema != remote_table.schema:
-            return None
-        else:
-            return super().visit_foreign_key_constraint(constraint)
+        pass
 
     def define_constraint_remote_table(self, constraint, table, preparer):
         """Format the remote table clause of a CREATE CONSTRAINT clause."""
-
-        return preparer.format_table(table, use_schema=False)
+        pass
 
     def visit_create_index(
         self, create, include_schema=False, include_table_schema=True, **kw
     ):
-        index = create.element
-        self._verify_index_table(index)
-        preparer = self.preparer
-        text = "CREATE "
-        if index.unique:
-            text += "UNIQUE "
-
-        text += "INDEX "
-
-        if create.if_not_exists:
-            text += "IF NOT EXISTS "
-
-        text += "%s ON %s (%s)" % (
-            self._prepared_index_name(index, include_schema=True),
-            preparer.format_table(index.table, use_schema=False),
-            ", ".join(
-                self.sql_compiler.process(
-                    expr, include_table=False, literal_binds=True
-                )
-                for expr in index.expressions
-            ),
-        )
-
-        whereclause = index.dialect_options["sqlite"]["where"]
-        if whereclause is not None:
-            where_compiled = self.sql_compiler.process(
-                whereclause, include_table=False, literal_binds=True
-            )
-            text += " WHERE " + where_compiled
-
-        return text
+        pass
 
     def post_create_table(self, table):
-        table_options = []
-
-        if not table.dialect_options["sqlite"]["with_rowid"]:
-            table_options.append("WITHOUT ROWID")
-
-        if table.dialect_options["sqlite"]["strict"]:
-            table_options.append("STRICT")
-
-        if table_options:
-            return "\n " + ",\n ".join(table_options)
-        else:
-            return ""
+        pass
 
     def visit_create_view(self, create, **kw):
         """Handle SQLite if_not_exists dialect option for CREATE VIEW."""
-        # Get the if_not_exists dialect option from the CreateView object
-        if_not_exists = create.dialect_options["sqlite"].get(
-            "if_not_exists", False
-        )
-
-        # Pass if_not_exists through kw to the parent's _generate_table_select
-        kw["if_not_exists"] = if_not_exists
-        return super().visit_create_view(create, **kw)
+        pass
 
 
 class SQLiteTypeCompiler(compiler.GenericTypeCompiler):
     def visit_large_binary(self, type_, **kw):
-        return self.visit_BLOB(type_)
+        pass
 
     def visit_DATETIME(self, type_, **kw):
-        if (
-            not isinstance(type_, _DateTimeMixin)
-            or type_.format_is_text_affinity
-        ):
-            return super().visit_DATETIME(type_)
-        else:
-            return "DATETIME_CHAR"
+        pass
 
     def visit_DATE(self, type_, **kw):
-        if (
-            not isinstance(type_, _DateTimeMixin)
-            or type_.format_is_text_affinity
-        ):
-            return super().visit_DATE(type_)
-        else:
-            return "DATE_CHAR"
+        pass
 
     def visit_TIME(self, type_, **kw):
-        if (
-            not isinstance(type_, _DateTimeMixin)
-            or type_.format_is_text_affinity
-        ):
-            return super().visit_TIME(type_)
-        else:
-            return "TIME_CHAR"
+        pass
 
     def visit_JSON(self, type_, **kw):
         # note this name provides NUMERIC affinity, not TEXT.
         # should not be an issue unless the JSON value consists of a single
         # numeric value.   JSONTEXT can be used if this case is required.
-        return "JSON"
+        pass
 
 
 class SQLiteIdentifierPreparer(compiler.IdentifierPreparer):
@@ -2077,10 +1720,7 @@ class SQLiteIdentifierPreparer(compiler.IdentifierPreparer):
 class SQLiteExecutionContext(default.DefaultExecutionContext):
     @util.memoized_property
     def _preserve_raw_colnames(self):
-        return (
-            not self.dialect._broken_dotted_colnames
-            or self.execution_options.get("sqlite_raw_colnames", False)
-        )
+        pass
 
     def _translate_colname(self, colname):
         # TODO: detect SQLite version 3.10.0 or greater;
@@ -2090,10 +1730,7 @@ class SQLiteExecutionContext(default.DefaultExecutionContext):
         # in the case of UNION may store col names as
         # "tablename.colname", or if using an attached database,
         # "database.tablename.colname", in cursor.description
-        if not self._preserve_raw_colnames and "." in colname:
-            return colname.split(".")[-1], colname
-        else:
-            return colname, None
+        pass
 
 
 class SQLiteDialect(default.DefaultDialect):
@@ -2314,21 +1951,13 @@ class SQLiteDialect(default.DefaultDialect):
     def get_temp_table_names(
         self, connection, sqlite_include_internal=False, **kw
     ):
-        query = self._sqlite_main_query(
-            "sqlite_temp_master", "table", None, sqlite_include_internal
-        )
-        names = connection.exec_driver_sql(query).scalars().all()
-        return names
+        pass
 
     @reflection.cache
     def get_temp_view_names(
         self, connection, sqlite_include_internal=False, **kw
     ):
-        query = self._sqlite_main_query(
-            "sqlite_temp_master", "view", None, sqlite_include_internal
-        )
-        names = connection.exec_driver_sql(query).scalars().all()
-        return names
+        pass
 
     @reflection.cache
     def has_table(self, connection, table_name, schema=None, **kw):
@@ -2359,37 +1988,7 @@ class SQLiteDialect(default.DefaultDialect):
 
     @reflection.cache
     def get_view_definition(self, connection, view_name, schema=None, **kw):
-        if schema is not None:
-            qschema = self.identifier_preparer.quote_identifier(schema)
-            master = f"{qschema}.sqlite_master"
-            s = ("SELECT sql FROM %s WHERE name = ? AND type='view'") % (
-                master,
-            )
-            rs = connection.exec_driver_sql(s, (view_name,))
-        else:
-            try:
-                s = (
-                    "SELECT sql FROM "
-                    " (SELECT * FROM sqlite_master UNION ALL "
-                    "  SELECT * FROM sqlite_temp_master) "
-                    "WHERE name = ? "
-                    "AND type='view'"
-                )
-                rs = connection.exec_driver_sql(s, (view_name,))
-            except exc.DBAPIError:
-                s = (
-                    "SELECT sql FROM sqlite_master WHERE name = ? "
-                    "AND type='view'"
-                )
-                rs = connection.exec_driver_sql(s, (view_name,))
-
-        result = rs.fetchall()
-        if result:
-            return result[0].sql
-        else:
-            raise exc.NoSuchTableError(
-                f"{schema}.{view_name}" if schema else view_name
-            )
+        pass
 
     @reflection.cache
     def get_columns(self, connection, table_name, schema=None, **kw):
@@ -2758,245 +2357,15 @@ class SQLiteDialect(default.DefaultDialect):
     def get_unique_constraints(
         self, connection, table_name, schema=None, **kw
     ):
-        auto_index_by_sig = {}
-        for idx in self.get_indexes(
-            connection,
-            table_name,
-            schema=schema,
-            include_auto_indexes=True,
-            **kw,
-        ):
-            if not idx["name"].startswith("sqlite_autoindex"):
-                continue
-            sig = tuple(idx["column_names"])
-            auto_index_by_sig[sig] = idx
-
-        table_data = self._get_table_sql(
-            connection, table_name, schema=schema, **kw
-        )
-        unique_constraints = []
-
-        def parse_uqs():
-            if table_data is None:
-                return
-            UNIQUE_PATTERN = (
-                r'(?:CONSTRAINT +(?:"(.+?)"|(\w+)) +)?UNIQUE *\((.+?)\)'
-            )
-            INLINE_UNIQUE_PATTERN = (
-                r'(?:(".+?")|(?:[\[`])?([a-z0-9_]+)(?:[\]`])?)[\t ]'
-                r"+[a-z0-9_ ]+?[\t ]+UNIQUE"
-            )
-
-            for match in re.finditer(UNIQUE_PATTERN, table_data, re.I):
-                quoted_name, unquoted_name, cols = match.group(1, 2, 3)
-                name = quoted_name or unquoted_name
-                yield name, list(self._find_cols_in_sig(cols))
-
-            # we need to match inlines as well, as we seek to differentiate
-            # a UNIQUE constraint from a UNIQUE INDEX, even though these
-            # are kind of the same thing :)
-            for match in re.finditer(INLINE_UNIQUE_PATTERN, table_data, re.I):
-                cols = list(
-                    self._find_cols_in_sig(match.group(1) or match.group(2))
-                )
-                yield None, cols
-
-        for name, cols in parse_uqs():
-            sig = tuple(cols)
-            if sig in auto_index_by_sig:
-                auto_index_by_sig.pop(sig)
-                parsed_constraint = {"name": name, "column_names": cols}
-                unique_constraints.append(parsed_constraint)
-        # NOTE: auto_index_by_sig might not be empty here,
-        # the PRIMARY KEY may have an entry.
-        if unique_constraints:
-            return unique_constraints
-        else:
-            return ReflectionDefaults.unique_constraints()
+        pass
 
     @reflection.cache
     def get_check_constraints(self, connection, table_name, schema=None, **kw):
-        table_data = self._get_table_sql(
-            connection, table_name, schema=schema, **kw
-        )
-
-        # Extract CHECK constraints by properly handling balanced parentheses
-        # and avoiding false matches when CHECK/CONSTRAINT appear in table
-        # names. See #12924 for context.
-        #
-        # SQLite supports 4 identifier quote styles (see
-        # sqlite.org/lang_keywords.html):
-        # - Double quotes "..." (standard SQL)
-        # - Brackets [...] (MS Access/SQL Server compatibility)
-        # - Backticks `...` (MySQL compatibility)
-        # - Single quotes '...' (SQLite extension)
-        #
-        # NOTE: there is not currently a way to parse CHECK constraints that
-        # contain newlines as the approach here relies upon each individual
-        # CHECK constraint being on a single line by itself.   This necessarily
-        # makes assumptions as to how the CREATE TABLE was emitted.
-        CHECK_PATTERN = re.compile(
-            r"""
-            (?<![A-Za-z0-9_])   # Negative lookbehind: ensure CHECK is not
-                                # part of an identifier (e.g., table name
-                                # like "tableCHECK")
-
-            (?:                 # Optional CONSTRAINT clause
-                CONSTRAINT\s+
-                (               # Group 1: Constraint name (quoted or unquoted)
-                    "(?:[^"]|"")+"        # Double-quoted: "name" or "na""me"
-                    |'(?:[^']|'')+'  # Single-quoted: 'name' or 'na''me'
-                    |\[(?:[^\]]|\]\])+\]  # Bracket-quoted: [name] or [na]]me]
-                    |`(?:[^`]|``)+`       # Backtick-quoted: `name` or `na``me`
-                    |\S+                  # Unquoted: simple_name
-                )
-                \s+
-            )?
-
-            CHECK\s*\(          # CHECK keyword followed by opening paren
-            """,
-            re.VERBOSE | re.IGNORECASE,
-        )
-        cks = []
-
-        for match in re.finditer(CHECK_PATTERN, table_data or ""):
-            constraint_name = match.group(1)
-
-            if constraint_name:
-                # Remove surrounding quotes if present
-                # Double quotes: "name" -> name
-                # Single quotes: 'name' -> name
-                # Brackets: [name] -> name
-                # Backticks: `name` -> name
-                constraint_name = re.sub(
-                    r'^(["\'`])(.+)\1$|^\[(.+)\]$',
-                    lambda m: m.group(2) or m.group(3),
-                    constraint_name,
-                    flags=re.DOTALL,
-                )
-
-            # Find the matching closing parenthesis by counting balanced parens
-            # Must track string context to ignore parens inside string literals
-            start = match.end()  # Position after 'CHECK ('
-            paren_count = 1
-            in_single_quote = False
-            in_double_quote = False
-
-            for pos, char in enumerate(table_data[start:], start):
-                # Track string literal context
-                if char == "'" and not in_double_quote:
-                    in_single_quote = not in_single_quote
-                elif char == '"' and not in_single_quote:
-                    in_double_quote = not in_double_quote
-                # Only count parens when not inside a string literal
-                elif not in_single_quote and not in_double_quote:
-                    if char == "(":
-                        paren_count += 1
-                    elif char == ")":
-                        paren_count -= 1
-                        if paren_count == 0:
-                            # Successfully found matching closing parenthesis
-                            sqltext = table_data[start:pos].strip()
-                            cks.append(
-                                {"sqltext": sqltext, "name": constraint_name}
-                            )
-                            break
-
-        cks.sort(key=lambda d: d["name"] or "~")  # sort None as last
-        if cks:
-            return cks
-        else:
-            return ReflectionDefaults.check_constraints()
+        pass
 
     @reflection.cache
     def get_indexes(self, connection, table_name, schema=None, **kw):
-        pragma_indexes = self._get_table_pragma(
-            connection, "index_list", table_name, schema=schema
-        )
-        indexes = []
-
-        # regular expression to extract the filter predicate of a partial
-        # index. this could fail to extract the predicate correctly on
-        # indexes created like
-        #   CREATE INDEX i ON t (col || ') where') WHERE col <> ''
-        # but as this function does not support expression-based indexes
-        # this case does not occur.
-        partial_pred_re = re.compile(r"\)\s+where\s+(.+)", re.IGNORECASE)
-
-        if schema:
-            schema_expr = "%s." % self.identifier_preparer.quote_identifier(
-                schema
-            )
-        else:
-            schema_expr = ""
-
-        include_auto_indexes = kw.pop("include_auto_indexes", False)
-        for row in pragma_indexes:
-            # ignore implicit primary key index.
-            # https://www.mail-archive.com/sqlite-users@sqlite.org/msg30517.html
-            if not include_auto_indexes and row[1].startswith(
-                "sqlite_autoindex"
-            ):
-                continue
-            indexes.append(
-                dict(
-                    name=row[1],
-                    column_names=[],
-                    unique=row[2],
-                    dialect_options={},
-                )
-            )
-
-            # check partial indexes
-            if len(row) >= 5 and row[4]:
-                s = (
-                    "SELECT sql FROM %(schema)ssqlite_master "
-                    "WHERE name = ? "
-                    "AND type = 'index'" % {"schema": schema_expr}
-                )
-                rs = connection.exec_driver_sql(s, (row[1],))
-                index_sql = rs.scalar()
-                predicate_match = partial_pred_re.search(index_sql)
-                if predicate_match is None:
-                    # unless the regex is broken this case shouldn't happen
-                    # because we know this is a partial index, so the
-                    # definition sql should match the regex
-                    util.warn(
-                        "Failed to look up filter predicate of "
-                        "partial index %s" % row[1]
-                    )
-                else:
-                    predicate = predicate_match.group(1)
-                    indexes[-1]["dialect_options"]["sqlite_where"] = text(
-                        predicate
-                    )
-
-        # loop thru unique indexes to get the column names.
-        for idx in list(indexes):
-            pragma_index = self._get_table_pragma(
-                connection, "index_info", idx["name"], schema=schema
-            )
-
-            for row in pragma_index:
-                if row[2] is None:
-                    util.warn(
-                        "Skipped unsupported reflection of "
-                        "expression-based index %s" % idx["name"]
-                    )
-                    indexes.remove(idx)
-                    break
-                else:
-                    idx["column_names"].append(row[2])
-
-        indexes.sort(key=lambda d: d["name"] or "~")  # sort None as last
-        if indexes:
-            return indexes
-        elif not self.has_table(connection, table_name, schema):
-            raise exc.NoSuchTableError(
-                f"{schema}.{table_name}" if schema else table_name
-            )
-        else:
-            return ReflectionDefaults.indexes()
+        pass
 
     def _is_sys_table(self, table_name):
         return table_name in {

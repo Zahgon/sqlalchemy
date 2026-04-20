@@ -220,16 +220,7 @@ class JSON(sqltypes.JSON[_T_JSON]):
                 :meth:`_expression.ColumnElement.cast`
 
             """
-            if isinstance(self.expr.right.type, sqltypes.JSON.JSONPathType):
-                return self.expr.left.operate(  # type: ignore[no-any-return]
-                    JSONPATH_ASTEXT,
-                    self.expr.right,
-                    result_type=self.type.astext_type,
-                )
-            else:
-                return self.expr.left.operate(  # type: ignore[no-any-return]
-                    ASTEXT, self.expr.right, result_type=self.type.astext_type
-                )
+            pass
 
     comparator_factory = Comparator
 
@@ -333,19 +324,19 @@ class JSONB(JSON[_T_JSON]):
             """Boolean expression.  Test for presence of a key (equivalent of
             the ``?`` operator).  Note that the key may be a SQLA expression.
             """
-            return self.operate(HAS_KEY, other, result_type=sqltypes.Boolean)
+            pass
 
         def has_all(self, other: Any) -> ColumnElement[bool]:
             """Boolean expression.  Test for presence of all keys in jsonb
             (equivalent of the ``?&`` operator)
             """
-            return self.operate(HAS_ALL, other, result_type=sqltypes.Boolean)
+            pass
 
         def has_any(self, other: Any) -> ColumnElement[bool]:
             """Boolean expression.  Test for presence of any key in jsonb
             (equivalent of the ``?|`` operator)
             """
-            return self.operate(HAS_ANY, other, result_type=sqltypes.Boolean)
+            pass
 
         def contains(self, other: Any, **kwargs: Any) -> ColumnElement[bool]:
             """Boolean expression.  Test if keys (or array) are a superset
@@ -377,10 +368,7 @@ class JSONB(JSON[_T_JSON]):
 
             .. versionadded:: 2.0
             """
-            if not isinstance(array, _pg_array):
-                array = _pg_array(array)
-            right_side = cast(array, ARRAY(sqltypes.TEXT))
-            return self.operate(DELETE_PATH, right_side, result_type=JSONB)
+            pass
 
         def path_exists(self, other: Any) -> ColumnElement[bool]:
             """Boolean expression. Test for presence of item given by the
@@ -401,8 +389,6 @@ class JSONB(JSON[_T_JSON]):
 
             .. versionadded:: 2.0
             """
-            return self.operate(
-                PATH_MATCH, other, result_type=sqltypes.Boolean
-            )
+            pass
 
     comparator_factory = Comparator

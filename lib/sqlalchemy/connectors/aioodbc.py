@@ -34,11 +34,11 @@ class AsyncAdapt_aioodbc_cursor(AsyncAdapt_dbapi_cursor):
 
     @property
     def fast_executemany(self):
-        return self._cursor._impl.fast_executemany
+        pass
 
     @fast_executemany.setter
     def fast_executemany(self, value):
-        self._cursor._impl.fast_executemany = value
+        pass
 
 
 class AsyncAdapt_aioodbc_ss_cursor(
@@ -168,4 +168,4 @@ class aiodbcConnector(PyODBCConnector):
         return (), kw
 
     def get_driver_connection(self, connection):
-        return connection._connection
+        pass

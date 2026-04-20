@@ -79,7 +79,7 @@ log = logging.getLogger(__name__)
 
 
 def _unreduce_path(path: _SerializedPath) -> PathRegistry:
-    return PathRegistry.deserialize(path)
+    pass
 
 
 _WILDCARD_TOKEN: _LiteralStar = "*"
@@ -153,14 +153,13 @@ class PathRegistry(HasCacheKey):
 
     @property
     def _path_for_compare(self) -> Optional[_PathRepresentation]:
-        return self.path
+        pass
 
     def odd_element(self, index: int) -> _InternalEntityType[Any]:
         return self.path[index]  # type: ignore
 
     def set(self, attributes: Dict[Any, Any], key: Any, value: Any) -> None:
-        log.debug("set '%s' on path '%s' to '%s'", key, self, value)
-        attributes[(key, self.natural_path)] = value
+        pass
 
     def setdefault(
         self, attributes: Dict[Any, Any], key: Any, value: Any
@@ -223,7 +222,7 @@ class PathRegistry(HasCacheKey):
     # TODO: what are we using this for?
     @property
     def length(self) -> int:
-        return len(self.path)
+        pass
 
     def pairs(
         self,
@@ -251,68 +250,18 @@ class PathRegistry(HasCacheKey):
 
     @classmethod
     def _serialize_path(cls, path: _PathRepresentation) -> _SerializedPath:
-        _m_path = cast(_OddPathRepresentation, path)
-        _p_path = cast(_EvenPathRepresentation, path)
-
-        return list(
-            zip(
-                tuple(
-                    m.class_ if (m.is_mapper or m.is_aliased_class) else str(m)
-                    for m in [_m_path[i] for i in range(0, len(_m_path), 2)]
-                ),
-                tuple(
-                    p.key if insp_is_mapper_property(p) else str(p)
-                    for p in [_p_path[i] for i in range(1, len(_p_path), 2)]
-                )
-                + (None,),
-            )
-        )
+        pass
 
     @classmethod
     def _deserialize_path(cls, path: _SerializedPath) -> _PathRepresentation:
-        def _deserialize_mapper_token(mcls: Any) -> Any:
-            return (
-                # note: we likely dont want configure=True here however
-                # this is maintained at the moment for backwards compatibility
-                orm_base._inspect_mapped_class(mcls, configure=True)
-                if mcls not in PathToken._intern
-                else PathToken._intern[mcls]
-            )
-
-        def _deserialize_key_token(mcls: Any, key: Any) -> Any:
-            if key is None:
-                return None
-            elif key in PathToken._intern:
-                return PathToken._intern[key]
-            else:
-                mp = orm_base._inspect_mapped_class(mcls, configure=True)
-                assert mp is not None
-                return mp.attrs[key]
-
-        p = tuple(
-            chain(
-                *[
-                    (
-                        _deserialize_mapper_token(mcls),
-                        _deserialize_key_token(mcls, key),
-                    )
-                    for mcls, key in path
-                ]
-            )
-        )
-        if p and p[-1] is None:
-            p = p[0:-1]
-        return p
+        pass
 
     def serialize(self) -> _SerializedPath:
-        path = self.path
-        return self._serialize_path(path)
+        pass
 
     @classmethod
     def deserialize(cls, path: _SerializedPath) -> PathRegistry:
-        assert path is not None
-        p = cls._deserialize_path(path)
-        return cls.coerce(p)
+        pass
 
     @overload
     @classmethod
@@ -326,10 +275,7 @@ class PathRegistry(HasCacheKey):
     def per_mapper(
         cls, mapper: _InternalEntityType[Any]
     ) -> _AbstractEntityRegistry:
-        if mapper.is_mapper:
-            return _CachingEntityRegistry(cls.root, mapper)
-        else:
-            return _SlotsEntityRegistry(cls.root, mapper)
+        pass
 
     @classmethod
     def coerce(cls, raw: _PathRepresentation) -> PathRegistry:
@@ -341,7 +287,7 @@ class PathRegistry(HasCacheKey):
 
     def __add__(self, other: PathRegistry) -> PathRegistry:
         def _red(prev: PathRegistry, next_: _PathElementType) -> PathRegistry:
-            return prev[next_]
+            pass
 
         return reduce(_red, other.path, self)
 
@@ -399,7 +345,7 @@ class RootRegistry(_CreatesToken):
                 )
 
     def _truncate_recursive(self) -> RootRegistry:
-        return self
+        pass
 
     if not TYPE_CHECKING:
         __getitem__ = _getitem
@@ -420,7 +366,7 @@ class PathToken(orm_base.InspectionAttr, HasCacheKey, str):
 
     @property
     def _path_for_compare(self) -> Optional[_PathRepresentation]:
-        return None
+        pass
 
     @classmethod
     def intern(cls, strvalue: str) -> PathToken:
@@ -453,30 +399,7 @@ class _TokenRegistry(PathRegistry):
 
     def generate_for_superclasses(self) -> Iterator[PathRegistry]:
         # NOTE: this method is no longer used.  consider removal
-        parent = self.parent
-        if is_root(parent):
-            yield self
-            return
-
-        if TYPE_CHECKING:
-            assert isinstance(parent, _AbstractEntityRegistry)
-        if not parent.is_aliased_class:
-            for mp_ent in parent.mapper.iterate_to_root():
-                yield _TokenRegistry(parent.parent[mp_ent], self.token)
-        elif (
-            parent.is_aliased_class
-            and cast(
-                "AliasedInsp[Any]",
-                parent.entity,
-            )._is_with_polymorphic
-        ):
-            yield self
-            for ent in cast(
-                "AliasedInsp[Any]", parent.entity
-            )._with_polymorphic_entities:
-                yield _TokenRegistry(parent.parent[ent], self.token)
-        else:
-            yield self
+        pass
 
     def _generate_natural_for_superclasses(
         self,
@@ -631,20 +554,11 @@ class _PropRegistry(PathRegistry):
         self._loader_key = ("loader", self.natural_path)
 
     def _truncate_recursive(self) -> _PropRegistry:
-        earliest = None
-        for i, token in enumerate(reversed(self.path[:-1])):
-            if token is self.prop:
-                earliest = i
-
-        if earliest is None:
-            return self
-        else:
-            return self.coerce(self.path[0 : -(earliest + 1)])  # type: ignore
+        pass
 
     @property
     def entity_path(self) -> _AbstractEntityRegistry:
-        assert self.entity is not None
-        return self[self.entity]
+        pass
 
     def _getitem(
         self, entity: Union[int, slice, _InternalEntityType[Any]]
@@ -738,15 +652,15 @@ class _AbstractEntityRegistry(_CreatesToken):
             self.natural_path = self.path
 
     def _truncate_recursive(self) -> _AbstractEntityRegistry:
-        return self.parent._truncate_recursive()[self.entity]
+        pass
 
     @property
     def root_entity(self) -> _InternalEntityType[Any]:
-        return self.odd_element(0)
+        pass
 
     @property
     def entity_path(self) -> PathRegistry:
-        return self
+        pass
 
     @property
     def mapper(self) -> Mapper[Any]:

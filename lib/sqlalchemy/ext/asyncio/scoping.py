@@ -160,7 +160,7 @@ class async_scoped_session(Generic[_AS]):
 
     @property
     def _proxied(self) -> _AS:
-        return self.registry()
+        pass
 
     def __call__(self, **kw: Any) -> _AS:
         r"""Return the current :class:`.AsyncSession`, creating it
@@ -201,15 +201,7 @@ class async_scoped_session(Generic[_AS]):
         See :meth:`.sessionmaker.configure`.
 
         """
-
-        if self.registry.has():
-            warn(
-                "At least one scoped session is already present. "
-                " configure() can not affect sessions that have "
-                "already been created."
-            )
-
-        self.session_factory.configure(**kwargs)
+        pass
 
     async def remove(self) -> None:
         """Dispose of the current :class:`.AsyncSession`, if present.
@@ -354,8 +346,7 @@ class async_scoped_session(Generic[_AS]):
 
 
         """  # noqa: E501
-
-        return self._proxied.add_all(instances)
+        pass
 
     def begin(self) -> AsyncSessionTransaction:
         r"""Return an :class:`_asyncio.AsyncSessionTransaction` object.
@@ -546,8 +537,7 @@ class async_scoped_session(Generic[_AS]):
 
 
         """  # noqa: E501
-
-        return await self._proxied.delete_all(instances)
+        pass
 
     @overload
     async def execute(
@@ -703,8 +693,7 @@ class async_scoped_session(Generic[_AS]):
 
 
         """  # noqa: E501
-
-        return self._proxied.expire_all()
+        pass
 
     def expunge(self, instance: object) -> None:
         r"""Remove the `instance` from this ``Session``.
@@ -922,10 +911,7 @@ class async_scoped_session(Generic[_AS]):
 
 
         """  # noqa: E501
-
-        return self._proxied.is_modified(
-            instance, include_collections=include_collections
-        )
+        pass
 
     async def invalidate(self) -> None:
         r"""Close this Session, using connection invalidation.
@@ -985,10 +971,7 @@ class async_scoped_session(Generic[_AS]):
 
 
         """  # noqa: E501
-
-        return await self._proxied.merge_all(
-            instances, load=load, options=options
-        )
+        pass
 
     async def refresh(
         self,
@@ -1232,16 +1215,7 @@ class async_scoped_session(Generic[_AS]):
 
 
         """  # noqa: E501
-
-        return await self._proxied.get_one(
-            entity,
-            ident,
-            options=options,
-            populate_existing=populate_existing,
-            with_for_update=with_for_update,
-            identity_token=identity_token,
-            execution_options=execution_options,
-        )
+        pass
 
     @overload
     async def stream(
@@ -1284,14 +1258,7 @@ class async_scoped_session(Generic[_AS]):
 
 
         """  # noqa: E501
-
-        return await self._proxied.stream(
-            statement,
-            params=params,
-            execution_options=execution_options,
-            bind_arguments=bind_arguments,
-            **kw,
-        )
+        pass
 
     @overload
     async def stream_scalars(
@@ -1343,14 +1310,7 @@ class async_scoped_session(Generic[_AS]):
 
 
         """  # noqa: E501
-
-        return await self._proxied.stream_scalars(
-            statement,
-            params=params,
-            execution_options=execution_options,
-            bind_arguments=bind_arguments,
-            **kw,
-        )
+        pass
 
     @property
     def bind(self) -> Any:
@@ -1358,12 +1318,11 @@ class async_scoped_session(Generic[_AS]):
         on behalf of the :class:`_asyncio.scoping.async_scoped_session` class.
 
         """  # noqa: E501
-
-        return self._proxied.bind
+        pass
 
     @bind.setter
     def bind(self, attr: Any) -> None:
-        self._proxied.bind = attr
+        pass
 
     @property
     def dirty(self) -> Any:
@@ -1401,8 +1360,7 @@ class async_scoped_session(Generic[_AS]):
 
 
         """  # noqa: E501
-
-        return self._proxied.dirty
+        pass
 
     @property
     def deleted(self) -> Any:
@@ -1420,8 +1378,7 @@ class async_scoped_session(Generic[_AS]):
 
 
         """  # noqa: E501
-
-        return self._proxied.deleted
+        pass
 
     @property
     def new(self) -> Any:
@@ -1439,8 +1396,7 @@ class async_scoped_session(Generic[_AS]):
 
 
         """  # noqa: E501
-
-        return self._proxied.new
+        pass
 
     @property
     def identity_map(self) -> Any:
@@ -1454,12 +1410,11 @@ class async_scoped_session(Generic[_AS]):
 
 
         """  # noqa: E501
-
-        return self._proxied.identity_map
+        pass
 
     @identity_map.setter
     def identity_map(self, attr: Any) -> None:
-        self._proxied.identity_map = attr
+        pass
 
     @property
     def is_active(self) -> Any:
@@ -1501,8 +1456,7 @@ class async_scoped_session(Generic[_AS]):
 
 
         """  # noqa: E501
-
-        return self._proxied.is_active
+        pass
 
     @property
     def autoflush(self) -> Any:
@@ -1555,8 +1509,7 @@ class async_scoped_session(Generic[_AS]):
 
 
         """  # noqa: E501
-
-        return self._proxied.no_autoflush
+        pass
 
     @property
     def info(self) -> Any:
@@ -1615,8 +1568,7 @@ class async_scoped_session(Generic[_AS]):
         .. deprecated:: 2.0 The :meth:`.AsyncSession.close_all` method is deprecated and will be removed in a future release.  Please refer to :func:`_asyncio.close_all_sessions`.
 
         """  # noqa: E501
-
-        return await AsyncSession.close_all()
+        pass
 
     @classmethod
     def object_session(cls, instance: object) -> Optional[Session]:
@@ -1667,13 +1619,6 @@ class async_scoped_session(Generic[_AS]):
 
 
         """  # noqa: E501
-
-        return AsyncSession.identity_key(
-            class_=class_,
-            ident=ident,
-            instance=instance,
-            row=row,
-            identity_token=identity_token,
-        )
+        pass
 
     # END PROXY METHODS async_scoped_session

@@ -96,74 +96,18 @@ def generate_driver_url(url, driver, query_str):
 
 @follower_url_from_main.for_db("sqlite")
 def _sqlite_follower_url_from_main(url, ident):
-    return _format_url(url, None, ident)
+    pass
 
 
 @post_configure_engine.for_db("sqlite")
 def _sqlite_post_configure_engine(url, engine, follower_ident):
-    from sqlalchemy import event
-
-    if follower_ident:
-        attach_path = f"{follower_ident}_{engine.driver}_test_schema.db"
-    else:
-        attach_path = f"{engine.driver}_test_schema.db"
-
-    @event.listens_for(engine, "connect")
-    def connect(dbapi_connection, connection_record):
-        # use file DBs in all cases, memory acts kind of strangely
-        # as an attached
-
-        # NOTE!  this has to be done *per connection*.  New sqlite connection,
-        # as we get with say, QueuePool, the attaches are gone.
-        # so schemes to delete those attached files have to be done at the
-        # filesystem level and not rely upon what attachments are in a
-        # particular SQLite connection
-        dbapi_connection.execute(
-            f'ATTACH DATABASE "{attach_path}" AS test_schema'
-        )
-
-    @event.listens_for(engine, "engine_disposed")
-    def dispose(engine):
-        """most databases should be dropped using
-        stop_test_class_outside_fixtures
-
-        however a few tests like AttachedDBTest might not get triggered on
-        that main hook
-
-        """
-
-        if os.path.exists(attach_path):
-            os.remove(attach_path)
-
-        filename = engine.url.database
-
-        if filename and filename != ":memory:" and os.path.exists(filename):
-            os.remove(filename)
+    pass
 
 
 @post_configure_testing_engine.for_db("sqlite")
 def _sqlite_post_configure_testing_engine(url, engine, options, scope):
 
-    sqlite_savepoint = options.get("sqlite_savepoint", False)
-    sqlite_share_pool = options.get("sqlite_share_pool", False)
-
-    if sqlite_savepoint and engine.name == "sqlite":
-        # apply SQLite savepoint workaround
-        @event.listens_for(engine, "connect")
-        def do_connect(dbapi_connection, connection_record):
-            dbapi_connection.isolation_level = None
-
-        @event.listens_for(engine, "begin")
-        def do_begin(conn):
-            conn.exec_driver_sql("BEGIN")
-
-    if sqlite_share_pool:
-        # SingletonThreadPool, StaticPool both support "transfer"
-        # so a new pool can share the same SQLite connection
-        # (single thread only)
-        if hasattr(engine.pool, "_transfer_from"):
-            options["use_reaper"] = False
-            engine.pool._transfer_from(config.db.pool)
+    pass
 
 
 @create_db.for_db("sqlite")
@@ -173,15 +117,11 @@ def _sqlite_create_db(cfg, eng, ident):
 
 @drop_db.for_db("sqlite")
 def _sqlite_drop_db(cfg, eng, ident):
-    _drop_dbs_w_ident(eng.url.database, eng.driver, ident)
+    pass
 
 
 def _drop_dbs_w_ident(databasename, driver, ident):
-    for path in os.listdir("."):
-        fname, ext = os.path.split(path)
-        if ident in fname and ext in [".db", ".db.enc"]:
-            log.info("deleting SQLite database file: %s", path)
-            os.remove(path)
+    pass
 
 
 @stop_test_class_outside_fixtures.for_db("sqlite")
@@ -191,17 +131,12 @@ def stop_test_class_outside_fixtures(config, db, cls):
 
 @temp_table_keyword_args.for_db("sqlite")
 def _sqlite_temp_table_keyword_args(cfg, eng):
-    return {"prefixes": ["TEMPORARY"]}
+    pass
 
 
 @run_reap_dbs.for_db("sqlite")
 def _reap_sqlite_dbs(url, idents):
-    log.info("db reaper connecting to %r", url)
-    log.info("identifiers in file: %s", ", ".join(idents))
-    url = sa_url.make_url(url)
-    for ident in idents:
-        for drivername in _drivernames:
-            _drop_dbs_w_ident(url.database, drivername, ident)
+    pass
 
 
 @upsert.for_db("sqlite")
@@ -214,16 +149,4 @@ def _upsert(
     sort_by_parameter_order=False,
     index_elements=None,
 ):
-    from sqlalchemy.dialects.sqlite import insert
-
-    stmt = insert(table)
-
-    if set_lambda:
-        stmt = stmt.on_conflict_do_update(set_=set_lambda(stmt.excluded))
-    else:
-        stmt = stmt.on_conflict_do_nothing()
-
-    stmt = stmt.returning(
-        *returning, sort_by_parameter_order=sort_by_parameter_order
-    )
-    return stmt
+    pass

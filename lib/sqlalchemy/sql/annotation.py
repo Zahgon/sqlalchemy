@@ -86,9 +86,7 @@ class SupportsAnnotations(ExternallyTraversible):
 
     @util.memoized_property
     def _annotations_cache_key(self) -> Tuple[Any, ...]:
-        anon_map_ = anon_map()
-
-        return self._gen_annotations_cache_key(anon_map_)
+        pass
 
     def _gen_annotations_cache_key(
         self, anon_map: anon_map
@@ -377,13 +375,7 @@ class Annotated(SupportsAnnotations):
 
     @util.ro_non_memoized_property
     def entity_namespace(self) -> _EntityNamespace:
-        if "entity_namespace" in self._annotations:
-            return cast(
-                SupportsWrappingAnnotations,
-                self._annotations["entity_namespace"],
-            ).entity_namespace
-        else:
-            return self.__element.entity_namespace
+        pass
 
 
 # hard-generate Annotated subclasses.  this technique

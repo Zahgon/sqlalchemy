@@ -440,8 +440,7 @@ class MutableBase:
            itself.
 
         """
-
-        return weakref.WeakKeyDictionary()
+        pass
 
     @classmethod
     def coerce(cls, key: str, value: Any) -> Optional[Any]:
@@ -627,7 +626,7 @@ class Mutable(MutableBase):
         mapped descriptor.
 
         """
-        cls._listen_on_attribute(attribute, True, attribute.class_)
+        pass
 
     @classmethod
     def associate_with(cls, sqltype: type) -> None:
@@ -646,13 +645,7 @@ class Mutable(MutableBase):
            growth in memory usage.
 
         """
-
-        def listen_for_type(mapper: Mapper[_O], class_: type) -> None:
-            for prop in mapper.column_attrs:
-                if isinstance(prop.columns[0].type, sqltype):
-                    cls.associate_with_attribute(getattr(class_, prop.key))
-
-        event.listen(Mapper, "mapper_configured", listen_for_type)
+        pass
 
     @classmethod
     def as_mutable(cls, sqltype: _TypeEngineArgument[_T]) -> TypeEngine[_T]:
@@ -689,54 +682,7 @@ class Mutable(MutableBase):
            in memory usage.
 
         """
-        sqltype = types.to_instance(sqltype)
-
-        # a SchemaType will be copied when the Column is copied,
-        # and we'll lose our ability to link that type back to the original.
-        # so track our original type w/ columns
-        if isinstance(sqltype, SchemaEventTarget):
-
-            @event.listens_for(sqltype, "before_parent_attach")
-            def _add_column_memo(
-                sqltyp: TypeEngine[Any],
-                parent: Column[_T],
-            ) -> None:
-                parent.info["_ext_mutable_orig_type"] = sqltyp
-
-            schema_event_check = True
-        else:
-            schema_event_check = False
-
-        def listen_for_type(
-            mapper: Mapper[_T],
-            class_: Union[DeclarativeAttributeIntercept, type],
-        ) -> None:
-            _APPLIED_KEY = "_ext_mutable_listener_applied"
-
-            for prop in mapper.column_attrs:
-                if (
-                    # all Mutable types refer to a Column that's mapped,
-                    # since this is the only kind of Core target the ORM can
-                    # "mutate"
-                    isinstance(prop.expression, Column)
-                    and (
-                        (
-                            schema_event_check
-                            and prop.expression.info.get(
-                                "_ext_mutable_orig_type"
-                            )
-                            is sqltype
-                        )
-                        or prop.expression.type is sqltype
-                    )
-                ):
-                    if not prop.expression.info.get(_APPLIED_KEY, False):
-                        prop.expression.info[_APPLIED_KEY] = True
-                        cls.associate_with_attribute(getattr(class_, prop.key))
-
-        event.listen(Mapper, "mapper_configured", listen_for_type)
-
-        return sqltype
+        pass
 
 
 class MutableComposite(MutableBase):
@@ -966,8 +912,7 @@ class MutableList(Mutable, List[_T]):
         self.changed()
 
     def reverse(self) -> None:
-        list.reverse(self)
-        self.changed()
+        pass
 
     @classmethod
     def coerce(
@@ -1011,16 +956,14 @@ class MutableSet(Mutable, Set[_T]):
         self.changed()
 
     def intersection_update(self, *arg: Iterable[Any]) -> None:
-        set.intersection_update(self, *arg)
-        self.changed()
+        pass
 
     def difference_update(self, *arg: Iterable[Any]) -> None:
         set.difference_update(self, *arg)
         self.changed()
 
     def symmetric_difference_update(self, *arg: Iterable[_T]) -> None:
-        set.symmetric_difference_update(self, *arg)
-        self.changed()
+        pass
 
     def __ior__(self, other: AbstractSet[_T]) -> MutableSet[_T]:  # type: ignore[override,misc] # noqa: E501
         self.update(other)

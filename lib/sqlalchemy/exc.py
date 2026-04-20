@@ -54,13 +54,7 @@ class HasDescriptionCode:
     _what_are_we = "error"
 
     def _code_str(self) -> str:
-        if not self.code:
-            return ""
-        else:
-            return (
-                f"(Background on this {self._what_are_we} at: "
-                f"https://sqlalche.me/e/{_version_token}/{self.code})"
-            )
+        pass
 
     def __str__(self) -> str:
         message = super().__str__()
@@ -83,33 +77,10 @@ class SQLAlchemyError(HasDescriptionCode, Exception):
         # SQLAlchemy though this is happening in at least one known external
         # library, call str() which does a repr().
         #
-        text: str
-
-        if len(self.args) == 1:
-            arg_text = self.args[0]
-
-            if isinstance(arg_text, bytes):
-                text = compat.decode_backslashreplace(arg_text, "utf-8")
-            # This is for when the argument is not a string of any sort.
-            # Otherwise, converting this exception to string would fail for
-            # non-string arguments.
-            else:
-                text = str(arg_text)
-
-            return text
-        else:
-            # this is not a normal case within SQLAlchemy but is here for
-            # compatibility with Exception.args - the str() comes out as
-            # a repr() of the tuple
-            return str(self.args)
+        pass
 
     def _sql_message(self) -> str:
-        message = self._message()
-
-        if self.code:
-            message = "%s %s" % (message, self._code_str())
-
-        return message
+        pass
 
     def __str__(self) -> str:
         return self._sql_message()
@@ -141,13 +112,7 @@ class EmulatedDBAPIException(Exception):
         SQLAlchemy.
 
         """
-
-        if self.orig is None:
-            raise ValueError(
-                "No original exception is present.  Was this "
-                "EmulatedDBAPIException constructed without a driver error?"
-            )
-        return self.orig
+        pass
 
     def __reduce__(self) -> Any:
         return self.__class__, (self.args[0], self.orig)
@@ -564,26 +529,7 @@ class StatementError(SQLAlchemyError):
 
     @_preloaded.preload_module("sqlalchemy.sql.util")
     def _sql_message(self) -> str:
-        util = _preloaded.sql_util
-
-        details = [self._message()]
-        if self.statement:
-            stmt_detail = "[SQL: %s]" % self.statement
-            details.append(stmt_detail)
-            if self.params:
-                if self.hide_parameters:
-                    details.append(
-                        "[SQL parameters hidden due to hide_parameters=True]"
-                    )
-                else:
-                    params_repr = util._repr_params(
-                        self.params, 10, ismulti=self.ismulti
-                    )
-                    details.append("[parameters: %r]" % params_repr)
-        code_str = self._code_str()
-        if code_str:
-            details.append(code_str)
-        return "\n".join(["(%s)" % det for det in self.detail] + details)
+        pass
 
 
 class DBAPIError(StatementError):
@@ -794,17 +740,7 @@ class DBAPIError(StatementError):
         .. versionadded:: 2.1
 
         """
-
-        if self.orig is None:
-            raise ValueError(
-                "No original exception is present.  Was this "
-                "DBAPIError constructed without a driver error?"
-            )
-
-        if isinstance(self.orig, EmulatedDBAPIException):
-            return self.orig.driver_exception
-        else:
-            return self.orig
+        pass
 
 
 class InterfaceError(DBAPIError):

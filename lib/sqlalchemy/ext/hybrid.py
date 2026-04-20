@@ -1347,7 +1347,7 @@ class hybrid_method(interfaces.InspectionAttrInfo, Generic[_P, _R]):
             :ref:`hybrid_pep484_naming`
 
         """
-        return self
+        pass
 
     @overload
     def __get__(
@@ -1508,7 +1508,7 @@ class hybrid_property(interfaces.InspectionAttrInfo, ORMDescriptor[_T]):
             :ref:`hybrid_reuse_subclass`
 
         """
-        return self
+        pass
 
     class _InPlace(Generic[_TE]):
         """A builder helper for .hybrid_property.
@@ -1551,12 +1551,12 @@ class hybrid_property(interfaces.InspectionAttrInfo, ORMDescriptor[_T]):
         def update_expression(
             self, meth: _HybridUpdaterType[_TE]
         ) -> hybrid_property[_TE]:
-            return self._set(update_expr=meth)
+            pass
 
         def bulk_dml(
             self, meth: _HybridBulkDMLType[_TE]
         ) -> hybrid_property[_TE]:
-            return self._set(bulk_dml_setter=meth)
+            pass
 
     @property
     def inplace(self) -> _InPlace[_T]:
@@ -1588,7 +1588,7 @@ class hybrid_property(interfaces.InspectionAttrInfo, ORMDescriptor[_T]):
             :ref:`hybrid_pep484_naming`
 
         """
-        return hybrid_property._InPlace(self)
+        pass
 
     def getter(self, fget: _HybridGetterType[_T]) -> hybrid_property[_T]:
         """Provide a modifying decorator that defines a getter method."""
@@ -1707,7 +1707,7 @@ class hybrid_property(interfaces.InspectionAttrInfo, ORMDescriptor[_T]):
                     return [(cls.first_name, fname), (cls.last_name, lname)]
 
         """
-        return self._copy(update_expr=meth)
+        pass
 
     def bulk_dml(self, meth: _HybridBulkDMLType[_T]) -> hybrid_property[_T]:
         """Define a setter for bulk dml.
@@ -1715,7 +1715,7 @@ class hybrid_property(interfaces.InspectionAttrInfo, ORMDescriptor[_T]):
         .. versionadded:: 2.1
 
         """
-        return self._copy(bulk_dml=meth)
+        pass
 
     @util.memoized_property
     def _expr_comparator(
@@ -1830,12 +1830,7 @@ class ExprComparator(Comparator[_T]):
         self,
         value: Any,
     ) -> Sequence[Tuple[_DMLColumnArgument, Any]]:
-        if isinstance(self.expression, attributes.QueryableAttribute):
-            return self.expression._bulk_update_tuples(value)
-        elif self.hybrid.update_expr is not None:
-            return self.hybrid.update_expr(self.cls, value)
-        else:
-            return [(self.expression, value)]
+        pass
 
     def _bulk_dml_setter(self, key: str) -> Optional[Callable[..., Any]]:
         """return a callable that will process a bulk INSERT value"""
@@ -1874,4 +1869,4 @@ class ExprComparator(Comparator[_T]):
     def reverse_operate(
         self, op: OperatorType, other: Any, **kwargs: Any
     ) -> ColumnElement[Any]:
-        return op(other, self.expression, **kwargs)  # type: ignore
+        pass

@@ -142,31 +142,17 @@ class DMLState(CompileState):
 
     @classmethod
     def get_entity_description(cls, statement: UpdateBase) -> Dict[str, Any]:
-        return {
-            "name": (
-                statement.table.name
-                if is_named_from_clause(statement.table)
-                else None
-            ),
-            "table": statement.table,
-        }
+        pass
 
     @classmethod
     def get_returning_column_descriptions(
         cls, statement: UpdateBase
     ) -> List[Dict[str, Any]]:
-        return [
-            {
-                "name": c.key,
-                "type": c.type,
-                "expr": c,
-            }
-            for c in statement._all_selected_columns
-        ]
+        pass
 
     @property
     def dml_table(self) -> _DMLTableElement:
-        return self.statement.table
+        pass
 
     if TYPE_CHECKING:
 
@@ -179,13 +165,7 @@ class DMLState(CompileState):
         statement: UpdateBase,
         multi_kv_iterator: Iterable[Dict[_DMLColumnArgument, Any]],
     ) -> List[Dict[_DMLColumnElement, Any]]:
-        return [
-            {
-                coercions.expect(roles.DMLColumnRole, k): v
-                for k, v in mapping.items()
-            }
-            for mapping in multi_kv_iterator
-        ]
+        pass
 
     @classmethod
     def _get_crud_kv_pairs(
@@ -194,22 +174,7 @@ class DMLState(CompileState):
         kv_iterator: Iterable[Tuple[_DMLColumnArgument, Any]],
         needs_to_be_cacheable: bool,
     ) -> List[Tuple[_DMLColumnElement, Any]]:
-        return [
-            (
-                coercions.expect(roles.DMLColumnRole, k),
-                (
-                    v
-                    if not needs_to_be_cacheable
-                    else coercions.expect(
-                        roles.ExpressionElementRole,
-                        v,
-                        type_=NullType(),
-                        is_crud=True,
-                    )
-                ),
-            )
-            for k, v in kv_iterator
-        ]
+        pass
 
     def _make_extra_froms(
         self, statement: DMLWhereBase
@@ -299,10 +264,7 @@ class InsertDMLState(DMLState):
     @util.memoized_property
     def _insert_col_keys(self) -> List[str]:
         # this is also done in crud.py -> _key_getters_for_crud_column
-        return [
-            coercions.expect(roles.DMLColumnRole, col, as_key=True)
-            for col in self._dict_parameters or ()
-        ]
+        pass
 
     def _process_values(self, statement: ValuesBase) -> None:
         if self._no_parameters:
@@ -845,7 +807,7 @@ class UpdateBase(
 
     @util.ro_memoized_property
     def _all_selected_columns(self) -> _SelectIterable:
-        return [c for c in _select_iterables(self._returning)]
+        pass
 
     @util.ro_memoized_property
     def exported_columns(
@@ -857,11 +819,7 @@ class UpdateBase(
         .. versionadded:: 1.4
 
         """
-        return WriteableColumnCollection(
-            (c.key, c)
-            for c in self._all_selected_columns
-            if is_column_element(c)
-        ).as_readonly()
+        pass
 
     @_generative
     def with_hint(
@@ -899,12 +857,7 @@ class UpdateBase(
          of a particular dialect, will apply these hints only when
          that dialect is in use.
         """
-        if selectable is None:
-            selectable = self.table
-        else:
-            selectable = coercions.expect(roles.DMLTableRole, selectable)
-        self._hints = self._hints.union({(selectable, dialect_name): text})
-        return self
+        pass
 
     @property
     def entity_description(self) -> Dict[str, Any]:
@@ -939,8 +892,7 @@ class UpdateBase(
             :ref:`queryguide_inspection` - ORM background
 
         """
-        meth = DMLState.get_plugin_class(self).get_entity_description
-        return meth(self)
+        pass
 
     @property
     def returning_column_descriptions(self) -> List[Dict[str, Any]]:
@@ -984,10 +936,7 @@ class UpdateBase(
             :ref:`queryguide_inspection` - ORM background
 
         """  # noqa: E501
-        meth = DMLState.get_plugin_class(
-            self
-        ).get_returning_column_descriptions
-        return meth(self)
+        pass
 
 
 class ValuesBase(UpdateBase):
@@ -1338,20 +1287,7 @@ class Insert(ValuesBase, HasSyntaxExtensions[Literal["post_values"]]):
             per row**.
 
         """
-
-        if self._values:
-            raise exc.InvalidRequestError(
-                "This construct already inserts value expressions"
-            )
-
-        self._select_names = [
-            coercions.expect(roles.DMLColumnRole, name, as_key=True)
-            for name in names
-        ]
-        self._inline = True
-        self.include_insert_from_select_defaults = include_defaults
-        self.select = coercions.expect(roles.DMLSelectRole, select)
-        return self
+        pass
 
     if TYPE_CHECKING:
         # START OVERLOADED FUNCTIONS self.returning ReturningInsert 1-8 ", *, sort_by_parameter_order: bool = False"  # noqa: E501
@@ -1545,8 +1481,7 @@ class DMLWhereBase:
         .. versionadded:: 1.4
 
         """
-
-        return self.where(*criteria)
+        pass
 
     def filter_by(self, **kwargs: Any) -> Self:
         r"""Apply the given filtering criterion as a WHERE clause
@@ -1577,26 +1512,7 @@ class DMLWhereBase:
             :meth:`_sql.Select.filter_by`
 
         """  # noqa: E501
-
-        entities: set[Any]
-
-        if not isinstance(self.table, TableClause):
-            entities = set(
-                sql_util.find_tables(
-                    self.table, check_columns=False, include_joins=False
-                )
-            )
-        else:
-            entities = {self.table}
-
-        if self.whereclause is not None:
-            entities.update(self.whereclause._from_objects)
-
-        clauses = [
-            _entity_namespace_key_search_all(entities, key) == value
-            for key, value in kwargs.items()
-        ]
-        return self.filter(*clauses)
+        pass
 
     @property
     def whereclause(self) -> Optional[ColumnElement[Any]]:
@@ -1610,10 +1526,7 @@ class DMLWhereBase:
         .. versionadded:: 1.4
 
         """
-
-        return BooleanClauseList._construct_for_whereclause(
-            self._where_criteria
-        )
+        pass
 
 
 class Update(

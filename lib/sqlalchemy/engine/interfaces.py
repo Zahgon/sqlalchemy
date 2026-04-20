@@ -3457,7 +3457,7 @@ class AdaptedConnection:
     @property
     def driver_connection(self) -> Any:
         """The connection object as returned by the driver after a connect."""
-        return self._connection
+        pass
 
     def run_async(self, fn: Callable[[Any], Awaitable[_T]]) -> _T:
         """Run the awaitable returned by the given function, which is passed
@@ -3489,7 +3489,7 @@ class AdaptedConnection:
             :ref:`asyncio_events_run_async`
 
         """
-        return await_(fn(self._connection))
+        pass
 
     def __repr__(self) -> str:
         return "<AdaptedConnection %s>" % self._connection

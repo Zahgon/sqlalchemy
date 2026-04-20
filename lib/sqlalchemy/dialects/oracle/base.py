@@ -1131,56 +1131,40 @@ class OracleTypeCompiler(compiler.GenericTypeCompiler):
     # Oracle does not support TIME columns
 
     def visit_datetime(self, type_, **kw):
-        return self.visit_DATE(type_, **kw)
+        pass
 
     def visit_float(self, type_, **kw):
-        return self.visit_FLOAT(type_, **kw)
+        pass
 
     def visit_double(self, type_, **kw):
-        return self.visit_DOUBLE_PRECISION(type_, **kw)
+        pass
 
     def visit_unicode(self, type_, **kw):
-        if self.dialect._use_nchar_for_unicode:
-            return self.visit_NVARCHAR2(type_, **kw)
-        else:
-            return self.visit_VARCHAR2(type_, **kw)
+        pass
 
     def visit_INTERVAL(self, type_, **kw):
-        return "INTERVAL DAY%s TO SECOND%s" % (
-            type_.day_precision is not None
-            and "(%d)" % type_.day_precision
-            or "",
-            type_.second_precision is not None
-            and "(%d)" % type_.second_precision
-            or "",
-        )
+        pass
 
     def visit_LONG(self, type_, **kw):
-        return "LONG"
+        pass
 
     def visit_TIMESTAMP(self, type_, **kw):
-        if getattr(type_, "local_timezone", False):
-            return "TIMESTAMP WITH LOCAL TIME ZONE"
-        elif type_.timezone:
-            return "TIMESTAMP WITH TIME ZONE"
-        else:
-            return "TIMESTAMP"
+        pass
 
     def visit_DOUBLE_PRECISION(self, type_, **kw):
-        return self._generate_numeric(type_, "DOUBLE PRECISION", **kw)
+        pass
 
     def visit_BINARY_DOUBLE(self, type_, **kw):
-        return self._generate_numeric(type_, "BINARY_DOUBLE", **kw)
+        pass
 
     def visit_BINARY_FLOAT(self, type_, **kw):
-        return self._generate_numeric(type_, "BINARY_FLOAT", **kw)
+        pass
 
     def visit_FLOAT(self, type_, **kw):
-        kw["_requires_binary_precision"] = True
-        return self._generate_numeric(type_, "FLOAT", **kw)
+        pass
 
     def visit_NUMBER(self, type_, **kw):
-        return self._generate_numeric(type_, "NUMBER", **kw)
+        pass
 
     def _generate_numeric(
         self,
@@ -1191,119 +1175,51 @@ class OracleTypeCompiler(compiler.GenericTypeCompiler):
         _requires_binary_precision=False,
         **kw,
     ):
-        if precision is None:
-            precision = getattr(type_, "precision", None)
-
-        if _requires_binary_precision:
-            binary_precision = getattr(type_, "binary_precision", None)
-
-            if precision and binary_precision is None:
-                # https://www.oracletutorial.com/oracle-basics/oracle-float/
-                estimated_binary_precision = int(precision / 0.30103)
-                raise exc.ArgumentError(
-                    "Oracle Database FLOAT types use 'binary precision', "
-                    "which does not convert cleanly from decimal "
-                    "'precision'.  Please specify "
-                    "this type with a separate Oracle Database variant, such "
-                    f"as {type_.__class__.__name__}(precision={precision})."
-                    f"with_variant(oracle.FLOAT"
-                    f"(binary_precision="
-                    f"{estimated_binary_precision}), 'oracle'), so that the "
-                    "Oracle Database specific 'binary_precision' may be "
-                    "specified accurately."
-                )
-            else:
-                precision = binary_precision
-
-        if scale is None:
-            scale = getattr(type_, "scale", None)
-
-        if precision is None:
-            return name
-        elif scale is None:
-            n = "%(name)s(%(precision)s)"
-            return n % {"name": name, "precision": precision}
-        else:
-            n = "%(name)s(%(precision)s, %(scale)s)"
-            return n % {"name": name, "precision": precision, "scale": scale}
+        pass
 
     def visit_string(self, type_, **kw):
-        return self.visit_VARCHAR2(type_, **kw)
+        pass
 
     def visit_VARCHAR2(self, type_, **kw):
-        return self._visit_varchar(type_, "", "2")
+        pass
 
     def visit_NVARCHAR2(self, type_, **kw):
-        return self._visit_varchar(type_, "N", "2")
+        pass
 
     visit_NVARCHAR = visit_NVARCHAR2
 
     def visit_VARCHAR(self, type_, **kw):
-        return self._visit_varchar(type_, "", "")
+        pass
 
     def _visit_varchar(self, type_, n, num):
-        if not type_.length:
-            return "%(n)sVARCHAR%(two)s" % {"two": num, "n": n}
-        elif not n and self.dialect._supports_char_length:
-            varchar = "VARCHAR%(two)s(%(length)s CHAR)"
-            return varchar % {"length": type_.length, "two": num}
-        else:
-            varchar = "%(n)sVARCHAR%(two)s(%(length)s)"
-            return varchar % {"length": type_.length, "two": num, "n": n}
+        pass
 
     def visit_text(self, type_, **kw):
-        return self.visit_CLOB(type_, **kw)
+        pass
 
     def visit_unicode_text(self, type_, **kw):
-        if self.dialect._use_nchar_for_unicode:
-            return self.visit_NCLOB(type_, **kw)
-        else:
-            return self.visit_CLOB(type_, **kw)
+        pass
 
     def visit_large_binary(self, type_, **kw):
-        return self.visit_BLOB(type_, **kw)
+        pass
 
     def visit_big_integer(self, type_, **kw):
-        return self.visit_NUMBER(type_, precision=19, **kw)
+        pass
 
     def visit_boolean(self, type_, **kw):
-        if self.dialect.supports_native_boolean:
-            return self.visit_BOOLEAN(type_, **kw)
-        else:
-            return self.visit_SMALLINT(type_, **kw)
+        pass
 
     def visit_RAW(self, type_, **kw):
-        if type_.length:
-            return "RAW(%(length)s)" % {"length": type_.length}
-        else:
-            return "RAW"
+        pass
 
     def visit_ROWID(self, type_, **kw):
-        return "ROWID"
+        pass
 
     def visit_VECTOR(self, type_, **kw):
-        dim = type_.dim if type_.dim is not None else "*"
-        storage_format = (
-            type_.storage_format.value
-            if type_.storage_format is not None
-            else "*"
-        )
-        storage_type = (
-            type_.storage_type.value if type_.storage_type is not None else "*"
-        )
-        return f"VECTOR({dim},{storage_format},{storage_type})"
+        pass
 
     def visit_JSON(self, type_: JSON, **kw: Any) -> str:
-        use_blob = (
-            not self.dialect._supports_oracle_json
-            if getattr(type_, "use_blob", NO_ARG) is NO_ARG
-            else type_.use_blob
-        )
-
-        if use_blob:
-            return "BLOB"
-        else:
-            return "JSON"
+        pass
 
 
 class OracleCompiler(compiler.SQLCompiler):
@@ -1322,25 +1238,19 @@ class OracleCompiler(compiler.SQLCompiler):
         super().__init__(*args, **kwargs)
 
     def visit_mod_binary(self, binary, operator, **kw):
-        return "mod(%s, %s)" % (
-            self.process(binary.left, **kw),
-            self.process(binary.right, **kw),
-        )
+        pass
 
     def visit_now_func(self, fn, **kw):
-        return "CURRENT_TIMESTAMP"
+        pass
 
     def visit_char_length_func(self, fn, **kw):
-        return "LENGTH" + self.function_argspec(fn, **kw)
+        pass
 
     def visit_pow_func(self, fn, **kw):
-        return f"POWER{self.function_argspec(fn)}"
+        pass
 
     def visit_match_op_binary(self, binary, operator, **kw):
-        return "CONTAINS (%s, %s)" % (
-            self.process(binary.left),
-            self.process(binary.right),
-        )
+        pass
 
     def visit_true(self, expr, **kw):
         return "1"
@@ -1351,42 +1261,22 @@ class OracleCompiler(compiler.SQLCompiler):
     def visit_cast(self, cast, **kwargs):
         # Oracle requires VARCHAR2 to have a length in CAST expressions
         # Adapt String types to VARCHAR2 with appropriate length
-        type_ = cast.typeclause.type
-        if isinstance(type_, sqltypes.String) and not isinstance(
-            type_, (sqltypes.Text, sqltypes.CLOB)
-        ):
-            adapted = VARCHAR2._adapt_string_for_cast(type_)
-            type_clause = self.dialect.type_compiler_instance.process(adapted)
-        else:
-            type_clause = cast.typeclause._compiler_dispatch(self, **kwargs)
-
-        return "CAST(%s AS %s)" % (
-            cast.clause._compiler_dispatch(self, **kwargs),
-            type_clause,
-        )
+        pass
 
     def get_cte_preamble(self, recursive):
-        return "WITH"
+        pass
 
     def get_select_hint_text(self, byfroms):
-        return " ".join("/*+ %s */" % text for table, text in byfroms.items())
+        pass
 
     def function_argspec(self, fn, **kw):
-        if len(fn.clauses) > 0 or fn.name.upper() not in NO_ARG_FNS:
-            return compiler.SQLCompiler.function_argspec(self, fn, **kw)
-        else:
-            return ""
+        pass
 
     def visit_function(self, func, **kw):
-        text = super().visit_function(func, **kw)
-        if kw.get("asfrom", False) and func.name.lower() != "table":
-            text = "TABLE (%s)" % text
-        return text
+        pass
 
     def visit_table_valued_column(self, element, **kw):
-        text = super().visit_table_valued_column(element, **kw)
-        text = text + ".COLUMN_VALUE"
-        return text
+        pass
 
     def default_from(self):
         """Called when a ``SELECT`` statement has no froms,
@@ -1394,174 +1284,38 @@ class OracleCompiler(compiler.SQLCompiler):
 
         The Oracle compiler tacks a "FROM DUAL" to the statement.
         """
-
-        return " FROM DUAL"
+        pass
 
     def visit_join(self, join, from_linter=None, **kwargs):
-        if self.dialect.use_ansi:
-            return compiler.SQLCompiler.visit_join(
-                self, join, from_linter=from_linter, **kwargs
-            )
-        else:
-            if from_linter:
-                from_linter.edges.add((join.left, join.right))
-
-            kwargs["asfrom"] = True
-            if isinstance(join.right, expression.FromGrouping):
-                right = join.right.element
-            else:
-                right = join.right
-            return (
-                self.process(join.left, from_linter=from_linter, **kwargs)
-                + ", "
-                + self.process(right, from_linter=from_linter, **kwargs)
-            )
+        pass
 
     def _get_nonansi_join_whereclause(self, froms):
-        clauses = []
-
-        def visit_join(join):
-            if join.isouter:
-                # https://docs.oracle.com/database/121/SQLRF/queries006.htm#SQLRF52354
-                # "apply the outer join operator (+) to all columns of B in
-                # the join condition in the WHERE clause" - that is,
-                # unconditionally regardless of operator or the other side
-                def visit_binary(binary):
-                    if isinstance(
-                        binary.left, expression.ColumnClause
-                    ) and join.right.is_derived_from(binary.left.table):
-                        binary.left = _OuterJoinColumn(binary.left)
-                    elif isinstance(
-                        binary.right, expression.ColumnClause
-                    ) and join.right.is_derived_from(binary.right.table):
-                        binary.right = _OuterJoinColumn(binary.right)
-
-                clauses.append(
-                    visitors.cloned_traverse(
-                        join.onclause, {}, {"binary": visit_binary}
-                    )
-                )
-            else:
-                clauses.append(join.onclause)
-
-            for j in join.left, join.right:
-                if isinstance(j, expression.Join):
-                    visit_join(j)
-                elif isinstance(j, expression.FromGrouping):
-                    visit_join(j.element)
-
-        for f in froms:
-            if isinstance(f, expression.Join):
-                visit_join(f)
-
-        if not clauses:
-            return None
-        else:
-            return sql.and_(*clauses)
+        pass
 
     def visit_outer_join_column(self, vc, **kw):
-        return self.process(vc.column, **kw) + "(+)"
+        pass
 
     def visit_sequence(self, seq, **kw):
-        return self.preparer.format_sequence(seq) + ".nextval"
+        pass
 
     def get_render_as_alias_suffix(self, alias_name_text):
         """Oracle doesn't like ``FROM table AS alias``"""
-
-        return " " + alias_name_text
+        pass
 
     def returning_clause(
         self, stmt, returning_cols, *, populate_result_map, **kw
     ):
-        columns = []
-        binds = []
-
-        for i, column in enumerate(
-            expression._select_iterables(returning_cols)
-        ):
-            if (
-                self.isupdate
-                and isinstance(column, sa_schema.Column)
-                and isinstance(column.server_default, Computed)
-                and not self.dialect._supports_update_returning_computed_cols
-            ):
-                util.warn(
-                    "Computed columns don't work with Oracle Database UPDATE "
-                    "statements that use RETURNING; the value of the column "
-                    "*before* the UPDATE takes place is returned.   It is "
-                    "advised to not use RETURNING with an Oracle Database "
-                    "computed column.  Consider setting implicit_returning "
-                    "to False on the Table object in order to avoid implicit "
-                    "RETURNING clauses from being generated for this Table."
-                )
-            if column.type._has_column_expression:
-                col_expr = column.type.column_expression(column)
-            else:
-                col_expr = column
-
-            outparam = sql.outparam("ret_%d" % i, type_=column.type)
-            self.binds[outparam.key] = outparam
-            binds.append(
-                self.bindparam_string(self._truncate_bindparam(outparam))
-            )
-
-            # has_out_parameters would in a normal case be set to True
-            # as a result of the compiler visiting an outparam() object.
-            # in this case, the above outparam() objects are not being
-            # visited.   Ensure the statement itself didn't have other
-            # outparam() objects independently.
-            # technically, this could be supported, but as it would be
-            # a very strange use case without a clear rationale, disallow it
-            if self.has_out_parameters:
-                raise exc.InvalidRequestError(
-                    "Using explicit outparam() objects with "
-                    "UpdateBase.returning() in the same Core DML statement "
-                    "is not supported in the Oracle Database dialects."
-                )
-
-            self._oracle_returning = True
-
-            columns.append(self.process(col_expr, within_columns_clause=False))
-            if populate_result_map:
-                self._add_to_result_map(
-                    getattr(col_expr, "name", col_expr._anon_name_label),
-                    getattr(col_expr, "name", col_expr._anon_name_label),
-                    (
-                        column,
-                        getattr(column, "name", None),
-                        getattr(column, "key", None),
-                    ),
-                    column.type,
-                )
-
-        return "RETURNING " + ", ".join(columns) + " INTO " + ", ".join(binds)
+        pass
 
     def _row_limit_clause(self, select, **kw):
         """Oracle Database 12c supports OFFSET/FETCH operators
         Use it instead subquery with row_number
 
         """
-
-        if (
-            select._fetch_clause is not None
-            or not self.dialect._supports_offset_fetch
-        ):
-            return super()._row_limit_clause(
-                select, use_literal_execute_for_simple_int=True, **kw
-            )
-        else:
-            return self.fetch_clause(
-                select,
-                fetch_clause=self._get_limit_or_fetch(select),
-                use_literal_execute_for_simple_int=True,
-                **kw,
-            )
+        pass
 
     def _get_limit_or_fetch(self, select):
-        if select._fetch_clause is None:
-            return select._limit_clause
-        else:
-            return select._fetch_clause
+        pass
 
     def fetch_clause(
         self,
@@ -1571,259 +1325,49 @@ class OracleCompiler(compiler.SQLCompiler):
         use_literal_execute_for_simple_int=False,
         **kw,
     ):
-        text = super().fetch_clause(
-            select,
-            fetch_clause=fetch_clause,
-            require_offset=require_offset,
-            use_literal_execute_for_simple_int=(
-                use_literal_execute_for_simple_int
-            ),
-            **kw,
-        )
-
-        if select.dialect_options["oracle"]["fetch_approximate"]:
-            text = re.sub("FETCH FIRST", "FETCH APPROX FIRST", text)
-
-        return text
+        pass
 
     def translate_select_structure(self, select_stmt, **kwargs):
-        select = select_stmt
-
-        if not getattr(select, "_oracle_visit", None):
-            if not self.dialect.use_ansi:
-                froms = self._display_froms_for_select(
-                    select, kwargs.get("asfrom", False)
-                )
-                whereclause = self._get_nonansi_join_whereclause(froms)
-                if whereclause is not None:
-                    select = select.where(whereclause)
-                    select._oracle_visit = True
-
-            # if fetch is used this is not needed
-            if (
-                select._has_row_limiting_clause
-                and not self.dialect._supports_offset_fetch
-                and select._fetch_clause is None
-            ):
-                limit_clause = select._limit_clause
-                offset_clause = select._offset_clause
-
-                if select._simple_int_clause(limit_clause):
-                    limit_clause = limit_clause.render_literal_execute()
-
-                if select._simple_int_clause(offset_clause):
-                    offset_clause = offset_clause.render_literal_execute()
-
-                # currently using form at:
-                # https://blogs.oracle.com/oraclemagazine/\
-                # on-rownum-and-limiting-results
-
-                orig_select = select
-                select = select._generate()
-                select._oracle_visit = True
-
-                # add expressions to accommodate FOR UPDATE OF
-                for_update = select._for_update_arg
-                if for_update is not None and for_update.of:
-                    for_update = for_update._clone()
-                    for_update._copy_internals()
-
-                    for elem in for_update.of:
-                        if not select.selected_columns.contains_column(elem):
-                            select = select.add_columns(elem)
-
-                # Wrap the middle select and add the hint
-                inner_subquery = select.alias()
-                limitselect = sql.select(
-                    *[
-                        c
-                        for c in inner_subquery.c
-                        if orig_select.selected_columns.corresponding_column(c)
-                        is not None
-                    ]
-                )
-
-                if (
-                    limit_clause is not None
-                    and self.dialect.optimize_limits
-                    and select._simple_int_clause(limit_clause)
-                ):
-                    limitselect = limitselect.prefix_with(
-                        expression.text(
-                            "/*+ FIRST_ROWS(%s) */"
-                            % self.process(limit_clause, **kwargs)
-                        )
-                    )
-
-                limitselect._oracle_visit = True
-                limitselect._is_wrapper = True
-
-                # add expressions to accommodate FOR UPDATE OF
-                if for_update is not None and for_update.of:
-                    adapter = sql_util.ClauseAdapter(inner_subquery)
-                    for_update.of = [
-                        adapter.traverse(elem) for elem in for_update.of
-                    ]
-
-                # If needed, add the limiting clause
-                if limit_clause is not None:
-                    if select._simple_int_clause(limit_clause) and (
-                        offset_clause is None
-                        or select._simple_int_clause(offset_clause)
-                    ):
-                        max_row = limit_clause
-
-                        if offset_clause is not None:
-                            max_row = max_row + offset_clause
-
-                    else:
-                        max_row = limit_clause
-
-                        if offset_clause is not None:
-                            max_row = max_row + offset_clause
-                    limitselect = limitselect.where(
-                        sql.literal_column("ROWNUM") <= max_row
-                    )
-
-                # If needed, add the ora_rn, and wrap again with offset.
-                if offset_clause is None:
-                    limitselect._for_update_arg = for_update
-                    select = limitselect
-                else:
-                    limitselect = limitselect.add_columns(
-                        sql.literal_column("ROWNUM").label("ora_rn")
-                    )
-                    limitselect._oracle_visit = True
-                    limitselect._is_wrapper = True
-
-                    if for_update is not None and for_update.of:
-                        limitselect_cols = limitselect.selected_columns
-                        for elem in for_update.of:
-                            if (
-                                limitselect_cols.corresponding_column(elem)
-                                is None
-                            ):
-                                limitselect = limitselect.add_columns(elem)
-
-                    limit_subquery = limitselect.alias()
-                    origselect_cols = orig_select.selected_columns
-                    offsetselect = sql.select(
-                        *[
-                            c
-                            for c in limit_subquery.c
-                            if origselect_cols.corresponding_column(c)
-                            is not None
-                        ]
-                    )
-
-                    offsetselect._oracle_visit = True
-                    offsetselect._is_wrapper = True
-
-                    if for_update is not None and for_update.of:
-                        adapter = sql_util.ClauseAdapter(limit_subquery)
-                        for_update.of = [
-                            adapter.traverse(elem) for elem in for_update.of
-                        ]
-
-                    offsetselect = offsetselect.where(
-                        sql.literal_column("ora_rn") > offset_clause
-                    )
-
-                    offsetselect._for_update_arg = for_update
-                    select = offsetselect
-
-        return select
+        pass
 
     def limit_clause(self, select, **kw):
-        return ""
+        pass
 
     def visit_empty_set_expr(self, type_, **kw):
         return "SELECT 1 FROM DUAL WHERE 1!=1"
 
     def for_update_clause(self, select, **kw):
-        if self.is_subquery():
-            return ""
-
-        tmp = " FOR UPDATE"
-
-        if select._for_update_arg.of:
-            tmp += " OF " + ", ".join(
-                self.process(elem, **kw) for elem in select._for_update_arg.of
-            )
-
-        if select._for_update_arg.nowait:
-            tmp += " NOWAIT"
-        if select._for_update_arg.skip_locked:
-            tmp += " SKIP LOCKED"
-
-        return tmp
+        pass
 
     def visit_is_distinct_from_binary(self, binary, operator, **kw):
-        return "DECODE(%s, %s, 0, 1) = 1" % (
-            self.process(binary.left),
-            self.process(binary.right),
-        )
+        pass
 
     def visit_is_not_distinct_from_binary(self, binary, operator, **kw):
-        return "DECODE(%s, %s, 0, 1) = 0" % (
-            self.process(binary.left),
-            self.process(binary.right),
-        )
+        pass
 
     def visit_regexp_match_op_binary(self, binary, operator, **kw):
-        string = self.process(binary.left, **kw)
-        pattern = self.process(binary.right, **kw)
-        flags = binary.modifiers["flags"]
-        if flags is None:
-            return "REGEXP_LIKE(%s, %s)" % (string, pattern)
-        else:
-            return "REGEXP_LIKE(%s, %s, %s)" % (
-                string,
-                pattern,
-                self.render_literal_value(flags, sqltypes.STRINGTYPE),
-            )
+        pass
 
     def visit_not_regexp_match_op_binary(self, binary, operator, **kw):
-        return "NOT %s" % self.visit_regexp_match_op_binary(
-            binary, operator, **kw
-        )
+        pass
 
     def visit_regexp_replace_op_binary(self, binary, operator, **kw):
-        string = self.process(binary.left, **kw)
-        pattern_replace = self.process(binary.right, **kw)
-        flags = binary.modifiers["flags"]
-        if flags is None:
-            return "REGEXP_REPLACE(%s, %s)" % (
-                string,
-                pattern_replace,
-            )
-        else:
-            return "REGEXP_REPLACE(%s, %s, %s)" % (
-                string,
-                pattern_replace,
-                self.render_literal_value(flags, sqltypes.STRINGTYPE),
-            )
+        pass
 
     def visit_aggregate_strings_func(self, fn, **kw):
-        return super().visit_aggregate_strings_func(
-            fn, use_function_name="LISTAGG", **kw
-        )
+        pass
 
     def _visit_bitwise(self, binary, fn_name, custom_right=None, **kw):
-        left = self.process(binary.left, **kw)
-        right = self.process(
-            custom_right if custom_right is not None else binary.right, **kw
-        )
-        return f"{fn_name}({left}, {right})"
+        pass
 
     def visit_bitwise_xor_op_binary(self, binary, operator, **kw):
-        return self._visit_bitwise(binary, "BITXOR", **kw)
+        pass
 
     def visit_bitwise_or_op_binary(self, binary, operator, **kw):
-        return self._visit_bitwise(binary, "BITOR", **kw)
+        pass
 
     def visit_bitwise_and_op_binary(self, binary, operator, **kw):
-        return self._visit_bitwise(binary, "BITAND", **kw)
+        pass
 
     def visit_bitwise_rshift_op_binary(self, binary, operator, **kw):
         raise exc.CompileError("Cannot compile bitwise_rshift in oracle")
@@ -1835,55 +1379,17 @@ class OracleCompiler(compiler.SQLCompiler):
         raise exc.CompileError("Cannot compile bitwise_not in oracle")
 
     def _render_json_extract_from_binary(self, binary, operator, **kw):
-        literal_kw = kw.copy()
-        literal_kw["literal_binds"] = True
-
-        left = self.process(binary.left, **kw)
-        right = self.process(binary.right, **literal_kw)
-
-        if binary.type._type_affinity is sqltypes.Boolean:
-            # RETURNING clause doesn't handle true/false to 1/0
-            # mapping, so use CASE expression for boolean
-            return (
-                f"CASE JSON_VALUE({left}, {right})"
-                f" WHEN 'true' THEN 1"
-                f" WHEN 'false' THEN 0"
-                f" ELSE CAST(JSON_VALUE({left}, {right})"
-                f" AS NUMBER(1)) END"
-            )
-        elif binary.type._type_affinity is sqltypes.Integer:
-            json_value_returning = "INTEGER"
-        elif binary.type._type_affinity in (
-            sqltypes.Numeric,
-            sqltypes.Float,
-        ):
-            if isinstance(binary.type, sqltypes.Float):
-                json_value_returning = "FLOAT"
-            else:
-                json_value_returning = (
-                    f"NUMBER({binary.type.precision}, {binary.type.scale})"
-                )
-        elif binary.type._type_affinity is sqltypes.String:
-            json_value_returning = "VARCHAR2(4000)"
-        else:
-            # binary.type._type_affinity is sqltypes.JSON
-            # or other
-            return f"JSON_QUERY({left}, {right})"
-
-        return (
-            f"JSON_VALUE({left}, {right}"
-            f" RETURNING {json_value_returning} ERROR ON ERROR)"
-        )
+        pass
 
     def visit_json_getitem_op_binary(
         self, binary: elements.BinaryExpression[Any], operator: Any, **kw: Any
     ) -> str:
-        return self._render_json_extract_from_binary(binary, operator, **kw)
+        pass
 
     def visit_json_path_getitem_op_binary(
         self, binary: elements.BinaryExpression[Any], operator: Any, **kw: Any
     ) -> str:
-        return self._render_json_extract_from_binary(binary, operator, **kw)
+        pass
 
 
 class OracleDDLCompiler(compiler.DDLCompiler):
@@ -1891,159 +1397,28 @@ class OracleDDLCompiler(compiler.DDLCompiler):
     def _build_vector_index_config(
         self, vector_index_config: VectorIndexConfig
     ) -> str:
-        parts = []
-        sql_param_name = {
-            "hnsw_neighbors": "neighbors",
-            "hnsw_efconstruction": "efconstruction",
-            "ivf_neighbor_partitions": "neighbor partitions",
-            "ivf_sample_per_partition": "sample_per_partition",
-            "ivf_min_vectors_per_partition": "min_vectors_per_partition",
-        }
-        if vector_index_config.index_type == VectorIndexType.HNSW:
-            parts.append("ORGANIZATION INMEMORY NEIGHBOR GRAPH")
-        elif vector_index_config.index_type == VectorIndexType.IVF:
-            parts.append("ORGANIZATION NEIGHBOR PARTITIONS")
-        if vector_index_config.distance is not None:
-            parts.append(f"DISTANCE {vector_index_config.distance.value}")
-
-        if vector_index_config.accuracy is not None:
-            parts.append(
-                f"WITH TARGET ACCURACY {vector_index_config.accuracy}"
-            )
-
-        parameters_str = [f"type {vector_index_config.index_type.name}"]
-        prefix = vector_index_config.index_type.name.lower() + "_"
-
-        for field in fields(vector_index_config):
-            if field.name.startswith(prefix):
-                key = sql_param_name.get(field.name)
-                value = getattr(vector_index_config, field.name)
-                if value is not None:
-                    parameters_str.append(f"{key} {value}")
-
-        parameters_str = ", ".join(parameters_str)
-        parts.append(f"PARAMETERS ({parameters_str})")
-
-        if vector_index_config.parallel is not None:
-            parts.append(f"PARALLEL {vector_index_config.parallel}")
-
-        return " ".join(parts)
+        pass
 
     def define_constraint_cascades(self, constraint):
-        text = ""
-        if constraint.ondelete is not None:
-            text += " ON DELETE %s" % constraint.ondelete
-
-        # oracle has no ON UPDATE CASCADE -
-        # its only available via triggers
-        # https://web.archive.org/web/20090317041251/https://asktom.oracle.com/tkyte/update_cascade/index.html
-        if constraint.onupdate is not None:
-            util.warn(
-                "Oracle Database does not contain native UPDATE CASCADE "
-                "functionality - onupdates will not be rendered for foreign "
-                "keys.  Consider using deferrable=True, initially='deferred' "
-                "or triggers."
-            )
-
-        return text
+        pass
 
     def visit_drop_table_comment(self, drop, **kw):
-        return "COMMENT ON TABLE %s IS ''" % self.preparer.format_table(
-            drop.element
-        )
+        pass
 
     def visit_create_index(self, create, **kw):
-        index = create.element
-        self._verify_index_table(index)
-        preparer = self.preparer
-        text = "CREATE "
-        if index.unique:
-            text += "UNIQUE "
-        if index.dialect_options["oracle"]["bitmap"]:
-            text += "BITMAP "
-        vector_options = index.dialect_options["oracle"]["vector"]
-        if vector_options:
-            text += "VECTOR "
-        text += "INDEX %s ON %s (%s)" % (
-            self._prepared_index_name(index, include_schema=True),
-            preparer.format_table(index.table, use_schema=True),
-            ", ".join(
-                self.sql_compiler.process(
-                    expr, include_table=False, literal_binds=True
-                )
-                for expr in index.expressions
-            ),
-        )
-        if index.dialect_options["oracle"]["compress"] is not False:
-            if index.dialect_options["oracle"]["compress"] is True:
-                text += " COMPRESS"
-            else:
-                text += " COMPRESS %d" % (
-                    index.dialect_options["oracle"]["compress"]
-                )
-        if vector_options:
-            if vector_options is True:
-                vector_options = VectorIndexConfig()
-
-            text += " " + self._build_vector_index_config(vector_options)
-        return text
+        pass
 
     def post_create_table(self, table):
-        table_opts = []
-        opts = table.dialect_options["oracle"]
-
-        if opts["on_commit"]:
-            on_commit_options = opts["on_commit"].replace("_", " ").upper()
-            table_opts.append("\n ON COMMIT %s" % on_commit_options)
-
-        if opts["compress"]:
-            if opts["compress"] is True:
-                table_opts.append("\n COMPRESS")
-            else:
-                table_opts.append("\n COMPRESS FOR %s" % (opts["compress"]))
-        if opts["tablespace"]:
-            table_opts.append(
-                "\n TABLESPACE %s" % self.preparer.quote(opts["tablespace"])
-            )
-        return "".join(table_opts)
+        pass
 
     def get_identity_options(self, identity_options):
-        text = super().get_identity_options(identity_options)
-        text = text.replace("NO MINVALUE", "NOMINVALUE")
-        text = text.replace("NO MAXVALUE", "NOMAXVALUE")
-        text = text.replace("NO CYCLE", "NOCYCLE")
-        options = identity_options.dialect_options["oracle"]
-        if options.get("order") is not None:
-            text += " ORDER" if options["order"] else " NOORDER"
-        return text.strip()
+        pass
 
     def visit_computed_column(self, generated, **kw):
-        text = "GENERATED ALWAYS AS (%s)" % self.sql_compiler.process(
-            generated.sqltext, include_table=False, literal_binds=True
-        )
-        if generated.persisted is True:
-            raise exc.CompileError(
-                "Oracle Database computed columns do not support 'stored' "
-                "persistence; set the 'persisted' flag to None or False for "
-                "Oracle Database support."
-            )
-        elif generated.persisted is False:
-            text += " VIRTUAL"
-        return text
+        pass
 
     def visit_identity_column(self, identity, **kw):
-        if identity.always is None:
-            kind = ""
-        else:
-            kind = "ALWAYS" if identity.always else "BY DEFAULT"
-        text = "GENERATED %s" % kind
-        if identity.dialect_options["oracle"].get("on_null"):
-            text += " ON NULL"
-        text += " AS IDENTITY"
-        options = self.get_identity_options(identity)
-        if options:
-            text += " (%s)" % options
-        return text
+        pass
 
 
 class OracleIdentifierPreparer(compiler.IdentifierPreparer):
@@ -2054,26 +1429,15 @@ class OracleIdentifierPreparer(compiler.IdentifierPreparer):
 
     def _bindparam_requires_quotes(self, value):
         """Return True if the given identifier requires quoting."""
-        lc_value = value.lower()
-        return (
-            lc_value in self.reserved_words
-            or value[0] in self.illegal_initial_characters
-            or not self.legal_characters.match(str(value))
-        )
+        pass
 
     def format_savepoint(self, savepoint):
-        name = savepoint.ident.lstrip("_")
-        return super().format_savepoint(savepoint, name)
+        pass
 
 
 class OracleExecutionContext(default.DefaultExecutionContext):
     def fire_sequence(self, seq, type_):
-        return self._execute_scalar(
-            "SELECT "
-            + self.identifier_preparer.format_sequence(seq)
-            + ".nextval FROM DUAL",
-            type_,
-        )
+        pass
 
     def pre_exec(self):
         if self.statement and "_oracle_dblink" in self.execution_options:
@@ -2233,29 +1597,29 @@ class OracleDialect(default.DefaultDialect):
 
     @property
     def _is_oracle_8(self):
-        return self.server_version_info and self.server_version_info < (9,)
+        pass
 
     @property
     def _supports_table_compression(self):
-        return self.server_version_info and self.server_version_info >= (10, 1)
+        pass
 
     @property
     def _supports_table_compress_for(self):
-        return self.server_version_info and self.server_version_info >= (11,)
+        pass
 
     @property
     def _supports_char_length(self):
-        return not self._is_oracle_8
+        pass
 
     @property
     def _supports_update_returning_computed_cols(self):
         # on version 18 this error is no longet present while it happens on 11
         # it may work also on versions before the 18
-        return self.server_version_info and self.server_version_info >= (18,)
+        pass
 
     @property
     def _supports_except_all(self):
-        return self.server_version_info and self.server_version_info >= (21,)
+        pass
 
     def do_release_savepoint(self, connection, name):
         # Oracle does not support RELEASE SAVEPOINT
@@ -2361,20 +1725,7 @@ class OracleDialect(default.DefaultDialect):
         self, connection, sequence_name, schema=None, dblink=None, **kw
     ):
         """Supported kw arguments are: ``dblink`` to reflect via a db link."""
-        if not schema:
-            schema = self.default_schema_name
-
-        query = select(dictionary.all_sequences.c.sequence_name).where(
-            dictionary.all_sequences.c.sequence_name
-            == self.denormalize_schema_name(sequence_name),
-            dictionary.all_sequences.c.sequence_owner
-            == self.denormalize_schema_name(schema),
-        )
-
-        cursor = self._execute_reflection(
-            connection, query, dblink, returns_long=False
-        )
-        return bool(cursor.scalar())
+        pass
 
     def _get_default_schema_name(self, connection):
         return self.normalize_name(
@@ -2397,27 +1748,7 @@ class OracleDialect(default.DefaultDialect):
         ("dblink", InternalTraversal.dp_string),
     )
     def _get_synonyms(self, connection, schema, filter_names, dblink, **kw):
-        owner = self.denormalize_schema_name(
-            schema or self.default_schema_name
-        )
-
-        has_filter_names, params = self._prepare_filter_names(filter_names)
-        query = select(
-            dictionary.all_synonyms.c.synonym_name,
-            dictionary.all_synonyms.c.table_name,
-            dictionary.all_synonyms.c.table_owner,
-            dictionary.all_synonyms.c.db_link,
-        ).where(dictionary.all_synonyms.c.owner == owner)
-        if has_filter_names:
-            query = query.where(
-                dictionary.all_synonyms.c.synonym_name.in_(
-                    params["filter_names"]
-                )
-            )
-        result = self._execute_reflection(
-            connection, query, dblink, returns_long=False
-        ).mappings()
-        return result.all()
+        pass
 
     @lru_cache()
     def _all_objects_query(
@@ -2526,42 +1857,7 @@ class OracleDialect(default.DefaultDialect):
         return wrapper
 
     def _handle_synonyms(self, fn, connection, *args, **kwargs):
-        if not kwargs.get("oracle_resolve_synonyms", False):
-            return fn(self, connection, *args, **kwargs)
-
-        original_kw = kwargs.copy()
-        schema = kwargs.pop("schema", None)
-        result = self._get_synonyms(
-            connection,
-            schema=schema,
-            filter_names=kwargs.pop("filter_names", None),
-            dblink=kwargs.pop("dblink", None),
-            info_cache=kwargs.get("info_cache", None),
-        )
-
-        dblinks_owners = defaultdict(dict)
-        for row in result:
-            key = row["db_link"], row["table_owner"]
-            tn = self.normalize_name(row["table_name"])
-            dblinks_owners[key][tn] = row["synonym_name"]
-
-        if not dblinks_owners:
-            # No synonym, do the plain thing
-            return fn(self, connection, *args, **original_kw)
-
-        data = {}
-        for (dblink, table_owner), mapping in dblinks_owners.items():
-            call_kw = {
-                **original_kw,
-                "schema": table_owner,
-                "dblink": self.normalize_name(dblink),
-                "filter_names": mapping.keys(),
-            }
-            call_result = fn(self, connection, *args, **call_kw)
-            for (_, tn), value in call_result:
-                synonym_name = self.normalize_name(mapping[tn])
-                data[(schema, synonym_name)] = value
-        return data.items()
+        pass
 
     @reflection.cache
     def get_schema_names(self, connection, dblink=None, **kw):
@@ -2652,25 +1948,7 @@ class OracleDialect(default.DefaultDialect):
     @reflection.cache
     def get_temp_table_names(self, connection, dblink=None, **kw):
         """Supported kw arguments are: ``dblink`` to reflect via a db link."""
-        schema = self.denormalize_schema_name(self.default_schema_name)
-
-        query = select(dictionary.all_tables.c.table_name)
-        if self.exclude_tablespaces:
-            query = query.where(
-                func.coalesce(
-                    dictionary.all_tables.c.tablespace_name, "no tablespace"
-                ).not_in(self.exclude_tablespaces)
-            )
-        query = query.where(
-            dictionary.all_tables.c.owner == schema,
-            dictionary.all_tables.c.iot_name.is_(null()),
-            dictionary.all_tables.c.duration.is_not(null()),
-        )
-
-        result = self._execute_reflection(
-            connection, query, dblink, returns_long=False
-        ).scalars()
-        return [self.normalize_name(row) for row in result]
+        pass
 
     @reflection.cache
     def get_materialized_view_names(
@@ -2710,17 +1988,7 @@ class OracleDialect(default.DefaultDialect):
     @reflection.cache
     def get_sequence_names(self, connection, schema=None, dblink=None, **kw):
         """Supported kw arguments are: ``dblink`` to reflect via a db link."""
-        if not schema:
-            schema = self.default_schema_name
-        query = select(dictionary.all_sequences.c.sequence_name).where(
-            dictionary.all_sequences.c.sequence_owner
-            == self.denormalize_schema_name(schema)
-        )
-
-        result = self._execute_reflection(
-            connection, query, dblink, returns_long=False
-        ).scalars()
-        return [self.normalize_name(row) for row in result]
+        pass
 
     def _value_or_raise(self, data, table, schema):
         table = self.normalize_name(str(table))
@@ -2743,70 +2011,13 @@ class OracleDialect(default.DefaultDialect):
         """Supported kw arguments are: ``dblink`` to reflect via a db link;
         ``oracle_resolve_synonyms`` to resolve names to synonyms
         """
-        data = self.get_multi_table_options(
-            connection,
-            schema=schema,
-            filter_names=[table_name],
-            scope=ObjectScope.ANY,
-            kind=ObjectKind.ANY,
-            **kw,
-        )
-        return self._value_or_raise(data, table_name, schema)
+        pass
 
     @lru_cache()
     def _table_options_query(
         self, owner, scope, kind, has_filter_names, has_mat_views
     ):
-        query = select(
-            dictionary.all_tables.c.table_name,
-            (
-                dictionary.all_tables.c.compression
-                if self._supports_table_compression
-                else sql.null().label("compression")
-            ),
-            (
-                dictionary.all_tables.c.compress_for
-                if self._supports_table_compress_for
-                else sql.null().label("compress_for")
-            ),
-            dictionary.all_tables.c.tablespace_name,
-        ).where(dictionary.all_tables.c.owner == owner)
-        if has_filter_names:
-            query = query.where(
-                dictionary.all_tables.c.table_name.in_(
-                    bindparam("filter_names")
-                )
-            )
-        if scope is ObjectScope.DEFAULT:
-            query = query.where(dictionary.all_tables.c.duration.is_(null()))
-        elif scope is ObjectScope.TEMPORARY:
-            query = query.where(
-                dictionary.all_tables.c.duration.is_not(null())
-            )
-
-        if (
-            has_mat_views
-            and ObjectKind.TABLE in kind
-            and ObjectKind.MATERIALIZED_VIEW not in kind
-        ):
-            # can't use EXCEPT ALL / MINUS here because we don't have an
-            # excludable row vs. the query above
-            # outerjoin + where null works better on oracle 21 but 11 does
-            # not like it at all. this is the next best thing
-
-            query = query.where(
-                dictionary.all_tables.c.table_name.not_in(
-                    bindparam("mat_views")
-                )
-            )
-        elif (
-            ObjectKind.TABLE not in kind
-            and ObjectKind.MATERIALIZED_VIEW in kind
-        ):
-            query = query.where(
-                dictionary.all_tables.c.table_name.in_(bindparam("mat_views"))
-            )
-        return query
+        pass
 
     @_handle_synonyms_decorator
     def get_multi_table_options(
@@ -2823,58 +2034,7 @@ class OracleDialect(default.DefaultDialect):
         """Supported kw arguments are: ``dblink`` to reflect via a db link;
         ``oracle_resolve_synonyms`` to resolve names to synonyms
         """
-        owner = self.denormalize_schema_name(
-            schema or self.default_schema_name
-        )
-
-        has_filter_names, params = self._prepare_filter_names(filter_names)
-        has_mat_views = False
-
-        if (
-            ObjectKind.TABLE in kind
-            and ObjectKind.MATERIALIZED_VIEW not in kind
-        ):
-            # see note in _table_options_query
-            mat_views = self.get_materialized_view_names(
-                connection, schema, dblink, _normalize=False, **kw
-            )
-            if mat_views:
-                params["mat_views"] = mat_views
-                has_mat_views = True
-        elif (
-            ObjectKind.TABLE not in kind
-            and ObjectKind.MATERIALIZED_VIEW in kind
-        ):
-            mat_views = self.get_materialized_view_names(
-                connection, schema, dblink, _normalize=False, **kw
-            )
-            params["mat_views"] = mat_views
-
-        options = {}
-        default = ReflectionDefaults.table_options
-
-        if ObjectKind.TABLE in kind or ObjectKind.MATERIALIZED_VIEW in kind:
-            query = self._table_options_query(
-                owner, scope, kind, has_filter_names, has_mat_views
-            )
-            result = self._execute_reflection(
-                connection, query, dblink, returns_long=False, params=params
-            )
-
-            for table, compression, compress_for, tablespace in result:
-                data = default()
-                if compression == "ENABLED":
-                    data["oracle_compress"] = compress_for
-                if tablespace:
-                    data["oracle_tablespace"] = tablespace
-                options[(schema, self.normalize_name(table))] = data
-        if ObjectKind.VIEW in kind and ObjectScope.DEFAULT in scope:
-            # add the views (no temporary views)
-            for view in self.get_view_names(connection, schema, dblink, **kw):
-                if not filter_names or view in filter_names:
-                    options[(schema, view)] = default()
-
-        return options.items()
+        pass
 
     @reflection.cache
     def get_columns(self, connection, table_name, schema=None, **kw):
@@ -3163,71 +2323,13 @@ class OracleDialect(default.DefaultDialect):
         """Supported kw arguments are: ``dblink`` to reflect via a db link;
         ``oracle_resolve_synonyms`` to resolve names to synonyms
         """
-        data = self.get_multi_table_comment(
-            connection,
-            schema=schema,
-            filter_names=[table_name],
-            scope=ObjectScope.ANY,
-            kind=ObjectKind.ANY,
-            **kw,
-        )
-        return self._value_or_raise(data, table_name, schema)
+        pass
 
     @lru_cache()
     def _comment_query(self, owner, scope, kind, has_filter_names):
         # NOTE: all_tab_comments / all_mview_comments have a row for all
         # object even if they don't have comments
-        queries = []
-        if ObjectKind.TABLE in kind or ObjectKind.VIEW in kind:
-            # all_tab_comments returns also plain views
-            tbl_view = select(
-                dictionary.all_tab_comments.c.table_name,
-                dictionary.all_tab_comments.c.comments,
-            ).where(
-                dictionary.all_tab_comments.c.owner == owner,
-                dictionary.all_tab_comments.c.table_name.not_like("BIN$%"),
-            )
-            if ObjectKind.VIEW not in kind:
-                tbl_view = tbl_view.where(
-                    dictionary.all_tab_comments.c.table_type == "TABLE"
-                )
-            elif ObjectKind.TABLE not in kind:
-                tbl_view = tbl_view.where(
-                    dictionary.all_tab_comments.c.table_type == "VIEW"
-                )
-            queries.append(tbl_view)
-        if ObjectKind.MATERIALIZED_VIEW in kind:
-            mat_view = select(
-                dictionary.all_mview_comments.c.mview_name.label("table_name"),
-                dictionary.all_mview_comments.c.comments,
-            ).where(
-                dictionary.all_mview_comments.c.owner == owner,
-                dictionary.all_mview_comments.c.mview_name.not_like("BIN$%"),
-            )
-            queries.append(mat_view)
-        if len(queries) == 1:
-            query = queries[0]
-        else:
-            union = sql.union_all(*queries).subquery("tables_and_views")
-            query = select(union.c.table_name, union.c.comments)
-
-        name_col = query.selected_columns.table_name
-
-        if scope in (ObjectScope.DEFAULT, ObjectScope.TEMPORARY):
-            temp = "Y" if scope is ObjectScope.TEMPORARY else "N"
-            # need distinct since materialized view are listed also
-            # as tables in all_objects
-            query = query.distinct().join(
-                dictionary.all_objects,
-                and_(
-                    dictionary.all_objects.c.owner == owner,
-                    dictionary.all_objects.c.object_name == name_col,
-                    dictionary.all_objects.c.temporary == temp,
-                ),
-            )
-        if has_filter_names:
-            query = query.where(name_col.in_(bindparam("filter_names")))
-        return query
+        pass
 
     @_handle_synonyms_decorator
     def get_multi_table_comment(
@@ -3244,99 +2346,18 @@ class OracleDialect(default.DefaultDialect):
         """Supported kw arguments are: ``dblink`` to reflect via a db link;
         ``oracle_resolve_synonyms`` to resolve names to synonyms
         """
-        owner = self.denormalize_schema_name(
-            schema or self.default_schema_name
-        )
-        has_filter_names, params = self._prepare_filter_names(filter_names)
-        query = self._comment_query(owner, scope, kind, has_filter_names)
-
-        result = self._execute_reflection(
-            connection, query, dblink, returns_long=False, params=params
-        )
-        default = ReflectionDefaults.table_comment
-        # materialized views by default seem to have a comment like
-        # "snapshot table for snapshot owner.mat_view_name"
-        ignore_mat_view = "snapshot table for snapshot "
-        return (
-            (
-                (schema, self.normalize_name(table)),
-                (
-                    {"text": comment}
-                    if comment is not None
-                    and not comment.startswith(ignore_mat_view)
-                    else default()
-                ),
-            )
-            for table, comment in result
-        )
+        pass
 
     @reflection.cache
     def get_indexes(self, connection, table_name, schema=None, **kw):
         """Supported kw arguments are: ``dblink`` to reflect via a db link;
         ``oracle_resolve_synonyms`` to resolve names to synonyms
         """
-        data = self.get_multi_indexes(
-            connection,
-            schema=schema,
-            filter_names=[table_name],
-            scope=ObjectScope.ANY,
-            kind=ObjectKind.ANY,
-            **kw,
-        )
-        return self._value_or_raise(data, table_name, schema)
+        pass
 
     @lru_cache()
     def _index_query(self, owner):
-        return (
-            select(
-                dictionary.all_ind_columns.c.table_name,
-                dictionary.all_ind_columns.c.index_name,
-                dictionary.all_ind_columns.c.column_name,
-                dictionary.all_indexes.c.index_type,
-                dictionary.all_indexes.c.uniqueness,
-                dictionary.all_indexes.c.compression,
-                dictionary.all_indexes.c.prefix_length,
-                dictionary.all_ind_columns.c.descend,
-                dictionary.all_ind_expressions.c.column_expression,
-            )
-            .select_from(dictionary.all_ind_columns)
-            .join(
-                dictionary.all_indexes,
-                sql.and_(
-                    dictionary.all_ind_columns.c.index_name
-                    == dictionary.all_indexes.c.index_name,
-                    dictionary.all_ind_columns.c.index_owner
-                    == dictionary.all_indexes.c.owner,
-                ),
-            )
-            .outerjoin(
-                # NOTE: this adds about 20% to the query time. Using a
-                # case expression with a scalar subquery only when needed
-                # with the assumption that most indexes are not expression
-                # would be faster but oracle does not like that with
-                # LONG datatype. It errors with:
-                # ORA-00997: illegal use of LONG datatype
-                dictionary.all_ind_expressions,
-                sql.and_(
-                    dictionary.all_ind_expressions.c.index_name
-                    == dictionary.all_ind_columns.c.index_name,
-                    dictionary.all_ind_expressions.c.index_owner
-                    == dictionary.all_ind_columns.c.index_owner,
-                    dictionary.all_ind_expressions.c.column_position
-                    == dictionary.all_ind_columns.c.column_position,
-                ),
-            )
-            .where(
-                dictionary.all_indexes.c.table_owner == owner,
-                dictionary.all_indexes.c.table_name.in_(
-                    bindparam("all_objects")
-                ),
-            )
-            .order_by(
-                dictionary.all_ind_columns.c.index_name,
-                dictionary.all_ind_columns.c.column_position,
-            )
-        )
+        pass
 
     @reflection.flexi_cache(
         ("schema", InternalTraversal.dp_string),
@@ -3344,35 +2365,7 @@ class OracleDialect(default.DefaultDialect):
         ("all_objects", InternalTraversal.dp_string_list),
     )
     def _get_indexes_rows(self, connection, schema, dblink, all_objects, **kw):
-        owner = self.denormalize_schema_name(
-            schema or self.default_schema_name
-        )
-
-        query = self._index_query(owner)
-
-        pks = {
-            row_dict["constraint_name"]
-            for row_dict in self._get_all_constraint_rows(
-                connection, schema, dblink, all_objects, **kw
-            )
-            if row_dict["constraint_type"] == "P"
-        }
-
-        # all_ind_expressions.column_expression is LONG
-        result = self._run_batches(
-            connection,
-            query,
-            dblink,
-            returns_long=True,
-            mappings=True,
-            all_objects=all_objects,
-        )
-
-        return [
-            row_dict
-            for row_dict in result
-            if row_dict["index_name"] not in pks
-        ]
+        pass
 
     @_handle_synonyms_decorator
     def get_multi_indexes(
@@ -3389,68 +2382,7 @@ class OracleDialect(default.DefaultDialect):
         """Supported kw arguments are: ``dblink`` to reflect via a db link;
         ``oracle_resolve_synonyms`` to resolve names to synonyms
         """
-        all_objects = self._get_all_objects(
-            connection, schema, scope, kind, filter_names, dblink, **kw
-        )
-
-        uniqueness = {"NONUNIQUE": False, "UNIQUE": True}
-        enabled = {"DISABLED": False, "ENABLED": True}
-        is_bitmap = {"BITMAP", "FUNCTION-BASED BITMAP"}
-
-        indexes = defaultdict(dict)
-
-        for row_dict in self._get_indexes_rows(
-            connection, schema, dblink, all_objects, **kw
-        ):
-            index_name = self.normalize_name(row_dict["index_name"])
-            table_name = self.normalize_name(row_dict["table_name"])
-            table_indexes = indexes[(schema, table_name)]
-
-            if index_name not in table_indexes:
-                table_indexes[index_name] = index_dict = {
-                    "name": index_name,
-                    "column_names": [],
-                    "dialect_options": {},
-                    "unique": uniqueness.get(row_dict["uniqueness"], False),
-                }
-                do = index_dict["dialect_options"]
-                if row_dict["index_type"] in is_bitmap:
-                    do["oracle_bitmap"] = True
-                if enabled.get(row_dict["compression"], False):
-                    do["oracle_compress"] = row_dict["prefix_length"]
-
-            else:
-                index_dict = table_indexes[index_name]
-
-            expr = row_dict["column_expression"]
-            if expr is not None:
-                index_dict["column_names"].append(None)
-                if "expressions" in index_dict:
-                    index_dict["expressions"].append(expr)
-                else:
-                    index_dict["expressions"] = index_dict["column_names"][:-1]
-                    index_dict["expressions"].append(expr)
-
-                if row_dict["descend"].lower() != "asc":
-                    assert row_dict["descend"].lower() == "desc"
-                    cs = index_dict.setdefault("column_sorting", {})
-                    cs[expr] = ("desc",)
-            else:
-                assert row_dict["descend"].lower() == "asc"
-                cn = self.normalize_name(row_dict["column_name"])
-                index_dict["column_names"].append(cn)
-                if "expressions" in index_dict:
-                    index_dict["expressions"].append(cn)
-
-        default = ReflectionDefaults.indexes
-
-        return (
-            (key, list(indexes[key].values()) if key in indexes else default())
-            for key in (
-                (schema, self.normalize_name(obj_name))
-                for obj_name in all_objects
-            )
-        )
+        pass
 
     @reflection.cache
     def get_pk_constraint(self, connection, table_name, schema=None, **kw):
@@ -3752,15 +2684,7 @@ class OracleDialect(default.DefaultDialect):
         """Supported kw arguments are: ``dblink`` to reflect via a db link;
         ``oracle_resolve_synonyms`` to resolve names to synonyms
         """
-        data = self.get_multi_unique_constraints(
-            connection,
-            schema=schema,
-            filter_names=[table_name],
-            scope=ObjectScope.ANY,
-            kind=ObjectKind.ANY,
-            **kw,
-        )
-        return self._value_or_raise(data, table_name, schema)
+        pass
 
     @_handle_synonyms_decorator
     def get_multi_unique_constraints(
@@ -3777,63 +2701,7 @@ class OracleDialect(default.DefaultDialect):
         """Supported kw arguments are: ``dblink`` to reflect via a db link;
         ``oracle_resolve_synonyms`` to resolve names to synonyms
         """
-        all_objects = self._get_all_objects(
-            connection, schema, scope, kind, filter_names, dblink, **kw
-        )
-
-        unique_cons = defaultdict(dict)
-
-        index_names = {
-            row_dict["index_name"]
-            for row_dict in self._get_indexes_rows(
-                connection, schema, dblink, all_objects, **kw
-            )
-        }
-
-        for row_dict in self._get_all_constraint_rows(
-            connection, schema, dblink, all_objects, **kw
-        ):
-            if row_dict["constraint_type"] != "U":
-                continue
-            table_name = self.normalize_name(row_dict["table_name"])
-            constraint_name_orig = row_dict["constraint_name"]
-            constraint_name = self.normalize_name(constraint_name_orig)
-            column_name = self.normalize_name(row_dict["local_column"])
-            table_uc = unique_cons[(schema, table_name)]
-
-            assert constraint_name is not None
-
-            if constraint_name not in table_uc:
-                table_uc[constraint_name] = uc = {
-                    "name": constraint_name,
-                    "column_names": [],
-                    "duplicates_index": (
-                        constraint_name
-                        if constraint_name_orig in index_names
-                        else None
-                    ),
-                }
-            else:
-                uc = table_uc[constraint_name]
-
-            uc["column_names"].append(column_name)
-
-        default = ReflectionDefaults.unique_constraints
-
-        return (
-            (
-                key,
-                (
-                    list(unique_cons[key].values())
-                    if key in unique_cons
-                    else default()
-                ),
-            )
-            for key in (
-                (schema, self.normalize_name(obj_name))
-                for obj_name in all_objects
-            )
-        )
+        pass
 
     @reflection.cache
     def get_view_definition(
@@ -3847,44 +2715,7 @@ class OracleDialect(default.DefaultDialect):
         """Supported kw arguments are: ``dblink`` to reflect via a db link;
         ``oracle_resolve_synonyms`` to resolve names to synonyms
         """
-        if kw.get("oracle_resolve_synonyms", False):
-            synonyms = self._get_synonyms(
-                connection, schema, filter_names=[view_name], dblink=dblink
-            )
-            if synonyms:
-                assert len(synonyms) == 1
-                row_dict = synonyms[0]
-                dblink = self.normalize_name(row_dict["db_link"])
-                schema = row_dict["table_owner"]
-                view_name = row_dict["table_name"]
-
-        name = self.denormalize_name(view_name)
-        owner = self.denormalize_schema_name(
-            schema or self.default_schema_name
-        )
-        query = (
-            select(dictionary.all_views.c.text)
-            .where(
-                dictionary.all_views.c.view_name == name,
-                dictionary.all_views.c.owner == owner,
-            )
-            .union_all(
-                select(dictionary.all_mviews.c.query).where(
-                    dictionary.all_mviews.c.mview_name == name,
-                    dictionary.all_mviews.c.owner == owner,
-                )
-            )
-        )
-
-        rp = self._execute_reflection(
-            connection, query, dblink, returns_long=False
-        ).scalar()
-        if rp is None:
-            raise exc.NoSuchTableError(
-                f"{schema}.{view_name}" if schema else view_name
-            )
-        else:
-            return rp
+        pass
 
     @reflection.cache
     def get_check_constraints(
@@ -3893,16 +2724,7 @@ class OracleDialect(default.DefaultDialect):
         """Supported kw arguments are: ``dblink`` to reflect via a db link;
         ``oracle_resolve_synonyms`` to resolve names to synonyms
         """
-        data = self.get_multi_check_constraints(
-            connection,
-            schema=schema,
-            filter_names=[table_name],
-            scope=ObjectScope.ANY,
-            include_all=include_all,
-            kind=ObjectKind.ANY,
-            **kw,
-        )
-        return self._value_or_raise(data, table_name, schema)
+        pass
 
     @_handle_synonyms_decorator
     def get_multi_check_constraints(
@@ -3920,54 +2742,10 @@ class OracleDialect(default.DefaultDialect):
         """Supported kw arguments are: ``dblink`` to reflect via a db link;
         ``oracle_resolve_synonyms`` to resolve names to synonyms
         """
-        all_objects = self._get_all_objects(
-            connection, schema, scope, kind, filter_names, dblink, **kw
-        )
-
-        not_null = re.compile(r"..+?. IS NOT NULL$")
-
-        check_constraints = defaultdict(list)
-
-        for row_dict in self._get_all_constraint_rows(
-            connection, schema, dblink, all_objects, **kw
-        ):
-            if row_dict["constraint_type"] != "C":
-                continue
-            table_name = self.normalize_name(row_dict["table_name"])
-            constraint_name = self.normalize_name(row_dict["constraint_name"])
-            search_condition = row_dict["search_condition"]
-
-            table_checks = check_constraints[(schema, table_name)]
-            if constraint_name is not None and (
-                include_all or not not_null.match(search_condition)
-            ):
-                table_checks.append(
-                    {"name": constraint_name, "sqltext": search_condition}
-                )
-
-        default = ReflectionDefaults.check_constraints
-
-        return (
-            (
-                key,
-                (
-                    check_constraints[key]
-                    if key in check_constraints
-                    else default()
-                ),
-            )
-            for key in (
-                (schema, self.normalize_name(obj_name))
-                for obj_name in all_objects
-            )
-        )
+        pass
 
     def _list_dblinks(self, connection, dblink=None):
-        query = select(dictionary.all_db_links.c.db_link)
-        links = self._execute_reflection(
-            connection, query, dblink, returns_long=False
-        ).scalars()
-        return [self.normalize_name(link) for link in links]
+        pass
 
 
 class _OuterJoinColumn(sql.ClauseElement):

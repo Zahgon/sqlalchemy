@@ -131,7 +131,7 @@ class ShardedQuery(Query[_T]):
             results = session.execute(stmt, bind_arguments={"shard_id": "my_shard"})
 
         """  # noqa: E501
-        return self.execution_options(_sa_shard_id=shard_id)
+        pass
 
 
 class ShardedSession(Session):
@@ -426,56 +426,4 @@ class set_shard_id(ORMOption):
 def execute_and_instances(
     orm_context: ORMExecuteState,
 ) -> Result[Unpack[TupleAny]]:
-    active_options: Union[
-        None,
-        QueryContext.default_load_options,
-        Type[QueryContext.default_load_options],
-        _BulkUDCompileState.default_update_options,
-        Type[_BulkUDCompileState.default_update_options],
-    ]
-
-    if orm_context.is_select:
-        active_options = orm_context.load_options
-
-    elif orm_context.is_update or orm_context.is_delete:
-        active_options = orm_context.update_delete_options
-    else:
-        active_options = None
-
-    session = orm_context.session
-    assert isinstance(session, ShardedSession)
-
-    def iter_for_shard(
-        shard_id: ShardIdentifier,
-    ) -> Result[Unpack[TupleAny]]:
-        bind_arguments = dict(orm_context.bind_arguments)
-        bind_arguments["shard_id"] = shard_id
-
-        orm_context.update_execution_options(identity_token=shard_id)
-        return orm_context.invoke_statement(bind_arguments=bind_arguments)
-
-    for orm_opt in orm_context._non_compile_orm_options:
-        # TODO: if we had an ORMOption that gets applied at ORM statement
-        # execution time, that would allow this to be more generalized.
-        # for now just iterate and look for our options
-        if isinstance(orm_opt, set_shard_id):
-            shard_id = orm_opt.shard_id
-            break
-    else:
-        if active_options and active_options._identity_token is not None:
-            shard_id = active_options._identity_token
-        elif "_sa_shard_id" in orm_context.execution_options:
-            shard_id = orm_context.execution_options["_sa_shard_id"]
-        elif "shard_id" in orm_context.bind_arguments:
-            shard_id = orm_context.bind_arguments["shard_id"]
-        else:
-            shard_id = None
-
-    if shard_id is not None:
-        return iter_for_shard(shard_id)
-    else:
-        partial = []
-        for shard_id in session.execute_chooser(orm_context):
-            result_ = iter_for_shard(shard_id)
-            partial.append(result_)
-        return partial[0].merge(*partial[1:])
+    pass

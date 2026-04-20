@@ -60,7 +60,7 @@ class _MariaDBUUID(UUID[_UUID_RETURN]):
     def native(self) -> bool:  # type: ignore[override]
         # override to return True, this is a native type, just turning
         # off native_uuid for internal data handling
-        return True
+        pass
 
     def bind_processor(self, dialect: MariaDBShim) -> Optional[_BindProcessorType[_UUID_RETURN]]:  # type: ignore[override] # noqa: E501
         if not dialect.supports_native_uuid or not dialect._allows_uuid_binds:
@@ -71,10 +71,10 @@ class _MariaDBUUID(UUID[_UUID_RETURN]):
 
 class MariaDBTypeCompilerShim(TypeCompiler):
     def visit_INET4(self, type_: INET4, **kwargs: Any) -> str:
-        return "INET4"
+        pass
 
     def visit_INET6(self, type_: INET6, **kwargs: Any) -> str:
-        return "INET6"
+        pass
 
 
 class MariadbExecutionContextShim(default.DefaultExecutionContext):
@@ -107,13 +107,7 @@ class MariadbExecutionContextShim(default.DefaultExecutionContext):
     def fire_sequence(
         self, seq: Sequence_SchemaItem, type_: sqltypes.Integer
     ) -> int:
-        return self._execute_scalar(  # type: ignore[no-any-return]
-            (
-                "select nextval(%s)"
-                % self.identifier_preparer.format_sequence(seq)
-            ),
-            type_,
-        )
+        pass
 
 
 class MariaDBIdentifierPreparerShim(IdentifierPreparer):
@@ -123,15 +117,12 @@ class MariaDBIdentifierPreparerShim(IdentifierPreparer):
 
 class MariaDBSQLCompilerShim(SQLCompiler):
     def visit_sequence(self, sequence: sa_schema.Sequence, **kw: Any) -> str:
-        return "nextval(%s)" % self.preparer.format_sequence(sequence)
+        pass
 
     def _mariadb_regexp_flags(
         self, flags: str, pattern: elements.ColumnElement[Any], **kw: Any
     ) -> str:
-        return "CONCAT('(?', %s, ')', %s)" % (
-            self.render_literal_value(flags, sqltypes.STRINGTYPE),
-            self.process(pattern, **kw),
-        )
+        pass
 
     def _mariadb_regexp_match(
         self,
@@ -140,34 +131,17 @@ class MariaDBSQLCompilerShim(SQLCompiler):
         operator: Any,
         **kw: Any,
     ) -> str:
-        flags = binary.modifiers["flags"]
-        return "%s%s%s" % (
-            self.process(binary.left, **kw),
-            op_string,
-            self._mariadb_regexp_flags(flags, binary.right),
-        )
+        pass
 
     def _mariadb_regexp_replace_op_binary(
         self, binary: elements.BinaryExpression[Any], operator: Any, **kw: Any
     ) -> str:
-        flags = binary.modifiers["flags"]
-        return "REGEXP_REPLACE(%s, %s, %s)" % (
-            self.process(binary.left, **kw),
-            self._mariadb_regexp_flags(flags, binary.right.clauses[0]),
-            self.process(binary.right.clauses[1], **kw),
-        )
+        pass
 
     def _mariadb_visit_drop_check_constraint(
         self, drop: ddl.DropConstraint, **kw: Any
     ) -> str:
-        constraint = drop.element
-        qual = "CONSTRAINT "
-        const = self.preparer.format_constraint(constraint)
-        return "ALTER TABLE %s DROP %s%s" % (
-            self.preparer.format_table(constraint.table),
-            qual,
-            const,
-        )
+        pass
 
 
 class MariaDBDDLCompilerShim(DDLCompiler):
@@ -177,13 +151,7 @@ class MariaDBDDLCompilerShim(DDLCompiler):
         self, column: sa_schema.Column[Any], **kw: Any
     ) -> str:
 
-        if (
-            column.computed is not None
-            and column._user_defined_nullable is SchemaConst.NULL_UNSPECIFIED
-        ):
-            kw["_force_column_to_nullable"] = True
-
-        return self._mysql_get_column_specification(column, **kw)
+        pass
 
     def _mysql_get_column_specification(
         self,
@@ -195,21 +163,12 @@ class MariaDBDDLCompilerShim(DDLCompiler):
         raise NotImplementedError()
 
     def get_identity_options(self, identity_options: IdentityOptions) -> str:
-        text = super().get_identity_options(identity_options)
-        text = text.replace("NO CYCLE", "NOCYCLE")
-        return text
+        pass
 
     def _mariadb_visit_drop_check_constraint(
         self, drop: ddl.DropConstraint, **kw: Any
     ) -> str:
-        constraint = drop.element
-        qual = "CONSTRAINT "
-        const = self.preparer.format_constraint(constraint)
-        return "ALTER TABLE %s DROP %s%s" % (
-            self.preparer.format_table(constraint.table),
-            qual,
-            const,
-        )
+        pass
 
 
 class MariaDBShim(DefaultDialect):
@@ -249,11 +208,11 @@ class MariaDBShim(DefaultDialect):
 
     @property
     def _mariadb_normalized_version_info(self) -> tuple[int, ...]:
-        return self.server_version_info
+        pass
 
     @property
     def _is_mariadb(self) -> bool:
-        return self.is_mariadb
+        pass
 
     @classmethod
     def _is_mariadb_from_url(cls, url: URL) -> bool:
@@ -274,39 +233,7 @@ class MariaDBShim(DefaultDialect):
             conn.close()
 
     def _initialize_mariadb(self, connection: Connection) -> None:
-        assert self.is_mariadb
-
-        self.supports_sequences = self.server_version_info >= (10, 3)
-
-        self.delete_returning = self.server_version_info >= (10, 0, 5)
-
-        self.insert_returning = self.server_version_info >= (10, 5)
-
-        self._warn_for_known_db_issues()
-
-        self.supports_native_uuid = (
-            self.server_version_info is not None
-            and self.server_version_info >= (10, 7)
-        )
-        self._allows_uuid_binds = True
-
-        # ref https://mariadb.com/kb/en/mariadb-1021-release-notes/
-        self._support_default_function = self.server_version_info >= (10, 2, 1)
-
-        # ref https://mariadb.com/kb/en/mariadb-1045-release-notes/
-        self._support_float_cast = self.server_version_info >= (10, 4, 5)
+        pass
 
     def _warn_for_known_db_issues(self) -> None:
-        if self.is_mariadb:
-            mdb_version = self.server_version_info
-            assert mdb_version is not None
-            if mdb_version > (10, 2) and mdb_version < (10, 2, 9):
-                util.warn(
-                    "MariaDB %r before 10.2.9 has known issues regarding "
-                    "CHECK constraints, which impact handling of NULL values "
-                    "with SQLAlchemy's boolean datatype (MDEV-13596). An "
-                    "additional issue prevents proper migrations of columns "
-                    "with CHECK constraints (MDEV-11114).  Please upgrade to "
-                    "MariaDB 10.2.9 or greater, or use the MariaDB 10.1 "
-                    "series, to avoid these issues." % (mdb_version,)
-                )
+        pass

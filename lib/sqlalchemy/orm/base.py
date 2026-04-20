@@ -489,24 +489,7 @@ def _entity_descriptor(entity: _EntityType[Any], key: str) -> Any:
     attribute.
 
     """
-    insp = inspection.inspect(entity)
-    if insp.is_selectable:
-        description = entity
-        entity = insp.c
-    elif insp.is_aliased_class:
-        entity = insp.entity
-        description = entity
-    elif hasattr(insp, "mapper"):
-        description = entity = insp.mapper.class_
-    else:
-        description = entity
-
-    try:
-        return getattr(entity, key)
-    except AttributeError as err:
-        raise sa_exc.InvalidRequestError(
-            "Entity '%s' has no property '%s'" % (description, key)
-        ) from err
+    pass
 
 
 if TYPE_CHECKING:
@@ -863,7 +846,7 @@ class _DeclarativeMapped(Mapped[_T_co], _MappedAttribute[_T_co]):
     def reverse_operate(
         self, op: OperatorType, other: Any, **kwargs: Any
     ) -> Any:
-        return NotImplemented
+        pass
 
 
 class DynamicMapped(_MappedAnnotationBase[_T_co]):

@@ -439,8 +439,7 @@ def expect(
 def expect_as_key(
     role: Type[roles.DMLColumnRole], element: Any, **kw: Any
 ) -> str:
-    kw.pop("as_key", None)
-    return expect(role, element, as_key=True, **kw)
+    pass
 
 
 def expect_col_expression_collection(

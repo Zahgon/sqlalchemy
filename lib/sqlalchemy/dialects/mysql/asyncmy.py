@@ -208,7 +208,7 @@ class MySQLDialect_asyncmy(MySQLDialect_pymysql):
     def get_driver_connection(
         self, connection: DBAPIConnection
     ) -> AsyncIODBAPIConnection:
-        return connection._connection  # type: ignore[no-any-return]
+        pass
 
 
 dialect = MySQLDialect_asyncmy

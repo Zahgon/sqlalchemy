@@ -275,7 +275,7 @@ class Inspector(inspection.Inspectable["Inspector"]):
         .. versionadded:: 2.0
 
         """
-        self.info_cache.clear()
+        pass
 
     @classmethod
     @util.deprecated(
@@ -306,15 +306,15 @@ class Inspector(inspection.Inspectable["Inspector"]):
         See the example at :class:`_reflection.Inspector`.
 
         """
-        return cls._construct(cls._init_legacy, bind)
+        pass
 
     @inspection._inspects(Engine)
     def _engine_insp(bind: Engine) -> Inspector:  # type: ignore[misc]
-        return Inspector._construct(Inspector._init_engine, bind)
+        pass
 
     @inspection._inspects(Connection)
     def _connection_insp(bind: Connection) -> Inspector:  # type: ignore[misc]
-        return Inspector._construct(Inspector._init_connection, bind)
+        pass
 
     @contextlib.contextmanager
     def _operation_context(self) -> Generator[Connection, None, None]:
@@ -359,7 +359,7 @@ class Inspector(inspection.Inspectable["Inspector"]):
         for SQL Server.
 
         """
-        return self.dialect.default_schema_name
+        pass
 
     def get_schema_names(self, **kw: Any) -> List[str]:
         r"""Return all schema names.
@@ -454,10 +454,7 @@ class Inspector(inspection.Inspectable["Inspector"]):
         .. versionadded:: 1.4
 
         """
-        with self._operation_context() as conn:
-            return self.dialect.has_sequence(
-                conn, sequence_name, schema, info_cache=self.info_cache, **kw
-            )
+        pass
 
     def has_index(
         self,
@@ -478,15 +475,7 @@ class Inspector(inspection.Inspectable["Inspector"]):
         .. versionadded:: 2.0
 
         """
-        with self._operation_context() as conn:
-            return self.dialect.has_index(
-                conn,
-                table_name,
-                index_name,
-                schema,
-                info_cache=self.info_cache,
-                **kw,
-            )
+        pass
 
     def has_schema(self, schema_name: str, **kw: Any) -> bool:
         r"""Return True if the backend has a schema with the given name.
@@ -499,10 +488,7 @@ class Inspector(inspection.Inspectable["Inspector"]):
         .. versionadded:: 2.0
 
         """
-        with self._operation_context() as conn:
-            return self.dialect.has_schema(
-                conn, schema_name, info_cache=self.info_cache, **kw
-            )
+        pass
 
     def get_sorted_table_and_fkc_names(
         self,
@@ -535,19 +521,7 @@ class Inspector(inspection.Inspectable["Inspector"]):
             with an already-given :class:`_schema.MetaData`.
 
         """
-
-        return [
-            (
-                table_key[1] if table_key else None,
-                [(tname, fks) for (_, tname), fks in fk_collection],
-            )
-            for (
-                table_key,
-                fk_collection,
-            ) in self.sort_tables_on_foreign_key_dependency(
-                consider_schemas=(schema,)
-            )
-        ]
+        pass
 
     def sort_tables_on_foreign_key_dependency(
         self,
@@ -638,11 +612,7 @@ class Inspector(inspection.Inspectable["Inspector"]):
          in use for more information.
 
         """
-
-        with self._operation_context() as conn:
-            return self.dialect.get_temp_table_names(
-                conn, info_cache=self.info_cache, **kw
-            )
+        pass
 
     def get_temp_view_names(self, **kw: Any) -> List[str]:
         r"""Return a list of temporary view names for the current bind.
@@ -655,10 +625,7 @@ class Inspector(inspection.Inspectable["Inspector"]):
          in use for more information.
 
         """
-        with self._operation_context() as conn:
-            return self.dialect.get_temp_view_names(
-                conn, info_cache=self.info_cache, **kw
-            )
+        pass
 
     def get_table_options(
         self, table_name: str, schema: Optional[str] = None, **kw: Any
@@ -686,10 +653,7 @@ class Inspector(inspection.Inspectable["Inspector"]):
         .. seealso:: :meth:`Inspector.get_multi_table_options`
 
         """
-        with self._operation_context() as conn:
-            return self.dialect.get_table_options(
-                conn, table_name, schema, info_cache=self.info_cache, **kw
-            )
+        pass
 
     def get_multi_table_options(
         self,
@@ -736,17 +700,7 @@ class Inspector(inspection.Inspectable["Inspector"]):
 
         .. seealso:: :meth:`Inspector.get_table_options`
         """
-        with self._operation_context() as conn:
-            res = self.dialect.get_multi_table_options(
-                conn,
-                schema=schema,
-                filter_names=filter_names,
-                kind=kind,
-                scope=scope,
-                info_cache=self.info_cache,
-                **kw,
-            )
-            return dict(res)
+        pass
 
     def get_view_names(
         self, schema: Optional[str] = None, **kw: Any
@@ -813,11 +767,7 @@ class Inspector(inspection.Inspectable["Inspector"]):
          in use for more information.
 
         """
-
-        with self._operation_context() as conn:
-            return self.dialect.get_sequence_names(
-                conn, schema, info_cache=self.info_cache, **kw
-            )
+        pass
 
     def get_view_definition(
         self, view_name: str, schema: Optional[str] = None, **kw: Any
@@ -833,11 +783,7 @@ class Inspector(inspection.Inspectable["Inspector"]):
          in use for more information.
 
         """
-
-        with self._operation_context() as conn:
-            return self.dialect.get_view_definition(
-                conn, view_name, schema, info_cache=self.info_cache, **kw
-            )
+        pass
 
     def get_columns(
         self, table_name: str, schema: Optional[str] = None, **kw: Any
@@ -1140,11 +1086,7 @@ class Inspector(inspection.Inspectable["Inspector"]):
 
         .. seealso:: :meth:`Inspector.get_multi_indexes`
         """
-
-        with self._operation_context() as conn:
-            return self.dialect.get_indexes(
-                conn, table_name, schema, info_cache=self.info_cache, **kw
-            )
+        pass
 
     def get_multi_indexes(
         self,
@@ -1189,19 +1131,7 @@ class Inspector(inspection.Inspectable["Inspector"]):
 
         .. seealso:: :meth:`Inspector.get_indexes`
         """
-
-        with self._operation_context() as conn:
-            return dict(
-                self.dialect.get_multi_indexes(
-                    conn,
-                    schema=schema,
-                    filter_names=filter_names,
-                    kind=kind,
-                    scope=scope,
-                    info_cache=self.info_cache,
-                    **kw,
-                )
-            )
+        pass
 
     def get_unique_constraints(
         self, table_name: str, schema: Optional[str] = None, **kw: Any
@@ -1228,11 +1158,7 @@ class Inspector(inspection.Inspectable["Inspector"]):
 
         .. seealso:: :meth:`Inspector.get_multi_unique_constraints`
         """
-
-        with self._operation_context() as conn:
-            return self.dialect.get_unique_constraints(
-                conn, table_name, schema, info_cache=self.info_cache, **kw
-            )
+        pass
 
     def get_multi_unique_constraints(
         self,
@@ -1278,19 +1204,7 @@ class Inspector(inspection.Inspectable["Inspector"]):
 
         .. seealso:: :meth:`Inspector.get_unique_constraints`
         """
-
-        with self._operation_context() as conn:
-            return dict(
-                self.dialect.get_multi_unique_constraints(
-                    conn,
-                    schema=schema,
-                    filter_names=filter_names,
-                    kind=kind,
-                    scope=scope,
-                    info_cache=self.info_cache,
-                    **kw,
-                )
-            )
+        pass
 
     def get_table_comment(
         self, table_name: str, schema: Optional[str] = None, **kw: Any
@@ -1318,11 +1232,7 @@ class Inspector(inspection.Inspectable["Inspector"]):
 
         .. seealso:: :meth:`Inspector.get_multi_table_comment`
         """
-
-        with self._operation_context() as conn:
-            return self.dialect.get_table_comment(
-                conn, table_name, schema, info_cache=self.info_cache, **kw
-            )
+        pass
 
     def get_multi_table_comment(
         self,
@@ -1370,19 +1280,7 @@ class Inspector(inspection.Inspectable["Inspector"]):
 
         .. seealso:: :meth:`Inspector.get_table_comment`
         """
-
-        with self._operation_context() as conn:
-            return dict(
-                self.dialect.get_multi_table_comment(
-                    conn,
-                    schema=schema,
-                    filter_names=filter_names,
-                    kind=kind,
-                    scope=scope,
-                    info_cache=self.info_cache,
-                    **kw,
-                )
-            )
+        pass
 
     def get_check_constraints(
         self, table_name: str, schema: Optional[str] = None, **kw: Any
@@ -1409,11 +1307,7 @@ class Inspector(inspection.Inspectable["Inspector"]):
 
         .. seealso:: :meth:`Inspector.get_multi_check_constraints`
         """
-
-        with self._operation_context() as conn:
-            return self.dialect.get_check_constraints(
-                conn, table_name, schema, info_cache=self.info_cache, **kw
-            )
+        pass
 
     def get_multi_check_constraints(
         self,
@@ -1459,19 +1353,7 @@ class Inspector(inspection.Inspectable["Inspector"]):
 
         .. seealso:: :meth:`Inspector.get_check_constraints`
         """
-
-        with self._operation_context() as conn:
-            return dict(
-                self.dialect.get_multi_check_constraints(
-                    conn,
-                    schema=schema,
-                    filter_names=filter_names,
-                    kind=kind,
-                    scope=scope,
-                    info_cache=self.info_cache,
-                    **kw,
-                )
-            )
+        pass
 
     def reflect_table(
         self,
@@ -2058,23 +1940,23 @@ class ReflectionDefaults:
 
     @classmethod
     def indexes(cls) -> List[ReflectedIndex]:
-        return []
+        pass
 
     @classmethod
     def unique_constraints(cls) -> List[ReflectedUniqueConstraint]:
-        return []
+        pass
 
     @classmethod
     def check_constraints(cls) -> List[ReflectedCheckConstraint]:
-        return []
+        pass
 
     @classmethod
     def table_options(cls) -> Dict[str, Any]:
-        return {}
+        pass
 
     @classmethod
     def table_comment(cls) -> ReflectedTableComment:
-        return {"text": None}
+        pass
 
 
 @dataclass

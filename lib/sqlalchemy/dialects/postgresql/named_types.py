@@ -69,7 +69,7 @@ class NamedType(schema.SchemaVisitable, sqltypes.TypeEngine):
          if the type actually exists before dropping.
 
         """
-        bind._run_ddl_visitor(self.DDLDropper, self, checkfirst=checkfirst)
+        pass
 
     def _check_for_name_in_memos(
         self, checkfirst: CheckFirst, kw: Dict[str, Any]
@@ -82,20 +82,7 @@ class NamedType(schema.SchemaVisitable, sqltypes.TypeEngine):
         sequence without relying upon "checkfirst".
 
         """
-        if not self.create_type:
-            return True
-        if "_ddl_runner" in kw:
-            ddl_runner = kw["_ddl_runner"]
-            type_name = f"pg_{self.__visit_name__}"
-            if type_name in ddl_runner.memo:
-                existing = ddl_runner.memo[type_name]
-            else:
-                existing = ddl_runner.memo[type_name] = set()
-            present = (self.schema, self.name) in existing
-            existing.add((self.schema, self.name))
-            return present
-        else:
-            return False
+        pass
 
     def _on_table_create(
         self,
@@ -104,9 +91,7 @@ class NamedType(schema.SchemaVisitable, sqltypes.TypeEngine):
         checkfirst: Union[bool, CheckFirst] = CheckFirst.NONE,
         **kw: Any,
     ) -> None:
-        checkfirst = CheckFirst(checkfirst) & CheckFirst.TYPES
-        if not self._check_for_name_in_memos(checkfirst, kw):
-            self.create(bind=bind, checkfirst=bool(checkfirst))
+        pass
 
     def _on_table_drop(
         self,
@@ -116,7 +101,7 @@ class NamedType(schema.SchemaVisitable, sqltypes.TypeEngine):
         **kw: Any,
     ) -> None:
         # do nothing since the enum is attached to a metadata
-        assert self.metadata is not None
+        pass
 
     def _on_metadata_create(
         self,
@@ -125,9 +110,7 @@ class NamedType(schema.SchemaVisitable, sqltypes.TypeEngine):
         checkfirst: Union[bool, CheckFirst] = CheckFirst.NONE,
         **kw: Any,
     ) -> None:
-        checkfirst = CheckFirst(checkfirst) & CheckFirst.TYPES
-        if not self._check_for_name_in_memos(checkfirst, kw):
-            self.create(bind=bind, checkfirst=bool(checkfirst))
+        pass
 
     def _on_metadata_drop(
         self,
@@ -136,9 +119,7 @@ class NamedType(schema.SchemaVisitable, sqltypes.TypeEngine):
         checkfirst: Union[bool, CheckFirst] = CheckFirst.NONE,
         **kw: Any,
     ) -> None:
-        checkfirst = CheckFirst(checkfirst) & CheckFirst.TYPES
-        if not self._check_for_name_in_memos(checkfirst, kw):
-            self.drop(bind=bind, checkfirst=bool(checkfirst))
+        pass
 
 
 class NamedTypeGenerator(InvokeCreateDDLBase):
@@ -147,13 +128,7 @@ class NamedTypeGenerator(InvokeCreateDDLBase):
         self.checkfirst = checkfirst
 
     def _can_create_type(self, type_):
-        if not self.checkfirst:
-            return True
-
-        effective_schema = self.connection.schema_for_object(type_)
-        return not self.connection.dialect.has_type(
-            self.connection, type_.name, schema=effective_schema
-        )
+        pass
 
 
 class NamedTypeDropper(InvokeDropDDLBase):
@@ -162,31 +137,17 @@ class NamedTypeDropper(InvokeDropDDLBase):
         self.checkfirst = checkfirst
 
     def _can_drop_type(self, type_):
-        if not self.checkfirst:
-            return True
-
-        effective_schema = self.connection.schema_for_object(type_)
-        return self.connection.dialect.has_type(
-            self.connection, type_.name, schema=effective_schema
-        )
+        pass
 
 
 class EnumGenerator(NamedTypeGenerator):
     def visit_enum(self, enum):
-        if not self._can_create_type(enum):
-            return
-
-        with self.with_ddl_events(enum):
-            self.connection.execute(CreateEnumType(enum))
+        pass
 
 
 class EnumDropper(NamedTypeDropper):
     def visit_enum(self, enum):
-        if not self._can_drop_type(enum):
-            return
-
-        with self.with_ddl_events(enum):
-            self.connection.execute(DropEnumType(enum))
+        pass
 
 
 class ENUM(NamedType, type_api.NativeForEmulated, sqltypes.Enum):
@@ -378,10 +339,7 @@ class ENUM(NamedType, type_api.NativeForEmulated, sqltypes.Enum):
          if the type actually exists before dropping.
 
         """
-        if not bind.dialect.supports_native_enum:
-            return
-
-        super().drop(bind, checkfirst=checkfirst)
+        pass
 
     def get_dbapi_type(self, dbapi: ModuleType) -> None:
         """dont return dbapi.STRING for ENUM in PostgreSQL, since that's
@@ -392,19 +350,12 @@ class ENUM(NamedType, type_api.NativeForEmulated, sqltypes.Enum):
 
 class DomainGenerator(NamedTypeGenerator):
     def visit_DOMAIN(self, domain):
-        if not self._can_create_type(domain):
-            return
-        with self.with_ddl_events(domain):
-            self.connection.execute(CreateDomainType(domain))
+        pass
 
 
 class DomainDropper(NamedTypeDropper):
     def visit_DOMAIN(self, domain):
-        if not self._can_drop_type(domain):
-            return
-
-        with self.with_ddl_events(domain):
-            self.connection.execute(DropDomainType(domain))
+        pass
 
 
 class DOMAIN(NamedType, sqltypes.SchemaType):

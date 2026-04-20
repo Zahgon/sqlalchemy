@@ -579,15 +579,4 @@ class DistinctOnClause(SyntaxExtension, expression.ClauseElement):
     def _merge_other_distinct(
         self, existing: Sequence[elements.ClauseElement]
     ) -> Sequence[elements.ClauseElement]:
-        res = []
-        to_merge = ()
-        for e in existing:
-            if isinstance(e, DistinctOnClause):
-                to_merge += e._distinct_on
-            else:
-                res.append(e)
-        if to_merge:
-            res.append(DistinctOnClause(to_merge + self._distinct_on))
-        else:
-            res.append(self)
-        return res
+        pass

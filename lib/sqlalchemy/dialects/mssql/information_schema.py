@@ -29,7 +29,7 @@ class CoerceUnicode(TypeDecorator):
     cache_ok = True
 
     def bind_expression(self, bindvalue):
-        return _cast_on_2005(bindvalue)
+        pass
 
 
 class _cast_on_2005(expression.ColumnElement):
@@ -39,15 +39,7 @@ class _cast_on_2005(expression.ColumnElement):
 
 @compiles(_cast_on_2005)
 def _compile(element, compiler, **kw):
-    from . import base
-
-    if (
-        compiler.dialect.server_version_info is None
-        or compiler.dialect.server_version_info < base.MS_2005_VERSION
-    ):
-        return compiler.process(element.bindvalue, **kw)
-    else:
-        return compiler.process(cast(element.bindvalue, Unicode), **kw)
+    pass
 
 
 schemata = Table(
@@ -242,7 +234,7 @@ class NumericSqlVariant(TypeDecorator):
     cache_ok = True
 
     def column_expression(self, colexpr):
-        return cast(colexpr, Numeric(38, 0))
+        pass
 
 
 identity_columns = Table(
@@ -269,7 +261,7 @@ class NVarcharSqlVariant(TypeDecorator):
     cache_ok = True
 
     def column_expression(self, colexpr):
-        return cast(colexpr, NVARCHAR)
+        pass
 
 
 extended_properties = Table(

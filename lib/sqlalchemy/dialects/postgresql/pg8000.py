@@ -342,11 +342,11 @@ class ServerSideCursor:
 
     @property
     def rowcount(self):
-        return self.cursor.rowcount
+        pass
 
     @property
     def description(self):
-        return self.cursor.description
+        pass
 
     def execute(self, operation, args=(), stream=None):
         op = "DECLARE " + self.ident + " NO SCROLL CURSOR FOR " + operation
@@ -387,11 +387,7 @@ class ServerSideCursor:
 
 class PGCompiler_pg8000(PGCompiler):
     def visit_mod_binary(self, binary, operator, **kw):
-        return (
-            self.process(binary.left, **kw)
-            + " %% "
-            + self.process(binary.right, **kw)
-        )
+        pass
 
 
 class PGIdentifierPreparer_pg8000(PGIdentifierPreparer):
@@ -556,14 +552,7 @@ class PGDialect_pg8000(PGDialect):
             cursor.close()
 
     def get_readonly(self, connection):
-        cursor = connection.cursor()
-        try:
-            cursor.execute("show transaction_read_only")
-            val = cursor.fetchone()[0]
-        finally:
-            cursor.close()
-
-        return val == "on"
+        pass
 
     def set_deferrable(self, connection, value):
         cursor = connection.cursor()
@@ -577,14 +566,7 @@ class PGDialect_pg8000(PGDialect):
             cursor.close()
 
     def get_deferrable(self, connection):
-        cursor = connection.cursor()
-        try:
-            cursor.execute("show transaction_deferrable")
-            val = cursor.fetchone()[0]
-        finally:
-            cursor.close()
-
-        return val == "on"
+        pass
 
     def _set_client_encoding(self, dbapi_connection, client_encoding):
         cursor = dbapi_connection.cursor()
@@ -613,7 +595,7 @@ class PGDialect_pg8000(PGDialect):
         connection.connection.tpc_commit((0, xid, ""))
 
     def do_recover_twophase(self, connection):
-        return [row[1] for row in connection.connection.tpc_recover()]
+        pass
 
     def on_connect(self):
         fns = []
@@ -664,7 +646,7 @@ class PGDialect_pg8000(PGDialect):
 
     @util.memoized_property
     def _dialect_specific_select_one(self):
-        return ";"
+        pass
 
 
 dialect = PGDialect_pg8000

@@ -123,7 +123,7 @@ class BaseRow:
             return self._data[key]
 
     def _get_by_key_impl_mapping(self, key: _KeyType) -> Any:
-        return self._get_by_key_impl(key, False)
+        pass
 
     @cython.cfunc
     @cython.inline
@@ -163,7 +163,7 @@ class BaseRow:
         raise AttributeError("can't delete attribute")
 
     def _to_tuple_instance(self) -> Tuple[Any, ...]:
-        return self._data
+        pass
 
     def __contains__(self, key: Any) -> cython.bint:
         return key in self._data
@@ -227,6 +227,4 @@ else:
 def rowproxy_reconstructor(
     cls: Type[BaseRow], state: Dict[str, Any]
 ) -> BaseRow:
-    obj = cls.__new__(cls)
-    obj.__setstate__(state)
-    return obj
+    pass

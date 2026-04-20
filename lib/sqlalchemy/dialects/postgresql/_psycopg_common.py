@@ -169,10 +169,10 @@ class _PGDialect_common_psycopg(PGDialect):
         connection.deferrable = value
 
     def get_deferrable(self, connection):
-        return connection.deferrable
+        pass
 
     def _do_autocommit(self, connection, value):
-        connection.autocommit = value
+        pass
 
     def detect_autocommit_setting(self, dbapi_connection):
         return bool(dbapi_connection.autocommit)
@@ -226,4 +226,4 @@ class _PGDialect_common_psycopg(PGDialect):
         )
 
     def do_recover_twophase(self, connection):
-        return [row[1] for row in connection.connection.tpc_recover()]
+        pass

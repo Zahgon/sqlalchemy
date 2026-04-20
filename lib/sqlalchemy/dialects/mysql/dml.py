@@ -147,11 +147,11 @@ class Insert(StandardInsert):
             to use :attr:`_expression.Insert.inserted`
 
         """
-        return self.inserted_alias.columns
+        pass
 
     @util.memoized_property
     def inserted_alias(self) -> NamedFromClause:
-        return alias(self.table, name="inserted")
+        pass
 
     @_exclusive_against(
         "_post_values_clause",
@@ -201,22 +201,7 @@ class Insert(StandardInsert):
             :ref:`mysql_insert_on_duplicate_key_update`
 
         """
-        if args and kw:
-            raise exc.ArgumentError(
-                "Can't pass kwargs and positional arguments simultaneously"
-            )
-
-        if args:
-            if len(args) > 1:
-                raise exc.ArgumentError(
-                    "Only a single dictionary or list of tuples "
-                    "is accepted positionally."
-                )
-            values = args[0]
-        else:
-            values = kw
-
-        return self.ext(OnDuplicateClause(self.inserted_alias, values))
+        pass
 
 
 class OnDuplicateClause(SyntaxExtension, ClauseElement):

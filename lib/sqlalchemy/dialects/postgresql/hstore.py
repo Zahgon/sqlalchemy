@@ -141,15 +141,15 @@ class HSTORE(
             """Boolean expression.  Test for presence of a key.  Note that the
             key may be a SQLA expression.
             """
-            return self.operate(HAS_KEY, other, result_type=sqltypes.Boolean)
+            pass
 
         def has_all(self, other: Any) -> Any:
             """Boolean expression.  Test for presence of all keys in jsonb"""
-            return self.operate(HAS_ALL, other, result_type=sqltypes.Boolean)
+            pass
 
         def has_any(self, other: Any) -> Any:
             """Boolean expression.  Test for presence of any key in jsonb"""
-            return self.operate(HAS_ANY, other, result_type=sqltypes.Boolean)
+            pass
 
         def contains(self, other: Any, **kwargs: Any) -> Any:
             """Boolean expression.  Test if keys (or array) are a superset
@@ -175,7 +175,7 @@ class HSTORE(
             """Boolean expression.  Test for presence of a non-NULL value for
             the key.  Note that the key may be a SQLA expression.
             """
-            return _HStoreDefinedFunction(self.expr, key)
+            pass
 
         def delete(self, key: Any) -> Any:
             """HStore expression.  Returns the contents of this hstore with the
@@ -197,7 +197,7 @@ class HSTORE(
 
         def vals(self) -> Any:
             """Text array expression.  Returns array of values."""
-            return _HStoreValsFunction(self.expr)
+            pass
 
         def array(self) -> Any:
             """Text array expression.  Returns array of alternating keys and
@@ -207,7 +207,7 @@ class HSTORE(
 
         def matrix(self) -> Any:
             """Text array expression.  Returns array of [key, value] pairs."""
-            return _HStoreMatrixFunction(self.expr)
+            pass
 
     comparator_factory = Comparator
 

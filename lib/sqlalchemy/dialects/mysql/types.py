@@ -47,10 +47,7 @@ class _NumericType(
 ):
 
     def repr_struct(self) -> util.GenericRepr:
-        return util.GenericRepr(
-            self,
-            to_inspect=[_NumericType, _NumericCommonType, sqltypes.Numeric],
-        )
+        pass
 
 
 class _FloatType(
@@ -76,9 +73,7 @@ class _FloatType(
         self.scale = scale
 
     def repr_struct(self) -> util.GenericRepr:
-        return util.GenericRepr(
-            self, to_inspect=[_FloatType, _NumericCommonType, sqltypes.Float]
-        )
+        pass
 
 
 class _IntegerType(_NumericCommonType, sqltypes.Integer):
@@ -87,10 +82,7 @@ class _IntegerType(_NumericCommonType, sqltypes.Integer):
         super().__init__(**kw)
 
     def repr_struct(self) -> util.GenericRepr:
-        return util.GenericRepr(
-            self,
-            to_inspect=[_IntegerType, _NumericCommonType, sqltypes.Integer],
-        )
+        pass
 
 
 class _StringType(sqltypes.String):
@@ -118,9 +110,7 @@ class _StringType(sqltypes.String):
         super().__init__(**kw)
 
     def repr_struct(self) -> util.GenericRepr:
-        return util.GenericRepr(
-            self, to_inspect=[_StringType, sqltypes.String]
-        )
+        pass
 
 
 class _MatchType(
@@ -397,10 +387,7 @@ class TINYINT(_IntegerType):
         super().__init__(display_width=display_width, **kw)
 
     def _compare_type_affinity(self, other: TypeEngine[Any]) -> bool:
-        return (
-            self._type_affinity is other._type_affinity
-            or other._type_affinity is sqltypes.Boolean
-        )
+        pass
 
 
 class SMALLINT(_IntegerType, sqltypes.SMALLINT):
@@ -758,21 +745,7 @@ class CHAR(_StringType, sqltypes.CHAR):
     def _adapt_string_for_cast(cls, type_: sqltypes.String) -> sqltypes.CHAR:
         # copy the given string type into a CHAR
         # for the purposes of rendering a CAST expression
-        type_ = sqltypes.to_instance(type_)
-        if isinstance(type_, sqltypes.CHAR):
-            return type_
-        elif isinstance(type_, _StringType):
-            return CHAR(
-                length=type_.length,
-                charset=type_.charset,
-                collation=type_.collation,
-                ascii=type_.ascii,
-                binary=type_.binary,
-                unicode=type_.unicode,
-                national=False,  # not supported in CAST
-            )
-        else:
-            return CHAR(length=type_.length)
+        pass
 
 
 class NVARCHAR(_StringType, sqltypes.NVARCHAR):

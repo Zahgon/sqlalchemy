@@ -127,7 +127,7 @@ class AsyncAdapt_aiosqlite_connection(
 
     @property
     def isolation_level(self) -> Optional[str]:
-        return cast(str, self._connection.isolation_level)
+        pass
 
     @isolation_level.setter
     def isolation_level(self, value: Optional[str]) -> None:
@@ -136,20 +136,7 @@ class AsyncAdapt_aiosqlite_connection(
         # for improved stability, we instead invent our own awaitable version
         # using aiosqlite's async queue directly.
 
-        def set_iso(
-            connection: AsyncAdapt_aiosqlite_connection, value: Optional[str]
-        ) -> None:
-            connection.isolation_level = value
-
-        function = partial(set_iso, self._connection._conn, value)
-        future = asyncio.get_event_loop().create_future()
-
-        self._connection._tx.put_nowait((future, function))
-
-        try:
-            await_(future)
-        except Exception as error:
-            self._handle_exception(error)
+        pass
 
     def create_function(self, *args: Any, **kw: Any) -> None:
         try:
@@ -312,7 +299,7 @@ class SQLiteDialect_aiosqlite(SQLiteDialect_pysqlite):
     def get_driver_connection(
         self, connection: DBAPIConnection
     ) -> AsyncIODBAPIConnection:
-        return connection._connection  # type: ignore[no-any-return]
+        pass
 
     def do_terminate(self, dbapi_connection: DBAPIConnection) -> None:
         dbapi_connection.terminate()

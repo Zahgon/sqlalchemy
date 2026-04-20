@@ -356,13 +356,7 @@ class collection:
             def __setitem__(self, index, item): ...
 
         """
-
-        def decorator(fn):
-            fn._sa_instrument_before = ("fire_append_event", arg)
-            fn._sa_instrument_after = "fire_remove_event"
-            return fn
-
-        return decorator
+        pass
 
     @staticmethod
     def removes(arg):
@@ -380,12 +374,7 @@ class collection:
         collection.removes_return.
 
         """
-
-        def decorator(fn):
-            fn._sa_instrument_before = ("fire_remove_event", arg)
-            return fn
-
-        return decorator
+        pass
 
     @staticmethod
     def removes_return():
@@ -402,12 +391,7 @@ class collection:
         collection.remove.
 
         """
-
-        def decorator(fn):
-            fn._sa_instrument_after = "fire_remove_event"
-            return fn
-
-        return decorator
+        pass
 
 
 if TYPE_CHECKING:
@@ -478,7 +462,7 @@ class CollectionAdapter:
     @property
     def data(self) -> _AdaptedCollectionProtocol:
         "The entity collection being adapted."
-        return self._data()
+        pass
 
     @property
     def _referenced_by_owner(self) -> bool:
@@ -488,10 +472,10 @@ class CollectionAdapter:
         where this collection is the one being replaced.
 
         """
-        return self.owner_state.dict[self._key] is self._data()
+        pass
 
     def bulk_appender(self):
-        return self._data()._sa_appender
+        pass
 
     def append_with_event(
         self, item: Any, initiator: Optional[AttributeEventToken] = None
@@ -538,7 +522,7 @@ class CollectionAdapter:
             appender(item, _sa_initiator=False)
 
     def bulk_remover(self):
-        return self._data()._sa_remover
+        pass
 
     def remove_with_event(
         self, item: Any, initiator: Optional[AttributeEventToken] = None
@@ -565,12 +549,7 @@ class CollectionAdapter:
 
     def clear_without_event(self) -> None:
         """Empty the collection, firing no events."""
-
-        if self.empty:
-            self._refuse_empty()
-        remover = self._data()._sa_remover
-        for item in list(self):
-            remover(item, _sa_initiator=False)
+        pass
 
     def __iter__(self):
         """Iterate over entities in the collection."""
@@ -587,24 +566,7 @@ class CollectionAdapter:
     def _fire_append_wo_mutation_event_bulk(
         self, items, initiator=None, key=NO_KEY
     ):
-        if not items:
-            return
-
-        if initiator is not False:
-            if self.invalidated:
-                self._warn_invalidated()
-
-            if self.empty:
-                self._reset_empty()
-
-            for item in items:
-                self.attr.fire_append_wo_mutation_event(
-                    self.owner_state,
-                    self.owner_state.dict,
-                    item,
-                    initiator,
-                    key,
-                )
+        pass
 
     def fire_append_wo_mutation_event(self, item, initiator=None, key=NO_KEY):
         """Notify that a entity is entering the collection but is already
@@ -655,24 +617,7 @@ class CollectionAdapter:
             return item
 
     def _fire_remove_event_bulk(self, items, initiator=None, key=NO_KEY):
-        if not items:
-            return
-
-        if initiator is not False:
-            if self.invalidated:
-                self._warn_invalidated()
-
-            if self.empty:
-                self._reset_empty()
-
-            for item in items:
-                self.attr.fire_remove_event(
-                    self.owner_state,
-                    self.owner_state.dict,
-                    item,
-                    initiator,
-                    key,
-                )
+        pass
 
     def fire_remove_event(self, item, initiator=None, key=NO_KEY):
         """Notify that a entity has been removed from the collection.
@@ -750,28 +695,7 @@ def bulk_replace(values, existing_adapter, new_adapter, initiator=None):
 
 
     """
-
-    assert isinstance(values, list)
-
-    idset = util.IdentitySet
-    existing_idset = idset(existing_adapter or ())
-    constants = existing_idset.intersection(values or ())
-    additions = idset(values or ()).difference(constants)
-    removals = existing_idset.difference(constants)
-
-    appender = new_adapter.bulk_appender()
-
-    for member in values or ():
-        if member in additions:
-            appender(member, _sa_initiator=initiator)
-        elif member in constants:
-            appender(member, _sa_initiator=False)
-
-    if existing_adapter:
-        existing_adapter._fire_append_wo_mutation_event_bulk(
-            constants, initiator=initiator
-        )
-        existing_adapter._fire_remove_event_bulk(removals, initiator=initiator)
+    pass
 
 
 def _prepare_instrumentation(

@@ -331,28 +331,10 @@ class index_property(hybrid_property[_T]):
             return value  # type: ignore[no-any-return]
 
     def fset(self, instance: Any, value: _T) -> None:
-        attr_name = self.attr_name
-        column_value = getattr(instance, attr_name, None)
-        if column_value is None:
-            column_value = self.datatype()
-            setattr(instance, attr_name, column_value)
-        column_value[self.index] = value
-        setattr(instance, attr_name, column_value)
-        if attr_name in inspect(instance).mapper.attrs:
-            flag_modified(instance, attr_name)
+        pass
 
     def fdel(self, instance: Any) -> None:
-        attr_name = self.attr_name
-        column_value = getattr(instance, attr_name)
-        if column_value is None:
-            raise AttributeError(self.attr_name)
-        try:
-            del column_value[self.index]
-        except KeyError as err:
-            raise AttributeError(self.attr_name) from err
-        else:
-            setattr(instance, attr_name, column_value)
-            flag_modified(instance, attr_name)
+        pass
 
     def expr(
         self, model: Any

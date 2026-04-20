@@ -107,7 +107,7 @@ class IdentityMap:
             self._modified.discard(state)
 
     def _dirty_states(self) -> Set[InstanceState[Any]]:
-        return self._modified
+        pass
 
     def check_modified(self) -> bool:
         """return True if any InstanceStates present have been marked
@@ -117,7 +117,7 @@ class IdentityMap:
         return bool(self._modified)
 
     def has_key(self, key: _IdentityKeyType[Any]) -> bool:
-        return key in self
+        pass
 
     def __len__(self) -> int:
         return len(self._dict)

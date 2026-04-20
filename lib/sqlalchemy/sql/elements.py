@@ -364,7 +364,7 @@ class ClauseElement(
 
     @util.ro_memoized_property
     def description(self) -> Optional[str]:
-        return None
+        pass
 
     _is_clone_of: Optional[Self] = None
 
@@ -392,7 +392,7 @@ class ClauseElement(
 
     @property
     def _order_by_label_element(self) -> Optional[Label[Any]]:
-        return None
+        pass
 
     _cache_key_traversal: _CacheKeyTraversalType = None
 
@@ -419,8 +419,7 @@ class ClauseElement(
         return self
 
     def _default_compiler(self) -> SQLCompiler:
-        dialect = self._default_dialect()
-        return dialect.statement_compiler(dialect, self)  # type: ignore
+        pass
 
     def _clone(self, **kw: Any) -> Self:
         """Create a shallow copy of this ClauseElement.
@@ -491,18 +490,7 @@ class ClauseElement(
         of transformative operations.
 
         """
-        s = util.column_set()
-        f: Optional[ClauseElement] = self
-
-        # note this creates a cycle, asserted in test_memusage. however,
-        # turning this into a plain @property adds tends of thousands of method
-        # calls to Core / ORM performance tests, so the small overhead
-        # introduced by the relatively small amount of short term cycles
-        # produced here is preferable
-        while f is not None:
-            s.add(f)
-            f = f._is_clone_of
-        return s
+        pass
 
     def _de_clone(self):
         while self._is_clone_of is not None:
@@ -528,14 +516,7 @@ class ClauseElement(
         distilled_params: _CoreMultiExecuteParams,
         execution_options: CoreExecuteOptionsParameter,
     ) -> Result[Unpack[TupleAny]]:
-        if self.supports_execution:
-            if TYPE_CHECKING:
-                assert isinstance(self, Executable)
-            return connection._execute_clauseelement(
-                self, distilled_params, execution_options
-            )
-        else:
-            raise exc.ObjectNotExecutableError(self)
+        pass
 
     def _execute_on_scalar(
         self,
@@ -549,9 +530,7 @@ class ClauseElement(
         .. versionadded:: 2.0
 
         """
-        return self._execute_on_connection(
-            connection, distilled_params, execution_options
-        ).scalar()
+        pass
 
     def _get_embedded_bindparams(self) -> Sequence[BindParameter[Any]]:
         """Return the list of :class:`.BindParameter` objects embedded in the
@@ -590,7 +569,7 @@ class ClauseElement(
         used.
 
         """
-        return self._replace_params(True, __optionaldict, kwargs)
+        pass
 
     def params(
         self,
@@ -689,8 +668,7 @@ class ClauseElement(
         """Return this :class:`_expression.ClauseElement`
         without any groupings.
         """
-
-        return self
+        pass
 
     def _compile_w_cache(
         self,
@@ -707,67 +685,7 @@ class ClauseElement(
         _CoreSingleExecuteParams | None,
         CacheStats,
     ]:
-        elem_cache_key: Optional[CacheKey]
-
-        if compiled_cache is not None and dialect._supports_statement_cache:
-            elem_cache_key = self._generate_cache_key()
-        else:
-            elem_cache_key = None
-
-        extracted_params: Optional[Sequence[BindParameter[Any]]]
-        if elem_cache_key is not None:
-            if TYPE_CHECKING:
-                assert compiled_cache is not None
-
-            cache_key, extracted_params, param_dict = elem_cache_key
-            key = (
-                dialect,
-                cache_key,
-                tuple(column_keys),
-                bool(schema_translate_map),
-                for_executemany,
-            )
-            compiled_sql = compiled_cache.get(key)
-
-            if compiled_sql is None:
-                cache_hit = dialect.CACHE_MISS
-                compiled_sql = self._compiler(
-                    dialect,
-                    cache_key=elem_cache_key,
-                    column_keys=column_keys,
-                    for_executemany=for_executemany,
-                    schema_translate_map=schema_translate_map,
-                    **kw,
-                )
-                # ensure that params of the current statement are not
-                # left in the cache
-                assert not compiled_sql._collect_params  # type: ignore[attr-defined] # noqa: E501
-                compiled_cache[key] = compiled_sql
-            else:
-                cache_hit = dialect.CACHE_HIT
-        else:
-            param_dict = None
-            extracted_params = None
-            compiled_sql = self._compiler(
-                dialect,
-                cache_key=None,
-                column_keys=column_keys,
-                for_executemany=for_executemany,
-                schema_translate_map=schema_translate_map,
-                **kw,
-            )
-            # here instead the params need to be extracted, since we don't
-            # have them otherwise
-            assert compiled_sql._collect_params  # type: ignore[attr-defined] # noqa: E501
-
-            if not dialect._supports_statement_cache:
-                cache_hit = dialect.NO_DIALECT_SUPPORT
-            elif compiled_cache is None:
-                cache_hit = dialect.CACHING_DISABLED
-            else:
-                cache_hit = dialect.NO_CACHE_KEY
-
-        return compiled_sql, extracted_params, param_dict, cache_hit
+        pass
 
     def __invert__(self):
         # undocumented element currently used by the ORM for
@@ -1389,7 +1307,7 @@ class ColumnElement(
 
     @util.memoized_property
     def _proxies(self) -> List[ColumnElement[Any]]:
-        return []
+        pass
 
     @util.non_memoized_property
     def _tq_label(self) -> Optional[str]:
@@ -1408,7 +1326,7 @@ class ColumnElement(
         .. versionchanged:: 1.4.21 renamed from ``._label``
 
         """
-        return None
+        pass
 
     key: Optional[str] = None
     """The 'key' that in some circumstances refers to this object in a
@@ -1436,17 +1354,17 @@ class ColumnElement(
         .. versionchanged:: 1.4.21 renamed from ``._key_label``
 
         """
-        return self._proxy_key
+        pass
 
     @property
     def _key_label(self) -> Optional[str]:
         """legacy; renamed to _tq_key_label"""
-        return self._tq_key_label
+        pass
 
     @property
     def _label(self) -> Optional[str]:
         """legacy; renamed to _tq_label"""
-        return self._tq_label
+        pass
 
     @property
     def _non_anon_label(self) -> Optional[str]:
@@ -1484,7 +1402,7 @@ class ColumnElement(
 
 
         """
-        return getattr(self, "name", None)
+        pass
 
     _render_label_in_columns_clause = True
     """A flag used by select._columns_plus_names that helps to determine
@@ -1558,7 +1476,7 @@ class ColumnElement(
         def type(self) -> TypeEngine[_T]:  # noqa: A001
             # used for delayed setup of
             # type_api
-            return type_api.NULLTYPE
+            pass
 
     @HasMemoized.memoized_attribute
     def comparator(self) -> TypeEngine.Comparator[_T]:
@@ -1599,7 +1517,7 @@ class ColumnElement(
     def reverse_operate(
         self, op: operators.OperatorType, other: Any, **kwargs: Any
     ) -> ColumnElement[Any]:
-        return op(other, self.comparator, **kwargs)  # type: ignore[no-any-return]  # noqa: E501
+        pass
 
     def _bind_param(
         self,
@@ -1629,11 +1547,11 @@ class ColumnElement(
 
     @property
     def _select_iterable(self) -> _SelectIterable:
-        return (self,)
+        pass
 
     @util.memoized_property
     def base_columns(self) -> FrozenSet[ColumnElement[Any]]:
-        return frozenset(c for c in self.proxy_set if not c._proxies)
+        pass
 
     @util.memoized_property
     def proxy_set(self) -> FrozenSet[ColumnElement[Any]]:
@@ -1645,13 +1563,11 @@ class ColumnElement(
         their hashing behavior is very non-performant.
 
         """
-        return frozenset([self._deannotate()]).union(
-            itertools.chain(*[c.proxy_set for c in self._proxies])
-        )
+        pass
 
     @util.memoized_property
     def _expanded_proxy_set(self) -> FrozenSet[ColumnElement[Any]]:
-        return frozenset(_expand_cloned(self.proxy_set))
+        pass
 
     def _uncached_proxy_list(self) -> List[ColumnElement[Any]]:
         """An 'uncached' version of proxy set.
@@ -1674,30 +1590,11 @@ class ColumnElement(
     def _compare_name_for_result(self, other: ColumnElement[Any]) -> bool:
         """Return True if the given column element compares to this one
         when targeting within a result row."""
-
-        return (
-            hasattr(other, "name")
-            and hasattr(self, "name")
-            and other.name == self.name
-        )
+        pass
 
     @HasMemoized.memoized_attribute
     def _proxy_key(self) -> Optional[str]:
-        if self._annotations and "proxy_key" in self._annotations:
-            return cast(str, self._annotations["proxy_key"])
-
-        name = self.key
-        if not name:
-            # there's a bit of a seeming contradiction which is that the
-            # "_non_anon_label" of a column can in fact be an
-            # "_anonymous_label"; this is when it's on a column that is
-            # proxying for an anonymous expression in a subquery.
-            name = self._non_anon_label
-
-        if isinstance(name, _anonymous_label):
-            return None
-        else:
-            return name
+        pass
 
     @HasMemoized.memoized_attribute
     def _expression_label(self) -> Optional[str]:
@@ -1709,13 +1606,7 @@ class ColumnElement(
         None if the column has a normal name that can be used.
 
         """
-
-        if getattr(self, "name", None) is not None:
-            return None
-        elif self._annotations and "proxy_key" in self._annotations:
-            return cast(str, self._annotations["proxy_key"])
-        else:
-            return None
+        pass
 
     def _make_proxy(
         self,
@@ -1841,8 +1732,7 @@ class ColumnElement(
            for backwards compat
 
         """
-        name = getattr(self, "name", None)
-        return self._anon_label(name)
+        pass
 
     @util.memoized_property
     def _anon_key_label(self) -> _anonymous_label:
@@ -1859,7 +1749,7 @@ class ColumnElement(
            for backwards compat
 
         """
-        return self._anon_label(self._proxy_key)
+        pass
 
     @property
     @util.deprecated(
@@ -1868,7 +1758,7 @@ class ColumnElement(
         "private, and the public accessor is deprecated.",
     )
     def anon_label(self) -> str:
-        return self._anon_name_label
+        pass
 
     @property
     @util.deprecated(
@@ -1877,7 +1767,7 @@ class ColumnElement(
         "now private, and the public accessor is deprecated.",
     )
     def anon_key_label(self) -> str:
-        return self._anon_key_label
+        pass
 
     def _dedupe_anon_label_idx(self, idx: int) -> str:
         """label to apply to a column that is anon labeled, but repeated
@@ -1904,11 +1794,11 @@ class ColumnElement(
 
     @util.memoized_property
     def _anon_tq_label(self) -> _anonymous_label:
-        return self._anon_label(getattr(self, "_tq_label", None))
+        pass
 
     @util.memoized_property
     def _anon_tq_key_label(self) -> _anonymous_label:
-        return self._anon_label(getattr(self, "_tq_key_label", None))
+        pass
 
     def _dedupe_anon_tq_label_idx(self, idx: int) -> _anonymous_label:
         label = getattr(self, "_tq_label", None) or "anon"
@@ -1944,34 +1834,19 @@ class WrapsColumnExpression(ColumnElement[_T]):
 
     @util.non_memoized_property
     def _tq_label(self) -> Optional[str]:
-        wce = self.wrapped_column_expression
-        if hasattr(wce, "_tq_label"):
-            return wce._tq_label
-        else:
-            return None
+        pass
 
     @property
     def _label(self) -> Optional[str]:
-        return self._tq_label
+        pass
 
     @property
     def _non_anon_label(self) -> Optional[str]:
-        return None
+        pass
 
     @util.non_memoized_property
     def _anon_name_label(self) -> str:
-        wce = self.wrapped_column_expression
-
-        # this logic tries to get the WrappedColumnExpression to render
-        # with "<expr> AS <name>", where "<name>" is the natural name
-        # within the expression itself.   e.g. "CAST(table.foo) AS foo".
-        if not wce._is_text_clause:
-            nal = wce._non_anon_label
-            if nal:
-                return nal
-            elif hasattr(wce, "_anon_name_label"):
-                return wce._anon_name_label
-        return super()._anon_name_label
+        pass
 
     def _dedupe_anon_label_idx(self, idx: int) -> str:
         wce = self.wrapped_column_expression
@@ -1983,11 +1858,7 @@ class WrapsColumnExpression(ColumnElement[_T]):
 
     @property
     def _proxy_key(self):
-        wce = self.wrapped_column_expression
-
-        if not wce._is_text_clause:
-            return wce._proxy_key
-        return super()._proxy_key
+        pass
 
 
 class DMLTargetCopy(roles.InElementRole, KeyedColumnElement[_T]):
@@ -2181,11 +2052,7 @@ class BindParameter(roles.InElementRole, KeyedColumnElement[_T]):
         and returned if present, else ``value``.
 
         """
-        if self.callable:
-            # TODO: set up protocol for bind parameter callable
-            return self.callable()  # type: ignore
-        else:
-            return self.value
+        pass
 
     def render_literal_execute(self) -> Self:
         """Produce a copy of this bound parameter that will enable the
@@ -2208,9 +2075,7 @@ class BindParameter(roles.InElementRole, KeyedColumnElement[_T]):
             :ref:`engine_thirdparty_caching`
 
         """
-        c: Self = ClauseElement._clone(self)
-        c.literal_execute = True
-        return c
+        pass
 
     def _negate_in_binary(self, negated_op, original_op):
         if self.expand_op is original_op:
@@ -2351,7 +2216,7 @@ class AbstractTextClause(
 
     @property
     def _hide_froms(self) -> Iterable[FromClause]:
-        return ()
+        pass
 
     def __and__(self, other):
         # support use in select.where(), query.filter()
@@ -2359,7 +2224,7 @@ class AbstractTextClause(
 
     @property
     def _select_iterable(self) -> _SelectIterable:
-        return (self,)
+        pass
 
     # help in those cases where text/tstring() is
     # interpreted in a column expression situation
@@ -2370,7 +2235,7 @@ class AbstractTextClause(
 
     @property
     def type(self) -> TypeEngine[Any]:
-        return type_api.NULLTYPE
+        pass
 
     @property
     def comparator(self):
@@ -2572,7 +2437,7 @@ class TextClause(AbstractTextClause, inspection.Inspectable["TextClause"]):
 
     @property
     def _is_star(self) -> bool:  # type: ignore[override]
-        return self.text == "*"
+        pass
 
     def __init__(self, text: str):
         self._bindparams: Dict[str, BindParameter[Any]] = {}
@@ -2718,7 +2583,7 @@ class TextClause(AbstractTextClause, inspection.Inspectable["TextClause"]):
 
     @property
     def type(self) -> TypeEngine[Any]:
-        return type_api.NULLTYPE
+        pass
 
     @property
     def comparator(self):
@@ -2767,11 +2632,7 @@ class TString(AbstractTextClause, inspection.Inspectable["TString"]):
 
     @property
     def _is_star(self) -> bool:  # type: ignore[override]
-        return (
-            len(self.parts) == 1
-            and isinstance(self.parts[0], TextClause)
-            and self.parts[0]._is_star
-        )
+        pass
 
     def __init__(self, template: Template):
         """Construct a :class:`_expression.TString` from a Python 3.14+
@@ -2830,7 +2691,7 @@ class Null(SingletonConstant, roles.ConstExprRole[None], ColumnElement[None]):
 
         @util.memoized_property
         def type(self) -> TypeEngine[_T]:  # noqa: A001
-            return type_api.NULLTYPE
+            pass
 
     @classmethod
     def _instance(cls) -> Null:
@@ -2860,7 +2721,7 @@ class False_(
 
         @util.memoized_property
         def type(self) -> TypeEngine[_T]:  # noqa: A001
-            return type_api.BOOLEANTYPE
+            pass
 
     def _negate(self) -> True_:
         return True_._singleton
@@ -2890,7 +2751,7 @@ class True_(SingletonConstant, roles.ConstExprRole[bool], ColumnElement[bool]):
 
         @util.memoized_property
         def type(self) -> TypeEngine[_T]:  # noqa: A001
-            return type_api.BOOLEANTYPE
+            pass
 
     def _negate(self) -> False_:
         return False_._singleton
@@ -2977,9 +2838,7 @@ class OrderByList(
 
     @property
     def _select_iterable(self) -> _SelectIterable:
-        return itertools.chain.from_iterable(
-            [elem._select_iterable for elem in self.clauses]
-        )
+        pass
 
     @util.ro_non_memoized_property
     def _from_objects(self) -> List[FromClause]:
@@ -3082,9 +2941,7 @@ class ClauseList(
 
     @property
     def _select_iterable(self) -> _SelectIterable:
-        return itertools.chain.from_iterable(
-            [elem._select_iterable for elem in self.clauses]
-        )
+        pass
 
     def append(self, clause):
         if self.group_contents:
@@ -3162,41 +3019,7 @@ class OperatorExpression(ColumnElement[_T]):
         negate: Optional[OperatorType] = None,
         modifiers: Optional[Mapping[str, Any]] = None,
     ) -> OperatorExpression[_T]:
-        if operators.is_associative(op):
-            assert (
-                negate is None
-            ), f"negate not supported for associative operator {op}"
-
-            multi = False
-            if getattr(
-                left, "operator", None
-            ) is op and type_._compare_type_affinity(left.type):
-                multi = True
-                left_flattened = left._flattened_operator_clauses
-            else:
-                left_flattened = (left,)
-
-            if getattr(
-                right, "operator", None
-            ) is op and type_._compare_type_affinity(right.type):
-                multi = True
-                right_flattened = right._flattened_operator_clauses
-            else:
-                right_flattened = (right,)
-
-            if multi:
-                return ExpressionClauseList._construct_for_list(
-                    op,
-                    type_,
-                    *(left_flattened + right_flattened),
-                )
-
-        if right._is_collection_aggregate:
-            negate = None
-
-        return BinaryExpression(
-            left, right, op, type_=type_, negate=negate, modifiers=modifiers
-        )
+        pass
 
 
 class ExpressionClauseList(OperatorExpression[_T]):
@@ -3243,7 +3066,7 @@ class ExpressionClauseList(OperatorExpression[_T]):
     def _flattened_operator_clauses(
         self,
     ) -> typing_Tuple[ColumnElement[Any], ...]:
-        return self.clauses
+        pass
 
     def __iter__(self) -> Iterator[ColumnElement[Any]]:
         return iter(self.clauses)
@@ -3253,7 +3076,7 @@ class ExpressionClauseList(OperatorExpression[_T]):
 
     @property
     def _select_iterable(self) -> _SelectIterable:
-        return (self,)
+        pass
 
     @util.ro_non_memoized_property
     def _from_objects(self) -> List[FromClause]:
@@ -3270,21 +3093,7 @@ class ExpressionClauseList(OperatorExpression[_T]):
         *clauses: ColumnElement[Any],
         group: bool = True,
     ) -> ExpressionClauseList[_T]:
-        self = cls.__new__(cls)
-        self.group = group
-        if group:
-            self.clauses = tuple(
-                c.self_group(against=operator) for c in clauses
-            )
-        else:
-            self.clauses = clauses
-        self.operator = operator
-        self.type = type_
-        for c in clauses:
-            if c._propagate_attrs:
-                self._propagate_attrs = c._propagate_attrs
-                break
-        return self
+        pass
 
     def _negate(self) -> Any:
         grouped = self.self_group(against=operators.inv)
@@ -3409,29 +3218,7 @@ class BooleanClauseList(ExpressionClauseList[bool]):
     def _construct_for_whereclause(
         cls, clauses: Iterable[ColumnElement[Any]]
     ) -> Optional[ColumnElement[bool]]:
-        operator, continue_on, skip_on = (
-            operators.and_,
-            True_._singleton,
-            False_._singleton,
-        )
-
-        lcc, convert_clauses = cls._process_clauses_for_boolean(
-            operator,
-            continue_on,
-            skip_on,
-            clauses,  # these are assumed to be coerced already
-        )
-
-        if lcc > 1:
-            # multiple elements.  Return regular BooleanClauseList
-            # which will link elements against the operator.
-            return cls._construct_raw(operator, convert_clauses)
-        elif lcc == 1:
-            # just one element.  return it as a single boolean element,
-            # not a list and discard the operator.
-            return convert_clauses[0]
-        else:
-            return None
+        pass
 
     @classmethod
     def _construct_raw(
@@ -3489,7 +3276,7 @@ class BooleanClauseList(ExpressionClauseList[bool]):
 
     @property
     def _select_iterable(self) -> _SelectIterable:
-        return (self,)
+        pass
 
     def self_group(
         self, against: Optional[OperatorType] = None
@@ -3548,7 +3335,7 @@ class Tuple(ClauseList, ColumnElement[TupleAny]):
 
     @property
     def _select_iterable(self) -> _SelectIterable:
-        return (self,)
+        pass
 
     def _bind_param(self, operator, obj, type_=None, expanding=False):
         if expanding:
@@ -3735,7 +3522,7 @@ class Cast(WrapsColumnExpression[_T]):
 
     @property
     def wrapped_column_expression(self):
-        return self.clause
+        pass
 
 
 class TryCast(Cast[_T]):
@@ -3797,16 +3584,11 @@ class TypeCoerce(WrapsColumnExpression[_T]):
 
     @HasMemoized.memoized_attribute
     def typed_expression(self):
-        if isinstance(self.clause, BindParameter):
-            bp = self.clause._clone()
-            bp.type = self.type
-            return bp
-        else:
-            return self.clause
+        pass
 
     @property
     def wrapped_column_expression(self):
-        return self.clause
+        pass
 
     def self_group(
         self, against: Optional[OperatorType] = None
@@ -3883,7 +3665,7 @@ class _textual_label_reference(ColumnElement[Any]):
 
     @util.memoized_property
     def _text_clause(self) -> TextClause:
-        return TextClause(self.element)
+        pass
 
 
 class UnaryExpression(ColumnElement[_T]):
@@ -3933,11 +3715,7 @@ class UnaryExpression(ColumnElement[_T]):
         self.type = type_api.to_instance(type_)  # type: ignore
 
     def _wraps_unnamed_column(self):
-        ungrouped = self.element._ungroup()
-        return (
-            not isinstance(ungrouped, NamedColumn)
-            or ungrouped._non_anon_label is None
-        )
+        pass
 
     @classmethod
     def _create_nulls_first(
@@ -4009,10 +3787,7 @@ class UnaryExpression(ColumnElement[_T]):
 
     @property
     def _order_by_label_element(self) -> Optional[Label[Any]]:
-        if operators.is_order_by_modifier(self.modifier):
-            return self.element._order_by_label_element
-        else:
-            return None
+        pass
 
     @util.ro_non_memoized_property
     def _from_objects(self) -> List[FromClause]:
@@ -4132,10 +3907,7 @@ class CollectionAggregate(UnaryExpression[_T]):
         self, op: OperatorType, other: Any, **kwargs: Any
     ) -> ColumnElement[_T]:
         # comparison operators should never call reverse_operate
-        assert not operators.is_comparison(op)
-        raise exc.ArgumentError(
-            "Only comparison operators may be used with ANY/ALL"
-        )
+        pass
 
 
 class AsBoolean(WrapsColumnExpression[bool], UnaryExpression[bool]):
@@ -4151,7 +3923,7 @@ class AsBoolean(WrapsColumnExpression[bool], UnaryExpression[bool]):
 
     @property
     def wrapped_column_expression(self):
-        return self.element
+        pass
 
     def self_group(self, against: Optional[OperatorType] = None) -> Self:
         return self
@@ -4251,7 +4023,7 @@ class BinaryExpression(OperatorExpression[_T]):
     def _flattened_operator_clauses(
         self,
     ) -> typing_Tuple[ColumnElement[Any], ...]:
-        return (self.left, self.right)
+        pass
 
     def __bool__(self):
         """Implement Python-side "bool" for BinaryExpression as a
@@ -4414,25 +4186,19 @@ class Grouping(GroupedElement, ColumnElement[_T]):
         return self.__class__(self.element._with_binary_element_type(type_))
 
     def _ungroup(self) -> ColumnElement[_T]:
-        assert isinstance(self.element, ColumnElement)
-        return self.element._ungroup()
+        pass
 
     @util.memoized_property
     def _is_implicitly_boolean(self):
-        return self.element._is_implicitly_boolean
+        pass
 
     @util.non_memoized_property
     def _tq_label(self) -> Optional[str]:
-        return (
-            getattr(self.element, "_tq_label", None) or self._anon_name_label
-        )
+        pass
 
     @util.non_memoized_property
     def _proxies(self) -> List[ColumnElement[Any]]:
-        if isinstance(self.element, ColumnElement):
-            return [self.element]
-        else:
-            return []
+        pass
 
     @util.ro_non_memoized_property
     def _from_objects(self) -> List[FromClause]:
@@ -4587,7 +4353,7 @@ class Over(ColumnElement[_T]):
 
         @util.memoized_property
         def type(self) -> TypeEngine[_T]:  # noqa: A001
-            return self.element.type
+            pass
 
     @util.ro_non_memoized_property
     def _from_objects(self) -> List[FromClause]:
@@ -4798,11 +4564,11 @@ class AggregateOrderBy(WrapsColumnExpression[_T]):
 
         @util.memoized_property
         def type(self) -> TypeEngine[_T]:  # noqa: A001
-            return self.element.type
+            pass
 
     @property
     def wrapped_column_expression(self) -> ColumnElement[_T]:
-        return self.element
+        pass
 
     def __reduce__(self):
         return self.__class__, (self.element,) + (
@@ -4850,9 +4616,7 @@ class AggregateOrderBy(WrapsColumnExpression[_T]):
         self, *criterion: _ColumnExpressionArgument[bool]
     ) -> Union[Self, FunctionFilter[_T]]:
         """Produce a FILTER clause against this function."""
-        if not criterion:
-            return self
-        return FunctionFilter(self, *criterion)
+        pass
 
     @util.ro_non_memoized_property
     def _from_objects(self) -> List[FromClause]:
@@ -4891,11 +4655,7 @@ class WithinGroup(AggregateOrderBy[_T]):
 
         @util.memoized_property
         def type(self) -> TypeEngine[_T]:  # noqa: A001
-            wgt = self.element.within_group_type(self)
-            if wgt is not None:
-                return wgt
-            else:
-                return self.element.type
+            pass
 
 
 class FunctionFilter(Generative, ColumnElement[_T]):
@@ -4945,16 +4705,7 @@ class FunctionFilter(Generative, ColumnElement[_T]):
 
 
         """
-
-        for crit in list(criterion):
-            crit = coercions.expect(roles.WhereHavingRole, crit)
-
-            if self.criterion is not None:
-                self.criterion = self.criterion & crit
-            else:
-                self.criterion = crit
-
-        return self
+        pass
 
     def over(
         self,
@@ -5004,7 +4755,7 @@ class FunctionFilter(Generative, ColumnElement[_T]):
     def within_group_type(
         self, within_group: WithinGroup[_T]
     ) -> Optional[TypeEngine[_T]]:
-        return None
+        pass
 
     def self_group(
         self, against: Optional[OperatorType] = None
@@ -5018,7 +4769,7 @@ class FunctionFilter(Generative, ColumnElement[_T]):
 
         @util.memoized_property
         def type(self) -> TypeEngine[_T]:  # noqa: A001
-            return self.func.type
+            pass
 
     @util.ro_non_memoized_property
     def _from_objects(self) -> List[FromClause]:
@@ -5040,13 +4791,11 @@ class NamedColumn(KeyedColumnElement[_T]):
     key: str
 
     def _compare_name_for_result(self, other):
-        return (hasattr(other, "name") and self.name == other.name) or (
-            hasattr(other, "_label") and self._label == other._label
-        )
+        pass
 
     @util.ro_memoized_property
     def description(self) -> str:
-        return self.name
+        pass
 
     @HasMemoized.memoized_attribute
     def _tq_key_label(self) -> Optional[str]:
@@ -5057,11 +4806,7 @@ class NamedColumn(KeyedColumnElement[_T]):
         all other expressions it resolves to key/proxy key.
 
         """
-        proxy_key = self._proxy_key
-        if proxy_key and proxy_key != self.name:
-            return self._gen_tq_label(proxy_key)
-        else:
-            return self._tq_label
+        pass
 
     @HasMemoized.memoized_attribute
     def _tq_label(self) -> Optional[str]:
@@ -5071,20 +4816,20 @@ class NamedColumn(KeyedColumnElement[_T]):
         expressions it resolves to .name.
 
         """
-        return self._gen_tq_label(self.name)
+        pass
 
     @HasMemoized.memoized_attribute
     def _render_label_in_columns_clause(self):
-        return True
+        pass
 
     @HasMemoized.memoized_attribute
     def _non_anon_label(self):
-        return self.name
+        pass
 
     def _gen_tq_label(
         self, name: str, dedupe_on_key: bool = True
     ) -> Optional[str]:
-        return name
+        pass
 
     def _bind_param(
         self,
@@ -5211,7 +4956,7 @@ class Label(roles.LabeledColumnExprRole[_T], NamedColumn[_T]):
 
     @HasMemoized.memoized_attribute
     def _render_label_in_columns_clause(self):
-        return True
+        pass
 
     def _bind_param(self, operator, obj, type_=None, expanding=False):
         return BindParameter(
@@ -5226,15 +4971,15 @@ class Label(roles.LabeledColumnExprRole[_T], NamedColumn[_T]):
 
     @util.memoized_property
     def _is_implicitly_boolean(self):
-        return self.element._is_implicitly_boolean
+        pass
 
     @HasMemoized.memoized_attribute
     def _allow_label_resolve(self):
-        return self.element._allow_label_resolve
+        pass
 
     @property
     def _order_by_label_element(self):
-        return self
+        pass
 
     def as_reference(self) -> _label_reference[_T]:
         """refer to this labeled expression in a clause such as GROUP BY,
@@ -5244,11 +4989,11 @@ class Label(roles.LabeledColumnExprRole[_T], NamedColumn[_T]):
         .. versionadded:: 2.1
 
         """
-        return _label_reference(self)
+        pass
 
     @HasMemoized.memoized_attribute
     def element(self) -> ColumnElement[_T]:
-        return self._element.self_group(against=operators.as_)
+        pass
 
     def self_group(self, against: Optional[OperatorType] = None) -> Label[_T]:
         return self._apply_to_inner(self._element.self_group, against=against)
@@ -5270,7 +5015,7 @@ class Label(roles.LabeledColumnExprRole[_T], NamedColumn[_T]):
 
     @property
     def primary_key(self):  # type: ignore[override]
-        return self.element.primary_key
+        pass
 
     @property
     def foreign_keys(self):  # type: ignore[override]
@@ -5407,7 +5152,7 @@ class ColumnClause(
 
     @property
     def _is_star(self):  # type: ignore[override]
-        return self.is_literal and self.name == "*"
+        pass
 
     def __init__(
         self,
@@ -5433,10 +5178,7 @@ class ColumnClause(
 
     @property
     def entity_namespace(self):
-        if self.table is not None:
-            return self.table.entity_namespace
-        else:
-            return super().entity_namespace
+        pass
 
     def _clone(self, detect_subquery_cols=False, **kw):
         if (
@@ -5461,33 +5203,14 @@ class ColumnClause(
 
     @HasMemoized.memoized_attribute
     def _render_label_in_columns_clause(self):
-        return self.table is not None
+        pass
 
     @property
     def _ddl_label(self):
-        return self._gen_tq_label(self.name, dedupe_on_key=False)
+        pass
 
     def _compare_name_for_result(self, other):
-        if (
-            self.is_literal
-            or self.table is None
-            or self.table._is_textual
-            or not hasattr(other, "proxy_set")
-            or (
-                isinstance(other, ColumnClause)
-                and (
-                    other.is_literal
-                    or other.table is None
-                    or other.table._is_textual
-                )
-            )
-        ):
-            return (hasattr(other, "name") and self.name == other.name) or (
-                hasattr(other, "_tq_label")
-                and self._tq_label == other._tq_label
-            )
-        else:
-            return other.proxy_set.intersection(self.proxy_set)
+        pass
 
     def _gen_tq_label(
         self, name: str, dedupe_on_key: bool = True
@@ -5500,52 +5223,7 @@ class ColumnClause(
         as well as the .columns collection on a Join object.
 
         """
-        label: str
-        t = self.table
-        if self.is_literal:
-            return None
-        elif t is not None and is_named_from_clause(t):
-            if has_schema_attr(t) and t.schema:
-                label = (
-                    t.schema.replace(".", "_") + "_" + t.name + ("_" + name)
-                )
-            else:
-                assert not TYPE_CHECKING or isinstance(t, NamedFromClause)
-                label = t.name + ("_" + name)
-
-            # propagate name quoting rules for labels.
-            if is_quoted_name(name) and name.quote is not None:
-                if is_quoted_name(label):
-                    label.quote = name.quote
-                else:
-                    label = quoted_name(label, name.quote)
-            elif is_quoted_name(t.name) and t.name.quote is not None:
-                # can't get this situation to occur, so let's
-                # assert false on it for now
-                assert not isinstance(label, quoted_name)
-                label = quoted_name(label, t.name.quote)
-
-            if dedupe_on_key:
-                # ensure the label name doesn't conflict with that of an
-                # existing column.   note that this implies that any Column
-                # must **not** set up its _label before its parent table has
-                # all of its other Column objects set up.  There are several
-                # tables in the test suite which will fail otherwise; example:
-                # table "owner" has columns "name" and "owner_name".  Therefore
-                # column owner.name cannot use the label "owner_name", it has
-                # to be "owner_name_1".
-                if label in t.c:
-                    _label = label
-                    counter = 1
-                    while _label in t.c:
-                        _label = label + f"_{counter}"
-                        counter += 1
-                    label = _label
-
-            return coercions.expect(roles.TruncatedLabelRole, label)
-
-        else:
-            return name
+        pass
 
     def _make_proxy(
         self,
@@ -5760,16 +5438,10 @@ class quoted_name(util.MemoizedSlots, str):
         return quoted_name, (str(self), self.quote)
 
     def _memoized_method_lower(self):
-        if self.quote:
-            return self
-        else:
-            return str(self).lower()
+        pass
 
     def _memoized_method_upper(self):
-        if self.quote:
-            return self
-        else:
-            return str(self).upper()
+        pass
 
 
 def _find_columns(clause: ClauseElement) -> Set[ColumnClause[Any]]:
@@ -5789,16 +5461,7 @@ def _type_from_args(args: Sequence[ColumnElement[_T]]) -> TypeEngine[_T]:
 
 
 def _corresponding_column_or_error(fromclause, column, require_embedded=False):
-    c = fromclause.corresponding_column(
-        column, require_embedded=require_embedded
-    )
-    if c is None:
-        raise exc.InvalidRequestError(
-            "Given column '%s', attached to table '%s', "
-            "failed to locate a corresponding column from table '%s'"
-            % (column, getattr(column, "table", None), fromclause.description)
-        )
-    return c
+    pass
 
 
 class _memoized_property_but_not_nulltype(
@@ -5848,7 +5511,7 @@ class AnnotatedColumnElement(Annotated):
     @util.memoized_property
     def name(self):
         """pull 'name' from parent, if not present"""
-        return self._Annotated__element.name
+        pass
 
     @_memoized_property_but_not_nulltype
     def type(self):
@@ -5862,7 +5525,7 @@ class AnnotatedColumnElement(Annotated):
         to memoize, but only when we have a non-null type.
 
         """
-        return self._Annotated__element.type
+        pass
 
     @util.memoized_property
     def table(self):
@@ -5872,7 +5535,7 @@ class AnnotatedColumnElement(Annotated):
     @util.memoized_property
     def key(self):
         """pull 'key' from parent, if not present"""
-        return self._Annotated__element.key
+        pass
 
     @util.memoized_property
     def info(self) -> _InfoType:
@@ -5882,7 +5545,7 @@ class AnnotatedColumnElement(Annotated):
 
     @util.memoized_property
     def _anon_name_label(self) -> str:
-        return self._Annotated__element._anon_name_label
+        pass
 
 
 class _truncated_label(quoted_name):

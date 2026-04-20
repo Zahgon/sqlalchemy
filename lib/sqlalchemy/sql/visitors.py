@@ -680,21 +680,12 @@ class ExternalTraversal(util.MemoizedSlots):
     def _memoized_attr__visitor_dict(
         self,
     ) -> Dict[str, _TraverseCallableType[Any]]:
-        visitors = {}
-
-        for name in dir(self):
-            if name.startswith("visit_"):
-                visitors[name[6:]] = getattr(self, name)
-        return visitors
+        pass
 
     @property
     def visitor_iterator(self) -> Iterator[ExternalTraversal]:
         """Iterate through this visitor and each 'chained' visitor."""
-
-        v: Optional[ExternalTraversal] = self
-        while v:
-            yield v
-            v = getattr(v, "_next", None)
+        pass
 
     def chain(self: _ExtT, visitor: ExternalTraversal) -> _ExtT:
         """'Chain' an additional ExternalTraversal onto this ExternalTraversal

@@ -240,7 +240,7 @@ class Query(
     # we are querying against.
     @util.memoized_property
     def _propagate_attrs(self) -> _PropagateAttrsType:
-        return util.EMPTY_DICT
+        pass
 
     def __init__(
         self,
@@ -336,7 +336,7 @@ class Query(
             :meth:`.Result.tuples` - v2 equivalent method.
 
         """
-        return self.only_return_tuples(True)  # type: ignore
+        pass
 
     def _entity_from_pre_ent_zero(self) -> Optional[_InternalEntityType[Any]]:
         if not self._raw_columns:
@@ -394,7 +394,7 @@ class Query(
         self._no_criterion_condition("get", order_by=False, distinct=False)
 
     def _get_existing_condition(self) -> None:
-        self._no_criterion_assertion("get", order_by=False, distinct=False)
+        pass
 
     def _no_criterion_assertion(
         self, meth: str, order_by: bool = True, distinct: bool = True
@@ -431,42 +431,17 @@ class Query(
         self._order_by_clauses = self._group_by_clauses = ()
 
     def _no_clauseelement_condition(self, meth: str) -> None:
-        if not self._enable_assertions:
-            return
-        if self._order_by_clauses:
-            raise sa_exc.InvalidRequestError(
-                "Query.%s() being called on a "
-                "Query with existing criterion. " % meth
-            )
-        self._no_criterion_condition(meth)
+        pass
 
     def _no_statement_condition(self, meth: str) -> None:
-        if not self._enable_assertions:
-            return
-        if self._statement is not None:
-            raise sa_exc.InvalidRequestError(
-                (
-                    "Query.%s() being called on a Query with an existing full "
-                    "statement - can't apply criterion."
-                )
-                % meth
-            )
+        pass
 
     def _no_limit_offset(self, meth: str) -> None:
-        if not self._enable_assertions:
-            return
-        if self._limit_clause is not None or self._offset_clause is not None:
-            raise sa_exc.InvalidRequestError(
-                "Query.%s() being called on a Query which already has LIMIT "
-                "or OFFSET applied.  Call %s() before limit() or offset() "
-                "are applied." % (meth, meth)
-            )
+        pass
 
     @property
     def _has_row_limiting_clause(self) -> bool:
-        return (
-            self._limit_clause is not None or self._offset_clause is not None
-        )
+        pass
 
     def _get_options(
         self,
@@ -476,27 +451,7 @@ class Query(
         refresh_state: Optional[InstanceState[Any]] = None,
         identity_token: Optional[Any] = None,
     ) -> Self:
-        load_options: Dict[str, Any] = {}
-        compile_options: Dict[str, Any] = {}
-
-        if version_check:
-            load_options["_version_check"] = version_check
-        if populate_existing:
-            load_options["_populate_existing"] = populate_existing
-        if refresh_state:
-            load_options["_refresh_state"] = refresh_state
-            compile_options["_for_refresh_state"] = True
-        if only_load_props:
-            compile_options["_only_load_props"] = frozenset(only_load_props)
-        if identity_token:
-            load_options["_identity_token"] = identity_token
-
-        if load_options:
-            self.load_options += load_options
-        if compile_options:
-            self._compile_options += compile_options
-
-        return self
+        pass
 
     def _clone(self, **kw: Any) -> Self:
         return self._generate()
@@ -517,39 +472,7 @@ class Query(
         first.
 
         """
-
-        # .statement can return the direct future.Select() construct here, as
-        # long as we are not using subsequent adaption features that
-        # are made against raw entities, e.g. from_self(), with_polymorphic(),
-        # select_entity_from().  If these features are being used, then
-        # the Select() we return will not have the correct .selected_columns
-        # collection and will not embed in subsequent queries correctly.
-        # We could find a way to make this collection "correct", however
-        # this would not be too different from doing the full compile as
-        # we are doing in any case, the Select() would still not have the
-        # proper state for other attributes like whereclause, order_by,
-        # and these features are all deprecated in any case.
-        #
-        # for these reasons, Query is not a Select, it remains an ORM
-        # object for which __clause_element__() must be called in order for
-        # it to provide a real expression object.
-        #
-        # from there, it starts to look much like Query itself won't be
-        # passed into the execute process and won't generate its own cache
-        # key; this will all occur in terms of the ORM-enabled Select.
-        stmt: Union[Select[_T], FromStatement[_T], UpdateBase]
-
-        if not self._compile_options._set_base_alias:
-            # if we don't have legacy top level aliasing features in use
-            # then convert to a future select() directly
-            stmt = self._statement_20(for_statement=True)
-        else:
-            stmt = self._compile_state(for_statement=True).statement
-
-        if self._params:
-            stmt = stmt.params(self._params)
-
-        return stmt
+        pass
 
     def _final_statement(
         self, legacy_query_style: bool = True
@@ -564,12 +487,7 @@ class Query(
 
 
         """
-
-        q = self._clone()
-
-        return q._compile_state(
-            use_legacy_query_style=legacy_query_style
-        ).statement  # type: ignore
+        pass
 
     def _statement_20(
         self, for_statement: bool = False, use_legacy_query_style: bool = True
@@ -775,7 +693,7 @@ class Query(
         :class:`_query.Query`, converted to a scalar subquery.
 
         """
-        return self.scalar_subquery()
+        pass
 
     @overload
     def scalar_subquery(
@@ -863,8 +781,7 @@ class Query(
             :meth:`_engine.Result.tuples` - v2 comparable method.
 
         """
-        self.load_options += dict(_only_return_tuples=value)
-        return self
+        pass
 
     @property
     def is_single_entity(self) -> bool:
@@ -880,15 +797,7 @@ class Query(
             :meth:`_query.Query.only_return_tuples`
 
         """
-        return (
-            not self.load_options._only_return_tuples
-            and len(self._raw_columns) == 1
-            and "parententity" in self._raw_columns[0]._annotations
-            and isinstance(
-                self._raw_columns[0]._annotations["parententity"],
-                ORMColumnsClauseRole,
-            )
-        )
+        pass
 
     @_generative
     def enable_eagerloads(self, value: bool) -> Self:
@@ -920,9 +829,7 @@ class Query(
         "instead.",
     )
     def with_labels(self) -> Self:
-        return self.set_label_style(
-            SelectLabelStyle.LABEL_STYLE_TABLENAME_PLUS_COL
-        )
+        pass
 
     apply_labels = with_labels
 
@@ -938,7 +845,7 @@ class Query(
             :meth:`_sql.Select.get_label_style` - v2 equivalent method.
 
         """
-        return self._label_style
+        pass
 
     def set_label_style(self, style: SelectLabelStyle) -> Self:
         """Apply column labels to the return value of Query.statement.
@@ -998,8 +905,7 @@ class Query(
         set by filter() or order_by(), for example.
 
         """
-        self._enable_assertions = value
-        return self
+        pass
 
     @property
     def whereclause(self) -> Optional[ColumnElement[bool]]:
@@ -1014,9 +920,7 @@ class Query(
             :attr:`_sql.Select.whereclause` - v2 equivalent property.
 
         """
-        return BooleanClauseList._construct_for_whereclause(
-            self._where_criteria
-        )
+        pass
 
     @_generative
     def _with_current_path(self, path: PathRegistry) -> Self:
@@ -1171,11 +1075,11 @@ class Query(
             :attr:`.ORMExecuteState.lazy_loaded_from`
 
         """
-        return self.load_options._lazy_loaded_from  # type: ignore
+        pass
 
     @property
     def _current_path(self) -> PathRegistry:
-        return self._compile_options._current_path  # type: ignore
+        pass
 
     @_generative
     def correlate(
@@ -1252,8 +1156,7 @@ class Query(
         Default is that of :attr:`_query.Query._invoke_all_eagers`.
 
         """
-        self.load_options += {"_invoke_all_eagers": value}
-        return self
+        pass
 
     @util.became_legacy_20(
         ":meth:`_orm.Query.with_parent`",
@@ -1342,19 +1245,7 @@ class Query(
 
             :meth:`_sql.Select.add_columns` - v2 comparable method.
         """
-
-        if alias is not None:
-            # TODO: deprecate
-            entity = AliasedClass(entity, alias)
-
-        self._raw_columns = list(self._raw_columns)
-
-        self._raw_columns.append(
-            coercions.expect(
-                roles.ColumnsClauseRole, entity, apply_propagate_attrs=self
-            )
-        )
-        return self
+        pass
 
     @_generative
     def with_session(self, session: Session) -> Self:
@@ -1473,10 +1364,7 @@ class Query(
         column expression.
 
         """
-        try:
-            return next(self._values_no_warn(column))[0]  # type: ignore
-        except StopIteration:
-            return None
+        pass
 
     @overload
     def with_entities(self, _entity: _EntityType[_O]) -> Query[_O]: ...
@@ -1605,15 +1493,7 @@ class Query(
 
             :meth:`_sql.Select.with_only_columns` - v2 comparable method.
         """
-        if __kw:
-            raise _no_kw()
-
-        # Query has all the same fields as Select for this operation
-        # this could in theory be based on a protocol but not sure if it's
-        # worth it
-        _MemoizedSelectEntities._generate_for_statement(self)  # type: ignore
-        self._set_entities(entities)
-        return self
+        pass
 
     @_generative
     def add_columns(
@@ -1651,7 +1531,7 @@ class Query(
         returned.
 
         """
-        return self.add_columns(column)
+        pass
 
     @_generative
     def options(self, *args: ExecutableOption) -> Self:
@@ -1705,7 +1585,7 @@ class Query(
         objects.
 
         """
-        return fn(self)
+        pass
 
     def get_execution_options(self) -> _ImmutableExecuteOptions:
         """Get the non-SQL options which will take effect during execution.
@@ -1717,7 +1597,7 @@ class Query(
             :meth:`_sql.Select.get_execution_options` - v2 comparable method.
 
         """
-        return self._execution_options
+        pass
 
     @overload
     def execution_options(
@@ -1921,66 +1801,20 @@ class Query(
             :meth:`_sql.Select.where` - v2 equivalent method.
 
         """  # noqa: E501
-        for crit in list(criterion):
-            crit = coercions.expect(
-                roles.WhereHavingRole, crit, apply_propagate_attrs=self
-            )
-
-            self._where_criteria += (crit,)
-        return self
+        pass
 
     @util.memoized_property
     def _last_joined_entity(
         self,
     ) -> Optional[Union[_InternalEntityType[Any], _JoinTargetElement]]:
-        if self._setup_joins:
-            return _determine_last_joined_entity(
-                self._setup_joins,
-            )
-        else:
-            return None
+        pass
 
     def _filter_by_zero(self) -> Any:
         """for the filter_by() method, return the target entity for which
         we will attempt to derive an expression from based on string name.
 
         """
-
-        if self._setup_joins:
-            _last_joined_entity = self._last_joined_entity
-            if _last_joined_entity is not None:
-                return _last_joined_entity
-
-        # discussion related to #7239
-        # special check determines if we should try to derive attributes
-        # for filter_by() from the "from object", i.e., if the user
-        # called query.select_from(some selectable).filter_by(some_attr=value).
-        # We don't want to do that in the case that methods like
-        # from_self(), select_entity_from(), or a set op like union() were
-        # called; while these methods also place a
-        # selectable in the _from_obj collection, they also set up
-        # the _set_base_alias boolean which turns on the whole "adapt the
-        # entity to this selectable" thing, meaning the query still continues
-        # to construct itself in terms of the lead entity that was passed
-        # to query(), e.g. query(User).from_self() is still in terms of User,
-        # and not the subquery that from_self() created.   This feature of
-        # "implicitly adapt all occurrences of entity X to some arbitrary
-        # subquery" is the main thing I am trying to do away with in 2.0 as
-        # users should now used aliased() for that, but I can't entirely get
-        # rid of it due to query.union() and other set ops relying upon it.
-        #
-        # compare this to the base Select()._filter_by_zero() which can
-        # just return self._from_obj[0] if present, because there is no
-        # "_set_base_alias" feature.
-        #
-        # IOW, this conditional essentially detects if
-        # "select_from(some_selectable)" has been called, as opposed to
-        # "select_entity_from()", "from_self()"
-        # or "union() / some_set_op()".
-        if self._from_obj and not self._compile_options._set_base_alias:
-            return self._from_obj[0]
-
-        return self._raw_columns[0]
+        pass
 
     def filter_by(self, **kwargs: Any) -> Self:
         r"""Apply the given filtering criterion to a copy
@@ -2015,13 +1849,7 @@ class Query(
             :meth:`_sql.Select.filter_by` - v2 comparable method.
 
         """
-        from_entity = self._filter_by_zero()
-
-        clauses = [
-            _entity_namespace_key(from_entity, key) == value
-            for key, value in kwargs.items()
-        ]
-        return self.filter(*clauses)
+        pass
 
     @_generative
     def order_by(
@@ -2143,13 +1971,7 @@ class Query(
             :meth:`_sql.Select.having` - v2 equivalent method.
 
         """
-
-        for criterion in having:
-            having_criteria = coercions.expect(
-                roles.WhereHavingRole, criterion
-            )
-            self._having_criteria += (having_criteria,)
-        return self
+        pass
 
     def _set_op(self, expr_fn: Any, *q: Query[Any]) -> Self:
         list_of_queries = (self,) + q
@@ -2535,9 +2357,7 @@ class Query(
         this is used.
 
         """
-        self._last_joined_entity = None
-
-        return self
+        pass
 
     @_generative
     @_assertions(_no_clauseelement_condition)
@@ -2765,7 +2585,7 @@ class Query(
 
             :meth:`_engine.Result.scalars` - v2 comparable method.
         """
-        return self._iter().all()  # type: ignore
+        pass
 
     @_generative
     @_assertions(_no_clauseelement_condition)
@@ -2786,11 +2606,7 @@ class Query(
             :meth:`_sql.Select.from_statement` - v2 comparable method.
 
         """
-        _statement = coercions.expect(
-            roles.SelectStatementRole, statement, apply_propagate_attrs=self
-        )
-        self._statement = _statement
-        return self
+        pass
 
     def first(self) -> Optional[_T]:
         """Return the first result of this ``Query`` or
@@ -2846,7 +2662,7 @@ class Query(
             :meth:`_engine.Result.scalar_one_or_none` - v2 comparable method.
 
         """
-        return self._iter().one_or_none()  # type: ignore
+        pass
 
     def one(self) -> _T:
         """Return exactly one result or raise an exception.
@@ -2998,8 +2814,7 @@ class Query(
             * :attr:`.Select.column_descriptions`
 
         """
-
-        return _column_descriptions(self, legacy=True)
+        pass
 
     @util.deprecated(
         "2.0",
@@ -3419,17 +3234,7 @@ class Query(
         )
 
     def _compile_context(self, for_statement: bool = False) -> QueryContext:
-        compile_state = self._compile_state(for_statement=for_statement)
-        context = QueryContext(
-            compile_state,
-            compile_state.statement,
-            compile_state.statement,
-            self._params,
-            self.session,
-            self.load_options,
-        )
-
-        return context
+        pass
 
 
 class AliasOption(interfaces.LoaderOption):
@@ -3492,7 +3297,7 @@ class BulkUD:
 
     @property
     def session(self) -> Session:
-        return self.query.session
+        pass
 
 
 class BulkUpdate(BulkUD):

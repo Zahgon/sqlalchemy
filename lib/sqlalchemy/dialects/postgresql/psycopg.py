@@ -503,42 +503,27 @@ class PGDialect_psycopg(_PGDialect_common_psycopg):
 
     @util.memoized_property
     def _isolation_lookup(self):
-        return {
-            "READ COMMITTED": self.dbapi.IsolationLevel.READ_COMMITTED,
-            "READ UNCOMMITTED": self.dbapi.IsolationLevel.READ_UNCOMMITTED,
-            "REPEATABLE READ": self.dbapi.IsolationLevel.REPEATABLE_READ,
-            "SERIALIZABLE": self.dbapi.IsolationLevel.SERIALIZABLE,
-        }
+        pass
 
     @util.memoized_property
     def _psycopg_Json(self):
-        from psycopg.types import json
-
-        return json.Json
+        pass
 
     @util.memoized_property
     def _psycopg_Jsonb(self):
-        from psycopg.types import json
-
-        return json.Jsonb
+        pass
 
     @util.memoized_property
     def _psycopg_TransactionStatus(self):
-        from psycopg.pq import TransactionStatus
-
-        return TransactionStatus
+        pass
 
     @util.memoized_property
     def _psycopg_Range(self):
-        from psycopg.types.range import Range
-
-        return Range
+        pass
 
     @util.memoized_property
     def _psycopg_Multirange(self):
-        from psycopg.types.multirange import Multirange
-
-        return Multirange
+        pass
 
     def _do_isolation_level(self, connection, autocommit, isolation_level):
         connection.autocommit = autocommit
@@ -570,7 +555,7 @@ class PGDialect_psycopg(_PGDialect_common_psycopg):
         connection.read_only = value
 
     def get_readonly(self, connection):
-        return connection.read_only
+        pass
 
     def on_connect(self):
         def notices(conn):
@@ -607,7 +592,7 @@ class PGDialect_psycopg(_PGDialect_common_psycopg):
 
     @util.memoized_property
     def _dialect_specific_select_one(self):
-        return ";"
+        pass
 
 
 class AsyncAdapt_psycopg_cursor(AsyncAdapt_dbapi_cursor):
@@ -682,7 +667,7 @@ class AsyncAdapt_psycopg_connection(AsyncAdapt_dbapi_connection):
 
     @property
     def adapters(self):
-        return self._connection.adapters
+        pass
 
     @property
     def closed(self):
@@ -690,15 +675,15 @@ class AsyncAdapt_psycopg_connection(AsyncAdapt_dbapi_connection):
 
     @property
     def broken(self):
-        return self._connection.broken
+        pass
 
     @property
     def read_only(self):
-        return self._connection.read_only
+        pass
 
     @property
     def deferrable(self):
-        return self._connection.deferrable
+        pass
 
     @property
     def autocommit(self):
@@ -739,7 +724,7 @@ class AsyncAdapt_psycopg_connection(AsyncAdapt_dbapi_connection):
         return await_(self._connection.tpc_rollback(xid))
 
     def tpc_recover(self):
-        return await_(self._connection.tpc_recover())
+        pass
 
 
 class PsycopgAdaptDBAPI(AsyncAdapt_dbapi_module):
@@ -783,7 +768,7 @@ class PGDialectAsync_psycopg(PGDialect_psycopg):
         connection.set_isolation_level(isolation_level)
 
     def _do_autocommit(self, connection, value):
-        connection.set_autocommit(value)
+        pass
 
     def set_readonly(self, connection, value):
         connection.set_read_only(value)
@@ -792,7 +777,7 @@ class PGDialectAsync_psycopg(PGDialect_psycopg):
         connection.set_deferrable(value)
 
     def get_driver_connection(self, connection):
-        return connection._connection
+        pass
 
 
 dialect = PGDialect_psycopg

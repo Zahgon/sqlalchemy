@@ -70,8 +70,7 @@ class BakedQuery:
         :return: an instance of :class:`.Bakery`
 
         """
-
-        return Bakery(cls, util.LRUCache(size, size_alert=_size_alert))
+        pass
 
     def _clone(self):
         b1 = BakedQuery.__new__(BakedQuery)
@@ -151,12 +150,7 @@ class BakedQuery:
          invocation.
 
         """
-        if not full and not self._spoiled:
-            _spoil_point = self._clone()
-            _spoil_point._cache_key += ("_query_only",)
-            self.steps = [_spoil_point._retrieve_baked_query]
-        self._spoiled = True
-        return self
+        pass
 
     def _effective_key(self, session):
         """Return the key that actually goes into the cache dictionary for
@@ -173,9 +167,7 @@ class BakedQuery:
 
     def _with_lazyload_options(self, options, effective_path, cache_path=None):
         """Cloning version of _add_lazyload_options."""
-        q = self._clone()
-        q._add_lazyload_options(options, effective_path, cache_path=cache_path)
-        return q
+        pass
 
     def _add_lazyload_options(self, options, effective_path, cache_path=None):
         """Used by per-state lazy loaders to add options to the
@@ -186,40 +178,10 @@ class BakedQuery:
         "spoiled" so that it won't use caching.
 
         """
-
-        key = ()
-
-        if not cache_path:
-            cache_path = effective_path
-
-        for opt in options:
-            if opt._is_legacy_option or opt._is_compile_state:
-                ck = opt._generate_cache_key()
-                if ck is None:
-                    self.spoil(full=True)
-                else:
-                    assert not ck[1], (
-                        "loader options with variable bound parameters "
-                        "not supported with baked queries.  Please "
-                        "use new-style select() statements for cached "
-                        "ORM queries."
-                    )
-                    key += ck[0]
-
-        self.add_criteria(
-            lambda q: q._with_current_path(effective_path).options(*options),
-            cache_path.path,
-            key,
-        )
+        pass
 
     def _retrieve_baked_query(self, session):
-        query = self._bakery.get(self._effective_key(session), None)
-        if query is None:
-            query = self._as_query(session)
-            self._bakery[self._effective_key(session)] = query.with_session(
-                None
-            )
-        return query.with_session(session)
+        pass
 
     def _bake(self, session):
         query = self._as_query(session)
@@ -275,21 +237,7 @@ class BakedQuery:
          of an enclosing :class:`.BakedQuery` callable.
 
         """  # noqa: E501
-
-        if isinstance(query_or_session, Session):
-            session = query_or_session
-        elif isinstance(query_or_session, Query):
-            session = query_or_session.session
-            if session is None:
-                raise sa_exc.ArgumentError(
-                    "Given Query needs to be associated with a Session"
-                )
-        else:
-            raise TypeError(
-                "Query or Session object expected, got %r."
-                % type(query_or_session)
-            )
-        return self._as_query(session)
+        pass
 
     def _as_query(self, session):
         query = self.steps[0](session)
@@ -354,7 +302,7 @@ class Result:
            methods should be used.
 
         """
-        return self._using_post_criteria([fn])
+        pass
 
     def _as_query(self):
         q = self.bq._as_query(self.session).params(self._params)
@@ -468,7 +416,7 @@ class Result:
         Equivalent to :meth:`_query.Query.one_or_none`.
 
         """
-        return self._iter().one_or_none()
+        pass
 
     def all(self):
         """Return all rows.
@@ -476,7 +424,7 @@ class Result:
         Equivalent to :meth:`_query.Query.all`.
 
         """
-        return self._iter().all()
+        pass
 
     def get(self, ident):
         """Retrieve an object based on identity.

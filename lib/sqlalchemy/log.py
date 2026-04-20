@@ -155,8 +155,7 @@ class InstanceLogger:
 
     def warning(self, msg: str, *args: Any, **kwargs: Any) -> None:
         """Delegate a warning call to the underlying logger."""
-
-        self.log(logging.WARNING, msg, *args, **kwargs)
+        pass
 
     warn = warning
 
@@ -168,14 +167,11 @@ class InstanceLogger:
 
     def exception(self, msg: str, *args: Any, **kwargs: Any) -> None:
         """Delegate an exception call to the underlying logger."""
-
-        kwargs["exc_info"] = 1
-        self.log(logging.ERROR, msg, *args, **kwargs)
+        pass
 
     def critical(self, msg: str, *args: Any, **kwargs: Any) -> None:
         """Delegate a critical call to the underlying logger."""
-
-        self.log(logging.CRITICAL, msg, *args, **kwargs)
+        pass
 
     def log(self, level: int, msg: str, *args: Any, **kwargs: Any) -> None:
         """Delegate a log call to the underlying logger.

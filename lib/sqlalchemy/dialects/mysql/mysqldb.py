@@ -153,12 +153,7 @@ class MySQLDialect_mysqldb(MySQLDialect):
 
     @util.langhelpers.memoized_property
     def supports_server_side_cursors(self) -> bool:
-        try:
-            cursors = __import__("MySQLdb.cursors").cursors
-            self._sscursor = cursors.SSCursor
-            return True
-        except (ImportError, AttributeError):
-            return False
+        pass
 
     @classmethod
     def import_dbapi(cls) -> DBAPIModule:

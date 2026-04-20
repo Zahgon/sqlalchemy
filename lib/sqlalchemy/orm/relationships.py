@@ -284,10 +284,7 @@ class _RelationshipArg(Generic[_T1, _T2]):
             self.resolved = attr_value
 
     def effective_value(self) -> Any:
-        if self.resolved is not None:
-            return self.resolved
-        else:
-            return self.argument
+        pass
 
 
 _RelationshipOrderByArg = Union[Literal[False], Tuple[ColumnElement[Any], ...]]
@@ -547,11 +544,11 @@ class RelationshipProperty(
 
     @property
     def back_populates(self) -> str:
-        return self._init_args.back_populates.effective_value()  # type: ignore
+        pass
 
     @back_populates.setter
     def back_populates(self, value: str) -> None:
-        self._init_args.back_populates.argument = value
+        pass
 
     def _warn_for_persistence_only_flags(self, **kw: Any) -> None:
         for k, v in kw.items():
@@ -665,13 +662,10 @@ class RelationshipProperty(
         """
 
         def _memoized_attr_entity(self) -> _InternalEntityType[_PT]:
-            if self._of_type:
-                return inspect(self._of_type)  # type: ignore
-            else:
-                return self.prop.entity
+            pass
 
         def _memoized_attr_mapper(self) -> Mapper[_PT]:
-            return self.entity.mapper
+            pass
 
         def _source_selectable(self) -> FromClause:
             if self._adapt_to_entity:
@@ -979,13 +973,7 @@ class RelationshipProperty(
             use :meth:`~.RelationshipProperty.Comparator.has`.
 
             """
-            if not self.property.uselist:
-                raise sa_exc.InvalidRequestError(
-                    "'any()' not implemented for scalar "
-                    "attributes. Use has()."
-                )
-
-            return self._criterion_exists(criterion, **kwargs)
+            pass
 
         def has(
             self,
@@ -1223,8 +1211,7 @@ class RelationshipProperty(
             property: RelationshipProperty[_PT]  # noqa: A001
 
         def _memoized_attr_property(self) -> RelationshipProperty[_PT]:
-            self.prop.parent._check_configure()
-            return self.prop
+            pass
 
     def _with_parent(
         self,
@@ -1634,10 +1621,7 @@ class RelationshipProperty(
 
     @property
     def _effective_sync_backref(self) -> bool:
-        if self.viewonly:
-            return False
-        else:
-            return self.sync_backref is not False
+        pass
 
     @staticmethod
     def _check_sync_backref(
@@ -1706,8 +1690,7 @@ class RelationshipProperty(
         :class:`.RelationshipProperty`.
 
         """
-        self.parent._check_configure()
-        return self.entity
+        pass
 
     @util.memoized_property
     def mapper(self) -> Mapper[_T]:
@@ -2003,7 +1986,7 @@ class RelationshipProperty(
     def _clsregistry_resolve_arg(
         self,
     ) -> Callable[[str, bool], _class_resolver]:
-        return self._clsregistry_resolvers[1]
+        pass
 
     @property
     def _clsregistry_resolve_name(
@@ -2019,35 +2002,21 @@ class RelationshipProperty(
         Callable[[str], Callable[[], Union[Type[Any], Table, _ModNS]]],
         Callable[[str, bool], _class_resolver],
     ]:
-        _resolver = util.preloaded.orm_clsregistry._resolver
-
-        return _resolver(self.parent.class_, self)
+        pass
 
     @property
     def cascade(self) -> CascadeOptions:
         """Return the current cascade setting for this
         :class:`.RelationshipProperty`.
         """
-        return self._cascade
+        pass
 
     @cascade.setter
     def cascade(self, cascade: Union[str, CascadeOptions]) -> None:
-        self._set_cascade(cascade)
+        pass
 
     def _set_cascade(self, cascade_arg: Union[str, CascadeOptions]) -> None:
-        cascade = CascadeOptions(cascade_arg)
-
-        if self.viewonly:
-            cascade = CascadeOptions(
-                cascade.intersection(CascadeOptions._viewonly_cascades)
-            )
-
-        if "mapper" in self.__dict__:
-            self._check_cascade_settings(cascade)
-        self._cascade = cascade
-
-        if self._dependency_processor:
-            self._dependency_processor.cascade = cascade
+        pass
 
     def _check_cascade_settings(self, cascade: CascadeOptions) -> None:
         if (
@@ -2100,27 +2069,14 @@ class RelationshipProperty(
         of the given mapper.
 
         """
-
-        return (
-            self.key in mapper.relationships
-            and mapper.relationships[self.key] is self
-        )
+        pass
 
     def _columns_are_mapped(self, *cols: ColumnElement[Any]) -> bool:
         """Return True if all columns in the given collection are
         mapped by the tables referenced by this :class:`.RelationshipProperty`.
 
         """
-
-        secondary = self._init_args.secondary.resolved
-        for c in cols:
-            if secondary is not None and secondary.c.contains_column(c):
-                continue
-            if not self.parent.persist_selectable.c.contains_column(
-                c
-            ) and not self.target.c.contains_column(c):
-                return False
-        return True
+        pass
 
     def _generate_backref(self) -> None:
         """Interpret the 'backref' instruction to create a
@@ -2239,13 +2195,11 @@ class RelationshipProperty(
     def _use_get(self) -> bool:
         """memoize the 'use_get' attribute of this RelationshipLoader's
         lazyloader."""
-
-        strategy = self._lazy_strategy
-        return strategy.use_get
+        pass
 
     @util.memoized_property
     def _is_self_referential(self) -> bool:
-        return self.mapper.common_parent(self.parent)
+        pass
 
     def _create_joins(
         self,
@@ -2549,12 +2503,11 @@ class _JoinCondition:
 
     @property
     def primaryjoin_minus_local(self) -> ColumnElement[bool]:
-        return _deep_deannotate(self.primaryjoin, values=("local", "remote"))
+        pass
 
     @property
     def secondaryjoin_minus_local(self) -> ColumnElement[bool]:
-        assert self.secondaryjoin is not None
-        return _deep_deannotate(self.secondaryjoin, values=("local", "remote"))
+        pass
 
     @util.memoized_property
     def primaryjoin_reverse_remote(self) -> ColumnElement[bool]:
@@ -2567,31 +2520,7 @@ class _JoinCondition:
         are removed.
 
         """
-        if self._has_remote_annotations:
-
-            def replace(element: _CE, **kw: Any) -> Optional[_CE]:
-                if "remote" in element._annotations:
-                    v = dict(element._annotations)
-                    del v["remote"]
-                    v["local"] = True
-                    return element._with_annotations(v)
-                elif "local" in element._annotations:
-                    v = dict(element._annotations)
-                    del v["local"]
-                    v["remote"] = True
-                    return element._with_annotations(v)
-
-                return None
-
-            return visitors.replacement_traverse(self.primaryjoin, {}, replace)
-        else:
-            if self._has_foreign_annotations:
-                # TODO: coverage
-                return _deep_deannotate(
-                    self.primaryjoin, values=("local", "remote")
-                )
-            else:
-                return _deep_deannotate(self.primaryjoin)
+        pass
 
     def _has_annotation(self, clause: ClauseElement, annotation: str) -> bool:
         for col in visitors.iterate(clause, {}):
@@ -2602,11 +2531,11 @@ class _JoinCondition:
 
     @util.memoized_property
     def _has_foreign_annotations(self) -> bool:
-        return self._has_annotation(self.primaryjoin, "foreign")
+        pass
 
     @util.memoized_property
     def _has_remote_annotations(self) -> bool:
-        return self._has_annotation(self.primaryjoin, "remote")
+        pass
 
     def _annotate_fks(self) -> None:
         """Annotate the primaryjoin and secondaryjoin
@@ -3271,29 +3200,20 @@ class _JoinCondition:
 
     @util.memoized_property
     def remote_columns(self) -> Set[ColumnElement[Any]]:
-        return self._gather_join_annotations("remote")
+        pass
 
     @util.memoized_property
     def local_columns(self) -> Set[ColumnElement[Any]]:
-        return self._gather_join_annotations("local")
+        pass
 
     @util.memoized_property
     def foreign_key_columns(self) -> Set[ColumnElement[Any]]:
-        return self._gather_join_annotations("foreign")
+        pass
 
     def _gather_join_annotations(
         self, annotation: str
     ) -> Set[ColumnElement[Any]]:
-        s = set(
-            self._gather_columns_with_annotation(self.primaryjoin, annotation)
-        )
-        if self.secondaryjoin is not None:
-            s.update(
-                self._gather_columns_with_annotation(
-                    self.secondaryjoin, annotation
-                )
-            )
-        return {x._deannotate() for x in s}
+        pass
 
     def _gather_columns_with_annotation(
         self, clause: ColumnElement[Any], *annotation: Iterable[str]
@@ -3307,12 +3227,7 @@ class _JoinCondition:
 
     @util.memoized_property
     def _secondary_lineage_set(self) -> FrozenSet[ColumnElement[Any]]:
-        if self.secondary is not None:
-            return frozenset(
-                itertools.chain(*[c.proxy_set for c in self.secondary.c])
-            )
-        else:
-            return util.EMPTY_SET
+        pass
 
     def join_targets(
         self,

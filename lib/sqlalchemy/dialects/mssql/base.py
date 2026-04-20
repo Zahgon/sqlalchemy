@@ -1678,163 +1678,111 @@ class MSTypeCompiler(compiler.GenericTypeCompiler):
         COLLATE annotations.
 
         """
-
-        if getattr(type_, "collation", None):
-            collation = "COLLATE %s" % type_.collation
-        else:
-            collation = None
-
-        if not length:
-            length = type_.length
-
-        if length:
-            spec = spec + "(%s)" % length
-
-        return " ".join([c for c in (spec, collation) if c is not None])
+        pass
 
     def visit_double(self, type_, **kw):
-        return self.visit_DOUBLE_PRECISION(type_, **kw)
+        pass
 
     def visit_FLOAT(self, type_, **kw):
-        precision = getattr(type_, "precision", None)
-        if precision is None:
-            return "FLOAT"
-        else:
-            return "FLOAT(%(precision)s)" % {"precision": precision}
+        pass
 
     def visit_TINYINT(self, type_, **kw):
-        return "TINYINT"
+        pass
 
     def visit_TIME(self, type_, **kw):
-        precision = getattr(type_, "precision", None)
-        if precision is not None:
-            return "TIME(%s)" % precision
-        else:
-            return "TIME"
+        pass
 
     def visit_TIMESTAMP(self, type_, **kw):
-        return "TIMESTAMP"
+        pass
 
     def visit_ROWVERSION(self, type_, **kw):
-        return "ROWVERSION"
+        pass
 
     def visit_datetime(self, type_, **kw):
-        if type_.timezone:
-            return self.visit_DATETIMEOFFSET(type_, **kw)
-        else:
-            return self.visit_DATETIME(type_, **kw)
+        pass
 
     def visit_DATETIMEOFFSET(self, type_, **kw):
-        precision = getattr(type_, "precision", None)
-        if precision is not None:
-            return "DATETIMEOFFSET(%s)" % type_.precision
-        else:
-            return "DATETIMEOFFSET"
+        pass
 
     def visit_DATETIME2(self, type_, **kw):
-        precision = getattr(type_, "precision", None)
-        if precision is not None:
-            return "DATETIME2(%s)" % precision
-        else:
-            return "DATETIME2"
+        pass
 
     def visit_SMALLDATETIME(self, type_, **kw):
-        return "SMALLDATETIME"
+        pass
 
     def visit_unicode(self, type_, **kw):
-        return self.visit_NVARCHAR(type_, **kw)
+        pass
 
     def visit_text(self, type_, **kw):
-        if self.dialect.deprecate_large_types:
-            return self.visit_VARCHAR(type_, **kw)
-        else:
-            return self.visit_TEXT(type_, **kw)
+        pass
 
     def visit_unicode_text(self, type_, **kw):
-        if self.dialect.deprecate_large_types:
-            return self.visit_NVARCHAR(type_, **kw)
-        else:
-            return self.visit_NTEXT(type_, **kw)
+        pass
 
     def visit_NTEXT(self, type_, **kw):
-        return self._extend("NTEXT", type_)
+        pass
 
     def visit_TEXT(self, type_, **kw):
-        return self._extend("TEXT", type_)
+        pass
 
     def visit_VARCHAR(self, type_, **kw):
-        return self._extend("VARCHAR", type_, length=type_.length or "max")
+        pass
 
     def visit_CHAR(self, type_, **kw):
-        return self._extend("CHAR", type_)
+        pass
 
     def visit_NCHAR(self, type_, **kw):
-        return self._extend("NCHAR", type_)
+        pass
 
     def visit_NVARCHAR(self, type_, **kw):
-        return self._extend("NVARCHAR", type_, length=type_.length or "max")
+        pass
 
     def visit_date(self, type_, **kw):
-        if self.dialect.server_version_info < MS_2008_VERSION:
-            return self.visit_DATETIME(type_, **kw)
-        else:
-            return self.visit_DATE(type_, **kw)
+        pass
 
     def visit__BASETIMEIMPL(self, type_, **kw):
-        return self.visit_time(type_, **kw)
+        pass
 
     def visit_time(self, type_, **kw):
-        if self.dialect.server_version_info < MS_2008_VERSION:
-            return self.visit_DATETIME(type_, **kw)
-        else:
-            return self.visit_TIME(type_, **kw)
+        pass
 
     def visit_large_binary(self, type_, **kw):
-        if self.dialect.deprecate_large_types:
-            return self.visit_VARBINARY(type_, **kw)
-        else:
-            return self.visit_IMAGE(type_, **kw)
+        pass
 
     def visit_IMAGE(self, type_, **kw):
-        return "IMAGE"
+        pass
 
     def visit_XML(self, type_, **kw):
-        return "XML"
+        pass
 
     def visit_VARBINARY(self, type_, **kw):
-        text = self._extend("VARBINARY", type_, length=type_.length or "max")
-        if getattr(type_, "filestream", False):
-            text += " FILESTREAM"
-        return text
+        pass
 
     def visit_boolean(self, type_, **kw):
-        return self.visit_BIT(type_)
+        pass
 
     def visit_BIT(self, type_, **kw):
-        return "BIT"
+        pass
 
     def visit_JSON(self, type_, **kw):
         # this is a bit of a break with SQLAlchemy's convention of
         # "UPPERCASE name goes to UPPERCASE type name with no modification"
-        return self._extend("NVARCHAR", type_, length="max")
+        pass
 
     def visit_MONEY(self, type_, **kw):
-        return "MONEY"
+        pass
 
     def visit_SMALLMONEY(self, type_, **kw):
-        return "SMALLMONEY"
+        pass
 
     def visit_uuid(self, type_, **kw):
-        if type_.native_uuid:
-            return self.visit_UNIQUEIDENTIFIER(type_, **kw)
-        else:
-            return super().visit_uuid(type_, **kw)
+        pass
 
     def visit_UNIQUEIDENTIFIER(self, type_, **kw):
-        return "UNIQUEIDENTIFIER"
+        pass
 
     def visit_SQL_VARIANT(self, type_, **kw):
-        return "SQL_VARIANT"
+        pass
 
 
 class MSExecutionContext(default.DefaultExecutionContext):
@@ -2008,23 +1956,10 @@ class MSExecutionContext(default.DefaultExecutionContext):
                 pass
 
     def fire_sequence(self, seq, type_):
-        return self._execute_scalar(
-            (
-                "SELECT NEXT VALUE FOR %s"
-                % self.identifier_preparer.format_sequence(seq)
-            ),
-            type_,
-        )
+        pass
 
     def get_insert_default(self, column):
-        if (
-            isinstance(column, sa_schema.Column)
-            and column is column.table._autoincrement_column
-            and isinstance(column.default, sa_schema.Sequence)
-            and column.default.optional
-        ):
-            return None
-        return super().get_insert_default(column)
+        pass
 
 
 class MSSQLCompiler(compiler.SQLCompiler):
@@ -2045,8 +1980,7 @@ class MSSQLCompiler(compiler.SQLCompiler):
         super().__init__(*args, **kwargs)
 
     def visit_frame_clause(self, frameclause, **kw):
-        kw["literal_execute"] = True
-        return super().visit_frame_clause(frameclause, **kw)
+        pass
 
     def _with_legacy_schema_aliasing(fn):
         def decorate(self, *arg, **kw):
@@ -2059,42 +1993,30 @@ class MSSQLCompiler(compiler.SQLCompiler):
         return decorate
 
     def visit_now_func(self, fn, **kw):
-        return "CURRENT_TIMESTAMP"
+        pass
 
     def visit_current_date_func(self, fn, **kw):
-        return "GETDATE()"
+        pass
 
     def visit_length_func(self, fn, **kw):
-        return "LEN%s" % self.function_argspec(fn, **kw)
+        pass
 
     def visit_char_length_func(self, fn, **kw):
-        return "LEN%s" % self.function_argspec(fn, **kw)
+        pass
 
     def visit_aggregate_strings_func(self, fn, **kw):
-        cl = list(fn.clauses)
-        expr, delimiter = cl[0:2]
-
-        literal_exec = dict(kw)
-        literal_exec["literal_execute"] = True
-
-        return (
-            f"string_agg({expr._compiler_dispatch(self, **kw)}, "
-            f"{delimiter._compiler_dispatch(self, **literal_exec)})"
-        )
+        pass
 
     def visit_pow_func(self, fn, **kw):
-        return f"POWER{self.function_argspec(fn)}"
+        pass
 
     def visit_concat_op_expression_clauselist(
         self, clauselist, operator, **kw
     ):
-        return " + ".join(self.process(elem, **kw) for elem in clauselist)
+        pass
 
     def visit_concat_op_binary(self, binary, operator, **kw):
-        return "%s + %s" % (
-            self.process(binary.left, **kw),
-            self.process(binary.right, **kw),
-        )
+        pass
 
     def visit_true(self, expr, **kw):
         return "1"
@@ -2103,105 +2025,41 @@ class MSSQLCompiler(compiler.SQLCompiler):
         return "0"
 
     def visit_match_op_binary(self, binary, operator, **kw):
-        return "CONTAINS (%s, %s)" % (
-            self.process(binary.left, **kw),
-            self.process(binary.right, **kw),
-        )
+        pass
 
     def get_select_precolumns(self, select, **kw):
         """MS-SQL puts TOP, it's version of LIMIT here"""
-
-        s = super().get_select_precolumns(select, **kw)
-
-        if select._has_row_limiting_clause and self._use_top(select):
-            # ODBC drivers and possibly others
-            # don't support bind params in the SELECT clause on SQL Server.
-            # so have to use literal here.
-            kw["literal_execute"] = True
-            s += "TOP %s " % self.process(
-                self._get_limit_or_fetch(select), **kw
-            )
-            if select._fetch_clause is not None:
-                if select._fetch_clause_options["percent"]:
-                    s += "PERCENT "
-                if select._fetch_clause_options["with_ties"]:
-                    s += "WITH TIES "
-
-        return s
+        pass
 
     def get_from_hint_text(self, table, text):
-        return text
+        pass
 
     def get_crud_hint_text(self, table, text):
-        return text
+        pass
 
     def _get_limit_or_fetch(self, select):
-        if select._fetch_clause is None:
-            return select._limit_clause
-        else:
-            return select._fetch_clause
+        pass
 
     def _use_top(self, select):
-        return (select._offset_clause is None) and (
-            select._simple_int_clause(select._limit_clause)
-            or (
-                # limit can use TOP with is by itself. fetch only uses TOP
-                # when it needs to because of PERCENT and/or WITH TIES
-                # TODO: Why?  shouldn't we use TOP always ?
-                select._simple_int_clause(select._fetch_clause)
-                and (
-                    select._fetch_clause_options["percent"]
-                    or select._fetch_clause_options["with_ties"]
-                )
-            )
-        )
+        pass
 
     def limit_clause(self, cs, **kwargs):
-        return ""
+        pass
 
     def _check_can_use_fetch_limit(self, select):
         # to use ROW_NUMBER(), an ORDER BY is required.
         # OFFSET are FETCH are options of the ORDER BY clause
-        if not select._order_by_clause.clauses:
-            raise exc.CompileError(
-                "MSSQL requires an order_by when "
-                "using an OFFSET or a non-simple "
-                "LIMIT clause"
-            )
-
-        if select._fetch_clause_options is not None and (
-            select._fetch_clause_options["percent"]
-            or select._fetch_clause_options["with_ties"]
-        ):
-            raise exc.CompileError(
-                "MSSQL needs TOP to use PERCENT and/or WITH TIES. "
-                "Only simple fetch without offset can be used."
-            )
+        pass
 
     def _row_limit_clause(self, select, **kw):
         """MSSQL 2012 supports OFFSET/FETCH operators
         Use it instead subquery with row_number
 
         """
-
-        if self.dialect._supports_offset_fetch and not self._use_top(select):
-            self._check_can_use_fetch_limit(select)
-
-            return self.fetch_clause(
-                select,
-                fetch_clause=self._get_limit_or_fetch(select),
-                require_offset=True,
-                **kw,
-            )
-
-        else:
-            return ""
+        pass
 
     def visit_try_cast(self, element, **kw):
-        return "TRY_CAST (%s AS %s)" % (
-            self.process(element.clause, **kw),
-            self.process(element.typeclause, **kw),
-        )
+        pass
 
     def translate_select_structure(self, select_stmt, **kwargs):
         """Look for ``LIMIT`` and OFFSET in a select statement, and if
@@ -2209,134 +2067,39 @@ class MSSQLCompiler(compiler.SQLCompiler):
         MSSQL 2012 and above are excluded
 
         """
-        select = select_stmt
-
-        if (
-            select._has_row_limiting_clause
-            and not self.dialect._supports_offset_fetch
-            and not self._use_top(select)
-            and not getattr(select, "_mssql_visit", None)
-        ):
-            self._check_can_use_fetch_limit(select)
-
-            _order_by_clauses = [
-                sql_util.unwrap_label_reference(elem)
-                for elem in select._order_by_clause.clauses
-            ]
-
-            limit_clause = self._get_limit_or_fetch(select)
-            offset_clause = select._offset_clause
-
-            select = select._generate()
-            select._mssql_visit = True
-            select = (
-                select.add_columns(
-                    sql.func.ROW_NUMBER()
-                    .over(order_by=_order_by_clauses)
-                    .label("mssql_rn")
-                )
-                .order_by(None)
-                .alias()
-            )
-
-            mssql_rn = sql.column("mssql_rn")
-            limitselect = sql.select(
-                *[c for c in select.c if c.key != "mssql_rn"]
-            )
-            if offset_clause is not None:
-                limitselect = limitselect.where(mssql_rn > offset_clause)
-                if limit_clause is not None:
-                    limitselect = limitselect.where(
-                        mssql_rn <= (limit_clause + offset_clause)
-                    )
-            else:
-                limitselect = limitselect.where(mssql_rn <= (limit_clause))
-            return limitselect
-        else:
-            return select
+        pass
 
     @_with_legacy_schema_aliasing
     def visit_table(self, table, mssql_aliased=False, iscrud=False, **kwargs):
-        if mssql_aliased is table or iscrud:
-            return super().visit_table(table, **kwargs)
-
-        # alias schema-qualified tables
-        alias = self._schema_aliased_table(table)
-        if alias is not None:
-            return self.process(alias, mssql_aliased=table, **kwargs)
-        else:
-            return super().visit_table(table, **kwargs)
+        pass
 
     @_with_legacy_schema_aliasing
     def visit_alias(self, alias, **kw):
         # translate for schema-qualified table aliases
-        kw["mssql_aliased"] = alias.element
-        return super().visit_alias(alias, **kw)
+        pass
 
     @_with_legacy_schema_aliasing
     def visit_column(self, column, add_to_result_map=None, **kw):
-        if (
-            column.table is not None
-            and (not self.isupdate and not self.isdelete)
-            or self.is_subquery()
-        ):
-            # translate for schema-qualified table aliases
-            t = self._schema_aliased_table(column.table)
-            if t is not None:
-                converted = elements._corresponding_column_or_error(t, column)
-                if add_to_result_map is not None:
-                    add_to_result_map(
-                        column.name,
-                        column.name,
-                        (column, column.name, column.key),
-                        column.type,
-                    )
-
-                return super().visit_column(converted, **kw)
-
-        return super().visit_column(
-            column, add_to_result_map=add_to_result_map, **kw
-        )
+        pass
 
     def _schema_aliased_table(self, table):
-        if getattr(table, "schema", None) is not None:
-            if table not in self.tablealiases:
-                self.tablealiases[table] = table.alias()
-            return self.tablealiases[table]
-        else:
-            return None
+        pass
 
     def visit_extract(self, extract, **kw):
-        field = self.extract_map.get(extract.field, extract.field)
-        return "DATEPART(%s, %s)" % (field, self.process(extract.expr, **kw))
+        pass
 
     def visit_savepoint(self, savepoint_stmt, **kw):
-        return "SAVE TRANSACTION %s" % self.preparer.format_savepoint(
-            savepoint_stmt
-        )
+        pass
 
     def visit_rollback_to_savepoint(self, savepoint_stmt, **kw):
-        return "ROLLBACK TRANSACTION %s" % self.preparer.format_savepoint(
-            savepoint_stmt
-        )
+        pass
 
     def visit_binary(self, binary, **kwargs):
         """Move bind parameters to the right-hand side of an operator, where
         possible.
 
         """
-        if (
-            isinstance(binary.left, expression.BindParameter)
-            and binary.operator == operator.eq
-            and not isinstance(binary.right, expression.BindParameter)
-        ):
-            return self.process(
-                expression.BinaryExpression(
-                    binary.right, binary.left, binary.operator
-                ),
-                **kwargs,
-            )
-        return super().visit_binary(binary, **kwargs)
+        pass
 
     def returning_clause(
         self, stmt, returning_cols, *, populate_result_map, **kw
@@ -2347,90 +2110,29 @@ class MSSQLCompiler(compiler.SQLCompiler):
         # columns we have from the list of RETURNING columns to that new name
         # so that they render as "inserted.<colname>" / "deleted.<colname>".
 
-        if stmt.is_insert or stmt.is_update:
-            target = stmt.table.alias("inserted")
-        elif stmt.is_delete:
-            target = stmt.table.alias("deleted")
-        else:
-            assert False, "expected Insert, Update or Delete statement"
-
-        adapter = sql_util.ClauseAdapter(target)
-
-        # adapter.traverse() takes a column from our target table and returns
-        # the one that is linked to the "inserted" / "deleted" tables.  So  in
-        # order to retrieve these values back from the result  (e.g. like
-        # row[column]), tell the compiler to also add the original unadapted
-        # column to the result map.   Before #4877, these were  (unknowingly)
-        # falling back using string name matching in the result set which
-        # necessarily used an expensive KeyError in order to match.
-
-        columns = [
-            self._label_returning_column(
-                stmt,
-                adapter.traverse(column),
-                populate_result_map,
-                {"result_map_targets": (column,)},
-                fallback_label_name=fallback_label_name,
-                column_is_repeated=repeated,
-                name=name,
-                proxy_name=proxy_name,
-                **kw,
-            )
-            for (
-                name,
-                proxy_name,
-                fallback_label_name,
-                column,
-                repeated,
-            ) in stmt._generate_columns_plus_names(
-                True, cols=expression._select_iterables(returning_cols)
-            )
-        ]
-
-        return "OUTPUT " + ", ".join(columns)
+        pass
 
     def get_cte_preamble(self, recursive):
         # SQL Server finds it too inconvenient to accept
         # an entirely optional, SQL standard specified,
         # "RECURSIVE" word with their "WITH",
         # so here we go
-        return "WITH"
+        pass
 
     def label_select_column(self, select, column, asfrom):
-        if isinstance(column, expression.Function):
-            return column.label(None)
-        else:
-            return super().label_select_column(select, column, asfrom)
+        pass
 
     def for_update_clause(self, select, **kw):
         # "FOR UPDATE" is only allowed on "DECLARE CURSOR" which
         # SQLAlchemy doesn't use
-        return ""
+        pass
 
     def order_by_clause(self, select, **kw):
         # MSSQL only allows ORDER BY in subqueries if there is a LIMIT:
         # "The ORDER BY clause is invalid in views, inline functions,
         # derived tables, subqueries, and common table expressions,
         # unless TOP, OFFSET or FOR XML is also specified."
-        if (
-            self.is_subquery()
-            and not self._use_top(select)
-            and (
-                select._offset is None
-                or not self.dialect._supports_offset_fetch
-            )
-        ):
-            # avoid processing the order by clause if we won't end up
-            # using it, because we don't want all the bind params tacked
-            # onto the positional list if that is what the dbapi requires
-            return ""
-
-        order_by = self.process(select._order_by_clause, **kw)
-
-        if order_by:
-            return " ORDER BY " + order_by
-        else:
-            return ""
+        pass
 
     def update_from_clause(
         self, update_stmt, from_table, extra_froms, from_hints, **kw
@@ -2442,19 +2144,11 @@ class MSSQLCompiler(compiler.SQLCompiler):
         well. Otherwise, it is optional. Here, we add it regardless.
 
         """
-        return "FROM " + ", ".join(
-            t._compiler_dispatch(self, asfrom=True, fromhints=from_hints, **kw)
-            for t in [from_table] + extra_froms
-        )
+        pass
 
     def delete_table_clause(self, delete_stmt, from_table, extra_froms, **kw):
         """If we have extra froms make sure we render any alias as hint."""
-        ashint = False
-        if extra_froms:
-            ashint = True
-        return from_table._compiler_dispatch(
-            self, asfrom=True, iscrud=True, ashint=ashint, **kw
-        )
+        pass
 
     def delete_extra_from_clause(
         self, delete_stmt, from_table, extra_froms, from_hints, **kw
@@ -2464,95 +2158,32 @@ class MSSQLCompiler(compiler.SQLCompiler):
         Yes, it has the FROM keyword twice.
 
         """
-        return "FROM " + ", ".join(
-            t._compiler_dispatch(self, asfrom=True, fromhints=from_hints, **kw)
-            for t in [from_table] + extra_froms
-        )
+        pass
 
     def visit_empty_set_expr(self, type_, **kw):
         return "SELECT 1 WHERE 1!=1"
 
     def visit_is_distinct_from_binary(self, binary, operator, **kw):
-        return "NOT EXISTS (SELECT %s INTERSECT SELECT %s)" % (
-            self.process(binary.left),
-            self.process(binary.right),
-        )
+        pass
 
     def visit_is_not_distinct_from_binary(self, binary, operator, **kw):
-        return "EXISTS (SELECT %s INTERSECT SELECT %s)" % (
-            self.process(binary.left),
-            self.process(binary.right),
-        )
+        pass
 
     def _render_json_extract_from_binary(self, binary, operator, **kw):
         # note we are intentionally calling upon the process() calls in the
         # order in which they appear in the SQL String as this is used
         # by positional parameter rendering
 
-        if binary.type._type_affinity is sqltypes.JSON:
-            return "JSON_QUERY(%s, %s)" % (
-                self.process(binary.left, **kw),
-                self.process(binary.right, **kw),
-            )
-
-        # as with other dialects, start with an explicit test for NULL
-        case_expression = "CASE JSON_VALUE(%s, %s) WHEN NULL THEN NULL" % (
-            self.process(binary.left, **kw),
-            self.process(binary.right, **kw),
-        )
-
-        if binary.type._type_affinity is sqltypes.Integer:
-            type_expression = "ELSE CAST(JSON_VALUE(%s, %s) AS INTEGER)" % (
-                self.process(binary.left, **kw),
-                self.process(binary.right, **kw),
-            )
-        elif binary.type._type_affinity in (sqltypes.Numeric, sqltypes.Float):
-            type_expression = "ELSE CAST(JSON_VALUE(%s, %s) AS %s)" % (
-                self.process(binary.left, **kw),
-                self.process(binary.right, **kw),
-                (
-                    "FLOAT"
-                    if isinstance(binary.type, sqltypes.Float)
-                    else "NUMERIC(%s, %s)"
-                    % (binary.type.precision, binary.type.scale)
-                ),
-            )
-        elif binary.type._type_affinity is sqltypes.Boolean:
-            # the NULL handling is particularly weird with boolean, so
-            # explicitly return numeric (BIT) constants
-            type_expression = (
-                "WHEN 'true' THEN 1 WHEN 'false' THEN 0 ELSE "
-                "CAST(JSON_VALUE(%s, %s) AS BIT)"
-                % (
-                    self.process(binary.left, **kw),
-                    self.process(binary.right, **kw),
-                )
-            )
-        elif binary.type._type_affinity is sqltypes.String:
-            # TODO: does this comment (from mysql) apply to here, too?
-            #       this fails with a JSON value that's a four byte unicode
-            #       string.  SQLite has the same problem at the moment
-            type_expression = "ELSE JSON_VALUE(%s, %s)" % (
-                self.process(binary.left, **kw),
-                self.process(binary.right, **kw),
-            )
-        else:
-            # other affinity....this is not expected right now
-            type_expression = "ELSE JSON_QUERY(%s, %s)" % (
-                self.process(binary.left, **kw),
-                self.process(binary.right, **kw),
-            )
-
-        return case_expression + " " + type_expression + " END"
+        pass
 
     def visit_json_getitem_op_binary(self, binary, operator, **kw):
-        return self._render_json_extract_from_binary(binary, operator, **kw)
+        pass
 
     def visit_json_path_getitem_op_binary(self, binary, operator, **kw):
-        return self._render_json_extract_from_binary(binary, operator, **kw)
+        pass
 
     def visit_sequence(self, seq, **kw):
-        return "NEXT VALUE FOR %s" % self.preparer.format_sequence(seq)
+        pass
 
 
 class MSSQLStrictCompiler(MSSQLCompiler):
@@ -2567,18 +2198,10 @@ class MSSQLStrictCompiler(MSSQLCompiler):
     ansi_bind_rules = True
 
     def visit_in_op_binary(self, binary, operator, **kw):
-        kw["literal_execute"] = True
-        return "%s IN %s" % (
-            self.process(binary.left, **kw),
-            self.process(binary.right, **kw),
-        )
+        pass
 
     def visit_not_in_op_binary(self, binary, operator, **kw):
-        kw["literal_execute"] = True
-        return "%s NOT IN %s" % (
-            self.process(binary.left, **kw),
-            self.process(binary.right, **kw),
-        )
+        pass
 
     def render_literal_value(self, value, type_):
         """
@@ -2601,303 +2224,47 @@ class MSSQLStrictCompiler(MSSQLCompiler):
 
 class MSDDLCompiler(compiler.DDLCompiler):
     def get_column_specification(self, column, **kwargs):
-        colspec = self.preparer.format_column(column)
-
-        # type is not accepted in a computed column
-        if column.computed is not None:
-            colspec += " " + self.process(column.computed)
-        else:
-            colspec += " " + self.dialect.type_compiler_instance.process(
-                column.type, type_expression=column
-            )
-
-        if column.nullable is not None:
-            if (
-                not column.nullable
-                or column.primary_key
-                or isinstance(column.default, sa_schema.Sequence)
-                or column.autoincrement is True
-                or column.identity
-            ):
-                colspec += " NOT NULL"
-            elif column.computed is None:
-                # don't specify "NULL" for computed columns
-                colspec += " NULL"
-
-        if column.table is None:
-            raise exc.CompileError(
-                "mssql requires Table-bound columns "
-                "in order to generate DDL"
-            )
-
-        d_opt = column.dialect_options["mssql"]
-        start = d_opt["identity_start"]
-        increment = d_opt["identity_increment"]
-        if start is not None or increment is not None:
-            if column.identity:
-                raise exc.CompileError(
-                    "Cannot specify options 'mssql_identity_start' and/or "
-                    "'mssql_identity_increment' while also using the "
-                    "'Identity' construct."
-                )
-            util.warn_deprecated(
-                "The dialect options 'mssql_identity_start' and "
-                "'mssql_identity_increment' are deprecated. "
-                "Use the 'Identity' object instead.",
-                "1.4",
-            )
-
-        if column.identity:
-            colspec += self.process(column.identity, **kwargs)
-        elif (
-            column is column.table._autoincrement_column
-            or column.autoincrement is True
-        ) and (
-            not isinstance(column.default, Sequence) or column.default.optional
-        ):
-            colspec += self.process(Identity(start=start, increment=increment))
-        else:
-            default = self.get_column_default_string(column)
-            if default is not None:
-                colspec += " DEFAULT " + default
-
-        return colspec
+        pass
 
     def visit_create_index(self, create, include_schema=False, **kw):
-        index = create.element
-        self._verify_index_table(index)
-        preparer = self.preparer
-        text = "CREATE "
-        if index.unique:
-            text += "UNIQUE "
-
-        # handle clustering option
-        clustered = index.dialect_options["mssql"]["clustered"]
-        if clustered is not None:
-            if clustered:
-                text += "CLUSTERED "
-            else:
-                text += "NONCLUSTERED "
-
-        # handle columnstore option (has no negative value)
-        columnstore = index.dialect_options["mssql"]["columnstore"]
-        if columnstore:
-            text += "COLUMNSTORE "
-
-        text += "INDEX %s ON %s" % (
-            self._prepared_index_name(index, include_schema=include_schema),
-            preparer.format_table(index.table),
-        )
-
-        # in some case mssql allows indexes with no columns defined
-        if len(index.expressions) > 0:
-            text += " (%s)" % ", ".join(
-                self.sql_compiler.process(
-                    expr, include_table=False, literal_binds=True
-                )
-                for expr in index.expressions
-            )
-
-        # handle other included columns
-        if index.dialect_options["mssql"]["include"]:
-            inclusions = [
-                index.table.c[col] if isinstance(col, str) else col
-                for col in index.dialect_options["mssql"]["include"]
-            ]
-
-            text += " INCLUDE (%s)" % ", ".join(
-                [preparer.quote(c.name) for c in inclusions]
-            )
-
-        whereclause = index.dialect_options["mssql"]["where"]
-
-        if whereclause is not None:
-            whereclause = coercions.expect(
-                roles.DDLExpressionRole, whereclause
-            )
-
-            where_compiled = self.sql_compiler.process(
-                whereclause, include_table=False, literal_binds=True
-            )
-            text += " WHERE " + where_compiled
-
-        return text
+        pass
 
     def visit_drop_index(self, drop: DropIndex, **kw: Any) -> str:
-        index_name = self._prepared_index_name(
-            drop.element, include_schema=False
-        )
-        table_name = self.preparer.format_table(drop.element.table)
-        if_exists = " IF EXISTS" if drop.if_exists else ""
-        return f"\nDROP INDEX{if_exists} {index_name} ON {table_name}"
+        pass
 
     def visit_create_table_as(self, element, **kw):
-        prep = self.preparer
-
-        # SQL Server doesn't support CREATE TABLE AS, use SELECT INTO instead
-        # Format: SELECT columns INTO new_table FROM source WHERE ...
-
-        qualified = prep.format_table(element.table)
-
-        # Get the inner SELECT SQL
-        inner_kw = dict(kw)
-        inner_kw["literal_binds"] = True
-        select_sql = self.sql_compiler.process(element.selectable, **inner_kw)
-
-        # Inject INTO clause before FROM keyword
-        # Find FROM position (case-insensitive)
-        select_upper = select_sql.upper()
-        from_idx = select_upper.find(" FROM ")
-        if from_idx == -1:
-            from_idx = select_upper.find("\nFROM ")
-
-        if from_idx == -1:
-            raise exc.CompileError(
-                "Could not find FROM keyword in selectable for CREATE TABLE AS"
-            )
-
-        # Insert INTO clause before FROM
-        result = (
-            select_sql[:from_idx]
-            + f"INTO {qualified} "
-            + select_sql[from_idx:]
-        )
-
-        return result
+        pass
 
     def visit_create_view(self, create, **kw):
         # SQL Server uses CREATE OR ALTER instead of CREATE OR REPLACE
-        result = super().visit_create_view(create, **kw)
-        if create.or_replace:
-            result = result.replace("CREATE OR REPLACE", "CREATE OR ALTER")
-        return result
+        pass
 
     def visit_primary_key_constraint(self, constraint, **kw):
-        if len(constraint) == 0:
-            return ""
-        text = ""
-        if constraint.name is not None:
-            text += "CONSTRAINT %s " % self.preparer.format_constraint(
-                constraint
-            )
-        text += "PRIMARY KEY "
-
-        clustered = constraint.dialect_options["mssql"]["clustered"]
-        if clustered is not None:
-            if clustered:
-                text += "CLUSTERED "
-            else:
-                text += "NONCLUSTERED "
-
-        text += "(%s)" % ", ".join(
-            self.preparer.quote(c.name) for c in constraint
-        )
-        text += self.define_constraint_deferrability(constraint)
-        return text
+        pass
 
     def visit_unique_constraint(self, constraint, **kw):
-        if len(constraint) == 0:
-            return ""
-        text = ""
-        if constraint.name is not None:
-            formatted_name = self.preparer.format_constraint(constraint)
-            if formatted_name is not None:
-                text += "CONSTRAINT %s " % formatted_name
-        text += "UNIQUE %s" % self.define_unique_constraint_distinct(
-            constraint, **kw
-        )
-        clustered = constraint.dialect_options["mssql"]["clustered"]
-        if clustered is not None:
-            if clustered:
-                text += "CLUSTERED "
-            else:
-                text += "NONCLUSTERED "
-
-        text += "(%s)" % ", ".join(
-            self.preparer.quote(c.name) for c in constraint
-        )
-        text += self.define_constraint_deferrability(constraint)
-        return text
+        pass
 
     def visit_computed_column(self, generated, **kw):
-        text = "AS (%s)" % self.sql_compiler.process(
-            generated.sqltext, include_table=False, literal_binds=True
-        )
-        # explicitly check for True|False since None means server default
-        if generated.persisted is True:
-            text += " PERSISTED"
-        return text
+        pass
 
     def visit_set_table_comment(self, create, **kw):
-        schema = self.preparer.schema_for_object(create.element)
-        schema_name = schema if schema else self.dialect.default_schema_name
-        return (
-            "execute sp_addextendedproperty 'MS_Description', "
-            "{}, 'schema', {}, 'table', {}".format(
-                self.sql_compiler.render_literal_value(
-                    create.element.comment, sqltypes.NVARCHAR()
-                ),
-                self.preparer.quote_schema(schema_name),
-                self.preparer.format_table(create.element, use_schema=False),
-            )
-        )
+        pass
 
     def visit_drop_table_comment(self, drop, **kw):
-        schema = self.preparer.schema_for_object(drop.element)
-        schema_name = schema if schema else self.dialect.default_schema_name
-        return (
-            "execute sp_dropextendedproperty 'MS_Description', 'schema', "
-            "{}, 'table', {}".format(
-                self.preparer.quote_schema(schema_name),
-                self.preparer.format_table(drop.element, use_schema=False),
-            )
-        )
+        pass
 
     def visit_set_column_comment(self, create, **kw):
-        schema = self.preparer.schema_for_object(create.element.table)
-        schema_name = schema if schema else self.dialect.default_schema_name
-        return (
-            "execute sp_addextendedproperty 'MS_Description', "
-            "{}, 'schema', {}, 'table', {}, 'column', {}".format(
-                self.sql_compiler.render_literal_value(
-                    create.element.comment, sqltypes.NVARCHAR()
-                ),
-                self.preparer.quote_schema(schema_name),
-                self.preparer.format_table(
-                    create.element.table, use_schema=False
-                ),
-                self.preparer.format_column(create.element),
-            )
-        )
+        pass
 
     def visit_drop_column_comment(self, drop, **kw):
-        schema = self.preparer.schema_for_object(drop.element.table)
-        schema_name = schema if schema else self.dialect.default_schema_name
-        return (
-            "execute sp_dropextendedproperty 'MS_Description', 'schema', "
-            "{}, 'table', {}, 'column', {}".format(
-                self.preparer.quote_schema(schema_name),
-                self.preparer.format_table(
-                    drop.element.table, use_schema=False
-                ),
-                self.preparer.format_column(drop.element),
-            )
-        )
+        pass
 
     def visit_create_sequence(self, create, **kw):
-        prefix = None
-        if create.element.data_type is not None:
-            data_type = create.element.data_type
-            prefix = " AS %s" % self.type_compiler.process(data_type)
-        return super().visit_create_sequence(create, prefix=prefix, **kw)
+        pass
 
     def visit_identity_column(self, identity, **kw):
-        text = " IDENTITY"
-        if identity.start is not None or identity.increment is not None:
-            start = 1 if identity.start is None else identity.start
-            increment = 1 if identity.increment is None else identity.increment
-            text += "(%s,%s)" % (start, increment)
-        return text
+        pass
 
 
 class MSIdentifierPreparer(compiler.IdentifierPreparer):
@@ -3368,31 +2735,12 @@ class MSDialect(default.DefaultDialect):
     def has_sequence(
         self, connection, sequencename, dbname, owner, schema, **kw
     ):
-        sequences = ischema.sequences
-
-        s = sql.select(sequences.c.sequence_name).where(
-            sequences.c.sequence_name == sequencename
-        )
-
-        if owner:
-            s = s.where(sequences.c.sequence_schema == owner)
-
-        c = connection.execute(s)
-
-        return c.first() is not None
+        pass
 
     @reflection.cache
     @_db_plus_owner_listing
     def get_sequence_names(self, connection, dbname, owner, schema, **kw):
-        sequences = ischema.sequences
-
-        s = sql.select(sequences.c.sequence_name)
-        if owner:
-            s = s.where(sequences.c.sequence_schema == owner)
-
-        c = connection.execute(s)
-
-        return [row[0] for row in c]
+        pass
 
     @reflection.cache
     def get_schema_names(self, connection, **kw):
@@ -3478,173 +2826,18 @@ class MSDialect(default.DefaultDialect):
     @reflection.cache
     @_db_plus_owner
     def get_indexes(self, connection, tablename, dbname, owner, schema, **kw):
-        filter_definition = (
-            "ind.filter_definition"
-            if self.server_version_info >= MS_2008_VERSION
-            else "NULL as filter_definition"
-        )
-        rp = connection.execution_options(future_result=True).execute(
-            sql.text(
-                f"""
-select
-    ind.index_id,
-    ind.is_unique,
-    ind.name,
-    ind.type,
-    {filter_definition}
-from
-    sys.indexes as ind
-join sys.tables as tab on
-    ind.object_id = tab.object_id
-join sys.schemas as sch on
-    sch.schema_id = tab.schema_id
-where
-    tab.name = :tabname
-    and sch.name = :schname
-    and ind.is_primary_key = 0
-    and ind.type != 0
-order by
-    ind.name
-                """
-            )
-            .bindparams(
-                sql.bindparam("tabname", tablename, ischema.CoerceUnicode()),
-                sql.bindparam("schname", owner, ischema.CoerceUnicode()),
-            )
-            .columns(name=sqltypes.Unicode())
-        )
-        indexes = {}
-        for row in rp.mappings():
-            indexes[row["index_id"]] = current = {
-                "name": row["name"],
-                "unique": row["is_unique"] == 1,
-                "column_names": [],
-                "include_columns": [],
-                "dialect_options": {},
-            }
-
-            do = current["dialect_options"]
-            index_type = row["type"]
-            if index_type in {1, 2}:
-                do["mssql_clustered"] = index_type == 1
-            if index_type in {5, 6}:
-                do["mssql_clustered"] = index_type == 5
-                do["mssql_columnstore"] = True
-            if row["filter_definition"] is not None:
-                do["mssql_where"] = row["filter_definition"]
-
-        rp = connection.execution_options(future_result=True).execute(
-            sql.text(
-                """
-select
-    ind_col.index_id,
-    col.name,
-    ind_col.is_included_column
-from
-    sys.columns as col
-join sys.tables as tab on
-    tab.object_id = col.object_id
-join sys.index_columns as ind_col on
-    ind_col.column_id = col.column_id
-    and ind_col.object_id = tab.object_id
-join sys.schemas as sch on
-    sch.schema_id = tab.schema_id
-where
-    tab.name = :tabname
-    and sch.name = :schname
-order by
-    ind_col.index_id,
-    ind_col.key_ordinal
-            """
-            )
-            .bindparams(
-                sql.bindparam("tabname", tablename, ischema.CoerceUnicode()),
-                sql.bindparam("schname", owner, ischema.CoerceUnicode()),
-            )
-            .columns(name=sqltypes.Unicode())
-        )
-        for row in rp.mappings():
-            if row["index_id"] not in indexes:
-                continue
-            index_def = indexes[row["index_id"]]
-            is_colstore = index_def["dialect_options"].get("mssql_columnstore")
-            is_clustered = index_def["dialect_options"].get("mssql_clustered")
-            if not (is_colstore and is_clustered):
-                # a clustered columnstore index includes all columns but does
-                # not want them in the index definition
-                if row["is_included_column"] and not is_colstore:
-                    # a noncludsted columnstore index reports that includes
-                    # columns but requires that are listed as normal columns
-                    index_def["include_columns"].append(row["name"])
-                else:
-                    index_def["column_names"].append(row["name"])
-        for index_info in indexes.values():
-            # NOTE: "root level" include_columns is legacy, now part of
-            #       dialect_options (issue #7382)
-            index_info["dialect_options"]["mssql_include"] = index_info[
-                "include_columns"
-            ]
-
-        if indexes:
-            return list(indexes.values())
-        else:
-            return self._default_or_error(
-                connection, tablename, owner, ReflectionDefaults.indexes, **kw
-            )
+        pass
 
     @reflection.cache
     @_db_plus_owner
     def get_view_definition(
         self, connection, viewname, dbname, owner, schema, **kw
     ):
-        view_def = connection.execute(
-            sql.text(
-                "select mod.definition "
-                "from sys.sql_modules as mod "
-                "join sys.views as views on mod.object_id = views.object_id "
-                "join sys.schemas as sch on views.schema_id = sch.schema_id "
-                "where views.name=:viewname and sch.name=:schname"
-            ).bindparams(
-                sql.bindparam("viewname", viewname, ischema.CoerceUnicode()),
-                sql.bindparam("schname", owner, ischema.CoerceUnicode()),
-            )
-        ).scalar()
-        if view_def:
-            return view_def
-        else:
-            raise exc.NoSuchTableError(f"{owner}.{viewname}")
+        pass
 
     @reflection.cache
     def get_table_comment(self, connection, table_name, schema=None, **kw):
-        if not self.supports_comments:
-            raise NotImplementedError(
-                "Can't get table comments on current SQL Server version in use"
-            )
-
-        schema_name = schema if schema else self.default_schema_name
-        COMMENT_SQL = """
-            SELECT cast(com.value as nvarchar(max))
-            FROM fn_listextendedproperty('MS_Description',
-                'schema', :schema, 'table', :table, NULL, NULL
-            ) as com;
-        """
-
-        comment = connection.execute(
-            sql.text(COMMENT_SQL).bindparams(
-                sql.bindparam("schema", schema_name, ischema.CoerceUnicode()),
-                sql.bindparam("table", table_name, ischema.CoerceUnicode()),
-            )
-        ).scalar()
-        if comment:
-            return {"text": comment}
-        else:
-            return self._default_or_error(
-                connection,
-                table_name,
-                None,
-                ReflectionDefaults.table_comment,
-                **kw,
-            )
+        pass
 
     def _temp_table_name_like_pattern(self, tablename):
         # LIKE uses '%' to match zero or more characters and '_' to match any

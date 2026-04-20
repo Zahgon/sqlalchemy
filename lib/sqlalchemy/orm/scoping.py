@@ -202,7 +202,7 @@ class scoped_session(Generic[_S]):
 
     @property
     def _proxied(self) -> _S:
-        return self.registry()
+        pass
 
     def __call__(self, **kw: Any) -> _S:
         r"""Return the current :class:`.Session`, creating it
@@ -242,15 +242,7 @@ class scoped_session(Generic[_S]):
         See :meth:`.sessionmaker.configure`.
 
         """
-
-        if self.registry.has():
-            warn(
-                "At least one scoped session is already present. "
-                " configure() can not affect sessions that have "
-                "already been created."
-            )
-
-        self.session_factory.configure(**kwargs)
+        pass
 
     def remove(self) -> None:
         """Dispose of the current :class:`.Session`, if present.
@@ -306,17 +298,7 @@ class scoped_session(Generic[_S]):
         a class.
 
         """
-
-        class query:
-            def __get__(s, instance: Any, owner: Type[_O]) -> Query[_O]:
-                if query_cls:
-                    # custom query class
-                    return query_cls(owner, session=self.registry())  # type: ignore  # noqa: E501
-                else:
-                    # session's configured query class
-                    return self.registry().query(owner)
-
-        return query()
+        pass
 
     # START PROXY METHODS scoped_session
 
@@ -406,8 +388,7 @@ class scoped_session(Generic[_S]):
 
 
         """  # noqa: E501
-
-        return self._proxied.add_all(instances)
+        pass
 
     def begin(self, nested: bool = False) -> SessionTransaction:
         r"""Begin a transaction, or nested transaction,
@@ -699,8 +680,7 @@ class scoped_session(Generic[_S]):
 
 
         """  # noqa: E501
-
-        return self._proxied.delete_all(instances)
+        pass
 
     @overload
     def execute(
@@ -895,8 +875,7 @@ class scoped_session(Generic[_S]):
 
 
         """  # noqa: E501
-
-        return self._proxied.expire_all()
+        pass
 
     def expunge(self, instance: object) -> None:
         r"""Remove the `instance` from this ``Session``.
@@ -1129,17 +1108,7 @@ class scoped_session(Generic[_S]):
 
 
         """  # noqa: E501
-
-        return self._proxied.get_one(
-            entity,
-            ident,
-            options=options,
-            populate_existing=populate_existing,
-            with_for_update=with_for_update,
-            identity_token=identity_token,
-            execution_options=execution_options,
-            bind_arguments=bind_arguments,
-        )
+        pass
 
     def get_bind(
         self,
@@ -1297,10 +1266,7 @@ class scoped_session(Generic[_S]):
 
 
         """  # noqa: E501
-
-        return self._proxied.is_modified(
-            instance, include_collections=include_collections
-        )
+        pass
 
     def bulk_save_objects(
         self,
@@ -1380,13 +1346,7 @@ class scoped_session(Generic[_S]):
 
 
         """  # noqa: E501
-
-        return self._proxied.bulk_save_objects(
-            objects,
-            return_defaults=return_defaults,
-            update_changed_only=update_changed_only,
-            preserve_order=preserve_order,
-        )
+        pass
 
     def bulk_insert_mappings(
         self,
@@ -1467,13 +1427,7 @@ class scoped_session(Generic[_S]):
 
 
         """  # noqa: E501
-
-        return self._proxied.bulk_insert_mappings(
-            mapper,
-            mappings,
-            return_defaults=return_defaults,
-            render_nulls=render_nulls,
-        )
+        pass
 
     def bulk_update_mappings(
         self, mapper: Mapper[Any], mappings: Iterable[Dict[str, Any]]
@@ -1519,8 +1473,7 @@ class scoped_session(Generic[_S]):
 
 
         """  # noqa: E501
-
-        return self._proxied.bulk_update_mappings(mapper, mappings)
+        pass
 
     def merge(
         self,
@@ -1616,8 +1569,7 @@ class scoped_session(Generic[_S]):
 
 
         """  # noqa: E501
-
-        return self._proxied.merge_all(instances, load=load, options=options)
+        pass
 
     @overload
     def query(self, _entity: _EntityType[_O]) -> Query[_O]: ...
@@ -1988,12 +1940,11 @@ class scoped_session(Generic[_S]):
         on behalf of the :class:`_orm.scoping.scoped_session` class.
 
         """  # noqa: E501
-
-        return self._proxied.bind
+        pass
 
     @bind.setter
     def bind(self, attr: Optional[Union[Engine, Connection]]) -> None:
-        self._proxied.bind = attr
+        pass
 
     @property
     def dirty(self) -> Any:
@@ -2025,8 +1976,7 @@ class scoped_session(Generic[_S]):
 
 
         """  # noqa: E501
-
-        return self._proxied.dirty
+        pass
 
     @property
     def deleted(self) -> Any:
@@ -2038,8 +1988,7 @@ class scoped_session(Generic[_S]):
             on behalf of the :class:`_orm.scoping.scoped_session` class.
 
         """  # noqa: E501
-
-        return self._proxied.deleted
+        pass
 
     @property
     def new(self) -> Any:
@@ -2051,8 +2000,7 @@ class scoped_session(Generic[_S]):
             on behalf of the :class:`_orm.scoping.scoped_session` class.
 
         """  # noqa: E501
-
-        return self._proxied.new
+        pass
 
     @property
     def identity_map(self) -> IdentityMap:
@@ -2060,12 +2008,11 @@ class scoped_session(Generic[_S]):
         on behalf of the :class:`_orm.scoping.scoped_session` class.
 
         """  # noqa: E501
-
-        return self._proxied.identity_map
+        pass
 
     @identity_map.setter
     def identity_map(self, attr: IdentityMap) -> None:
-        self._proxied.identity_map = attr
+        pass
 
     @property
     def is_active(self) -> Any:
@@ -2101,8 +2048,7 @@ class scoped_session(Generic[_S]):
 
 
         """  # noqa: E501
-
-        return self._proxied.is_active
+        pass
 
     @property
     def autoflush(self) -> bool:
@@ -2143,8 +2089,7 @@ class scoped_session(Generic[_S]):
 
 
         """  # noqa: E501
-
-        return self._proxied.no_autoflush
+        pass
 
     @property
     def info(self) -> Any:
@@ -2216,14 +2161,7 @@ class scoped_session(Generic[_S]):
 
 
         """  # noqa: E501
-
-        return Session.identity_key(
-            class_=class_,
-            ident=ident,
-            instance=instance,
-            row=row,
-            identity_token=identity_token,
-        )
+        pass
 
     # END PROXY METHODS scoped_session
 

@@ -92,17 +92,13 @@ class MySQLCompiler_mysqlconnector(MySQLCompiler):
     def visit_mod_binary(
         self, binary: BinaryExpression[Any], operator: Any, **kw: Any
     ) -> str:
-        return (
-            self.process(binary.left, **kw)
-            + " % "
-            + self.process(binary.right, **kw)
-        )
+        pass
 
 
 class IdentifierPreparerCommon_mysqlconnector:
     @property
     def _double_percents(self) -> bool:
-        return False
+        pass
 
     @_double_percents.setter
     def _double_percents(self, value: Any) -> None:
@@ -213,11 +209,7 @@ class MySQLDialect_mysqlconnector(MySQLDialect):
 
     @util.memoized_property
     def _mysqlconnector_version_info(self) -> Optional[tuple[int, ...]]:
-        if self.dbapi and hasattr(self.dbapi, "__version__"):
-            m = re.match(r"(\d+)\.(\d+)(?:\.(\d+))?", self.dbapi.__version__)
-            if m:
-                return tuple(int(x) for x in m.group(1, 2, 3) if x is not None)
-        return None
+        pass
 
     def _detect_charset(self, connection: Connection) -> str:
         return connection.connection.charset  # type: ignore
@@ -258,7 +250,7 @@ class MySQLDialect_mysqlconnector(MySQLDialect):
         rp: CursorResult[Unpack[TupleAny]],
         charset: Optional[str] = None,
     ) -> Optional[Row[Unpack[TupleAny]]]:
-        return rp.fetchone()
+        pass
 
     def get_isolation_level_values(
         self, dbapi_conn: DBAPIConnection

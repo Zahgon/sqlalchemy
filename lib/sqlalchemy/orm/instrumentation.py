@@ -127,7 +127,7 @@ class ClassManager(
         "named expired_attribute_loader",
     )
     def deferred_scalar_loader(self):
-        return self.expired_attribute_loader
+        pass
 
     @deferred_scalar_loader.setter
     @util.deprecated(
@@ -136,7 +136,7 @@ class ClassManager(
         "named expired_attribute_loader",
     )
     def deferred_scalar_loader(self, obj):
-        self.expired_attribute_loader = obj
+        pass
 
     def __init__(self, class_):
         self.class_ = class_
@@ -238,31 +238,23 @@ class ClassManager(
 
     @property
     def is_mapped(self) -> bool:
-        return "mapper" in self.__dict__
+        pass
 
     @HasMemoized.memoized_attribute
     def _all_key_set(self):
-        return frozenset(self)
+        pass
 
     @HasMemoized.memoized_attribute
     def _collection_impl_keys(self):
-        return frozenset(
-            [attr.key for attr in self.values() if attr.impl.collection]
-        )
+        pass
 
     @HasMemoized.memoized_attribute
     def _scalar_loader_impls(self):
-        return frozenset(
-            [
-                attr.impl
-                for attr in self.values()
-                if attr.impl.accepts_scalar_loader
-            ]
-        )
+        pass
 
     @HasMemoized.memoized_attribute
     def _loader_impls(self):
-        return frozenset([attr.impl for attr in self.values()])
+        pass
 
     @util.memoized_property
     def mapper(self) -> Mapper[_O]:
@@ -278,29 +270,7 @@ class ClassManager(
         :class:`.AssociationProxy`.
 
         """
-
-        found: Dict[str, Any] = {}
-
-        # constraints:
-        # 1. yield keys in cls.__dict__ order
-        # 2. if a subclass has the same key as a superclass, include that
-        #    key as part of the ordering of the superclass, because an
-        #    overridden key is usually installed by the mapper which is going
-        #    on a different ordering
-        # 3. don't use getattr() as this fires off descriptors
-
-        for supercls in self.class_.__mro__[0:-1]:
-            inherits = supercls.__mro__[1]
-            for key in supercls.__dict__:
-                found.setdefault(key, supercls)
-                if key in inherits.__dict__:
-                    continue
-                val = found[key].__dict__[key]
-                if (
-                    isinstance(val, interfaces.InspectionAttr)
-                    and val.is_attribute
-                ):
-                    yield key, val
+        pass
 
     def _get_class_attr_mro(self, key, default=None):
         """return an attribute on the class without tripping it."""
@@ -477,10 +447,7 @@ class ClassManager(
         return adapter, user_data
 
     def is_instrumented(self, key: str, search: bool = False) -> bool:
-        if search:
-            return key in self
-        else:
-            return key in self.local_attrs
+        pass
 
     def get_impl(self, key: str) -> _AttributeImpl:
         return self[key].impl
@@ -510,12 +477,12 @@ class ClassManager(
         self._state_setter(instance, state)
 
     def teardown_instance(self, instance: _O) -> None:
-        delattr(instance, self.STATE_ATTR)
+        pass
 
     def _serialize(
         self, state: InstanceState[_O], state_dict: Dict[str, Any]
     ) -> _SerializeManager:
-        return _SerializeManager(state, state_dict)
+        pass
 
     def _new_state_if_none(
         self, instance: _O
@@ -525,24 +492,10 @@ class ClassManager(
         A private convenience method used by the __init__ decorator.
 
         """
-        if hasattr(instance, self.STATE_ATTR):
-            return False
-        elif self.class_ is not instance.__class__ and self.is_mapped:
-            # this will create a new ClassManager for the
-            # subclass, without a mapper.  This is likely a
-            # user error situation but allow the object
-            # to be constructed, so that it is usable
-            # in a non-ORM context at least.
-            return self._subclass_manager(
-                instance.__class__
-            )._new_state_if_none(instance)
-        else:
-            state = self._state_constructor(instance, self)
-            self._state_setter(instance, state)
-            return state
+        pass
 
     def has_state(self, instance: _O) -> bool:
-        return hasattr(instance, self.STATE_ATTR)
+        pass
 
     def has_parent(
         self, state: InstanceState[_O], key: str, optimistic: bool = False
@@ -685,8 +638,7 @@ def register_class(
 
 def unregister_class(class_):
     """Unregister class instrumentation."""
-
-    _instrumentation_factory.unregister(class_)
+    pass
 
 
 def is_instrumented(instance, key):
@@ -697,9 +649,7 @@ def is_instrumented(instance, key):
     applied directly to the class, i.e. no descriptors are required.
 
     """
-    return manager_of_class(instance.__class__).is_instrumented(
-        key, search=True
-    )
+    pass
 
 
 def _generate_init(class_, class_manager, original_init):

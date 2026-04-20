@@ -76,12 +76,7 @@ class MySQLDialect_pymysql(MySQLDialect_mysqldb):
 
     @langhelpers.memoized_property
     def supports_server_side_cursors(self) -> bool:
-        try:
-            cursors = __import__("pymysql.cursors").cursors
-            self._sscursor = cursors.SSCursor
-            return True
-        except (ImportError, AttributeError):
-            return False
+        pass
 
     @classmethod
     def import_dbapi(cls) -> DBAPIModule:
@@ -97,23 +92,7 @@ class MySQLDialect_pymysql(MySQLDialect_mysqldb):
         for background.
 
         """  # noqa: E501
-
-        try:
-            Connection = __import__(
-                "pymysql.connections"
-            ).connections.Connection
-        except (ImportError, AttributeError):
-            return True
-        else:
-            insp = langhelpers.get_callable_argspec(Connection.ping)
-            try:
-                reconnect_arg = insp.args[1]
-            except IndexError:
-                return False
-            else:
-                return reconnect_arg == "reconnect" and (
-                    not insp.defaults or insp.defaults[0] is not False
-                )
+        pass
 
     def do_ping(self, dbapi_connection: DBAPIConnection) -> Literal[True]:
         if self._send_false_to_ping:

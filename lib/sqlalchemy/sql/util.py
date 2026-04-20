@@ -145,14 +145,7 @@ def find_join_source(
         find_join_source([clause1, clause2], join_to) == clause1
 
     """
-
-    selectables = list(_from_objects(join_to))
-    idx = []
-    for i, f in enumerate(clauses):
-        for s in selectables:
-            if f.is_derived_from(s):
-                idx.append(i)
-    return idx
+    pass
 
 
 def find_left_clause_that_matches_given(
@@ -368,61 +361,11 @@ def find_tables(
 def unwrap_order_by(clause: Any) -> Any:
     """Break up an 'order by' expression into individual column-expressions,
     without DESC/ASC/NULLS FIRST/NULLS LAST"""
-
-    cols = util.column_set()
-    result = []
-    stack = deque([clause])
-
-    # examples
-    # column -> ASC/DESC == column
-    # column -> ASC/DESC -> label == column
-    # column -> label -> ASC/DESC -> label == column
-    # scalar_select -> label -> ASC/DESC == scalar_select -> label
-
-    while stack:
-        t = stack.popleft()
-        if isinstance(t, ColumnElement) and (
-            not isinstance(t, UnaryExpression)
-            or not operators.is_ordering_modifier(t.modifier)  # type: ignore
-        ):
-            if isinstance(t, Label) and not isinstance(
-                t.element, ScalarSelect
-            ):
-                t = t.element
-
-                if isinstance(t, Grouping):
-                    t = t.element
-
-                stack.append(t)
-                continue
-            elif isinstance(t, _label_reference):
-                t = t.element
-
-                stack.append(t)
-                continue
-            if isinstance(t, (_textual_label_reference)):
-                continue
-            if t not in cols:
-                cols.add(t)
-                result.append(t)
-
-        else:
-            for c in t.get_children():
-                stack.append(c)
-    return result
+    pass
 
 
 def unwrap_label_reference(element):
-    def replace(
-        element: ExternallyTraversible, **kw: Any
-    ) -> Optional[ExternallyTraversible]:
-        if isinstance(element, _label_reference):
-            return element.element
-        elif isinstance(element, _textual_label_reference):
-            assert False, "can't unwrap a textual label reference"
-        return None
-
-    return visitors.replacement_traverse(element, {}, replace)
+    pass
 
 
 def expand_column_list_from_order_by(collist, order_by):
@@ -489,22 +432,7 @@ def surface_selectables(clause):
 
 
 def surface_selectables_only(clause: ClauseElement) -> Iterator[ClauseElement]:
-    stack = [clause]
-    while stack:
-        elem = stack.pop()
-        if isinstance(elem, (TableClause, Alias)):
-            yield elem
-        if isinstance(elem, Join):
-            stack.extend((elem.left, elem.right))
-        elif isinstance(elem, FromGrouping):
-            stack.append(elem.element)
-        elif isinstance(elem, ColumnClause):
-            if elem.table is not None:
-                stack.append(elem.table)
-            else:
-                yield elem
-        elif elem is not None:
-            yield elem
+    pass
 
 
 def extract_first_column_annotation(column, annotation_name):
@@ -539,14 +467,7 @@ def bind_values(clause):
         >>> bind_values(expr)
         [5, 7]
     """
-
-    v = []
-
-    def visit_bindparam(bind):
-        v.append(bind.effective_value)
-
-    visitors.traverse(clause, {}, {"bindparam": visit_bindparam})
-    return v
+    pass
 
 
 def _quote_ddl_expr(element):
@@ -696,28 +617,7 @@ class _repr_params(_repr_base):
         multi_params: _AnyMultiExecuteParams,
         typ: int,
     ) -> str:
-        if multi_params:
-            if isinstance(multi_params[0], list):
-                elem_type = self._LIST
-            elif isinstance(multi_params[0], tuple):
-                elem_type = self._TUPLE
-            elif isinstance(multi_params[0], dict):
-                elem_type = self._DICT
-            else:
-                assert False, "Unknown parameter type %s" % (
-                    type(multi_params[0])
-                )
-
-            elements = ", ".join(
-                self._repr_params(params, elem_type) for params in multi_params
-            )
-        else:
-            elements = ""
-
-        if typ == self._LIST:
-            return "[%s]" % elements
-        else:
-            return "(%s)" % elements
+        pass
 
     def _get_batches(self, params: Iterable[Any]) -> Any:
         lparams = list(params)
@@ -1378,36 +1278,7 @@ class ColumnAdapter(ClauseAdapter):
         # additionally we want to catch singleton objects null/true/false
         # and make sure they are adapted as well here.
 
-        if col._is_immutable:
-            for vis in self.visitor_iterator:
-                c = vis.replace(col, _include_singleton_constants=True)
-                if c is not None:
-                    break
-            else:
-                c = col
-        else:
-            c = ClauseAdapter.traverse(self, col)
-
-        if self._wrap:
-            c2 = self._wrap._locate_col(c)
-            if c2 is not None:
-                c = c2
-
-        if self.adapt_required and c is col:
-            return None
-
-        # allow_label_resolve is consumed by one case for joined eager loading
-        # as part of its logic to prevent its own columns from being affected
-        # by .order_by().  Before full typing were applied to the ORM, this
-        # logic would set this attribute on the incoming object (which is
-        # typically a column, but we have a test for it being a non-column
-        # object) if no column were found.  While this seemed to
-        # have no negative effects, this adjustment should only occur on the
-        # new column which is assumed to be local to an adapted selectable.
-        if c is not col:
-            c._allow_label_resolve = self.allow_label_resolve
-
-        return c
+        pass
 
 
 def _offset_or_limit_clause(

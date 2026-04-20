@@ -319,17 +319,11 @@ class LambdaElement(elements.ClauseElement):
 
     @property
     def _is_sequence(self):
-        return self._rec.is_sequence
+        pass
 
     @property
     def _select_iterable(self):
-        if self._is_sequence:
-            return itertools.chain.from_iterable(
-                [element._select_iterable for element in self._resolved]
-            )
-
-        else:
-            return self._resolved._select_iterable
+        pass
 
     @property
     def _from_objects(self):
@@ -342,7 +336,7 @@ class LambdaElement(elements.ClauseElement):
             return self._resolved._from_objects
 
     def _param_dict(self):
-        return {b.key: b.value for b in self._resolved_bindparams}
+        pass
 
     def _setup_binds_for_tracked_expr(self, expr):
         bindparam_lookup = {b.key: b for b in self._resolved_bindparams}
@@ -386,12 +380,7 @@ class LambdaElement(elements.ClauseElement):
 
     @util.memoized_property
     def _resolved(self):
-        expr = self._rec.expected_expr
-
-        if self._resolved_bindparams:
-            expr = self._setup_binds_for_tracked_expr(expr)
-
-        return expr
+        pass
 
     def _gen_cache_key(self, anon_map, bindparams):
         if self.closure_cache_key is _cache_key.NO_CACHE:
@@ -591,54 +580,47 @@ class StatementLambdaElement(
     def _execute_on_connection(
         self, connection, distilled_params, execution_options
     ):
-        if TYPE_CHECKING:
-            assert isinstance(self._rec.expected_expr, ClauseElement)
-        if self._rec.expected_expr.supports_execution:
-            return connection._execute_clauseelement(
-                self, distilled_params, execution_options
-            )
-        else:
-            raise exc.ObjectNotExecutableError(self)
+        pass
 
     @property
     def _proxied(self) -> Any:
-        return self._rec_expected_expr
+        pass
 
     @property
     def _with_options(self):  # type: ignore[override]
-        return self._proxied._with_options
+        pass
 
     @property
     def _effective_plugin_target(self):
-        return self._proxied._effective_plugin_target
+        pass
 
     @property
     def _execution_options(self):  # type: ignore[override]
-        return self._proxied._execution_options
+        pass
 
     @property
     def _all_selected_columns(self):
-        return self._proxied._all_selected_columns
+        pass
 
     @property
     def is_select(self):  # type: ignore[override]
-        return self._proxied.is_select
+        pass
 
     @property
     def is_update(self):  # type: ignore[override]
-        return self._proxied.is_update
+        pass
 
     @property
     def is_insert(self):  # type: ignore[override]
-        return self._proxied.is_insert
+        pass
 
     @property
     def is_text(self):  # type: ignore[override]
-        return self._proxied.is_text
+        pass
 
     @property
     def is_delete(self):  # type: ignore[override]
-        return self._proxied.is_delete
+        pass
 
     @property
     def is_dml(self):  # type: ignore[override]
@@ -649,7 +631,7 @@ class StatementLambdaElement(
         all lambdas unconditionally each time.
 
         """
-        return NullLambdaStatement(self.fn())
+        pass
 
 
 class NullLambdaStatement(roles.AllowsLambdaRole, elements.ClauseElement):
@@ -691,12 +673,7 @@ class NullLambdaStatement(roles.AllowsLambdaRole, elements.ClauseElement):
     def _execute_on_connection(
         self, connection, distilled_params, execution_options
     ):
-        if self._resolved.supports_execution:
-            return connection._execute_clauseelement(
-                self, distilled_params, execution_options
-            )
-        else:
-            raise exc.ObjectNotExecutableError(self)
+        pass
 
 
 class LinkedLambdaElement(StatementLambdaElement):
@@ -1093,7 +1070,7 @@ class NonAnalyzedFunction:
 
     @property
     def expected_expr(self) -> ClauseElement:
-        return self.expr
+        pass
 
 
 class AnalyzedFunction:
@@ -1349,33 +1326,13 @@ class PyWrapper(ColumnOperators):
         return op(elem, *other, **kwargs)
 
     def reverse_operate(self, op, other, **kwargs):
-        elem = object.__getattribute__(self, "_py_wrapper_literal")()
-        return op(other, elem, **kwargs)
+        pass
 
     def _extract_bound_parameters(self, starting_point, result_list):
-        param = object.__getattribute__(self, "_param")
-        if param is not None:
-            param = param._with_value(starting_point, maintain_key=True)
-            result_list.append(param)
-        for pywrapper in object.__getattribute__(self, "_bind_paths").values():
-            getter = object.__getattribute__(pywrapper, "_getter")
-            element = getter(starting_point)
-            pywrapper._sa__extract_bound_parameters(element, result_list)
+        pass
 
     def _py_wrapper_literal(self, expr=None, operator=None, **kw):
-        param = object.__getattribute__(self, "_param")
-        to_evaluate = object.__getattribute__(self, "_to_evaluate")
-        if param is None:
-            name = object.__getattribute__(self, "_name")
-            self._param = param = elements.BindParameter(
-                name,
-                required=False,
-                unique=True,
-                _compared_to_operator=operator,
-                _compared_to_type=expr.type if expr is not None else None,
-            )
-            self._has_param = True
-        return param._with_value(to_evaluate, maintain_key=True)
+        pass
 
     def __bool__(self):
         to_evaluate = object.__getattribute__(self, "_to_evaluate")
@@ -1418,26 +1375,9 @@ class PyWrapper(ColumnOperators):
         return self._sa__add_getter(key, operator.itemgetter)
 
     def _add_getter(self, key, getter_fn):
-        bind_paths = object.__getattribute__(self, "_bind_paths")
-
-        bind_path_key = (key, getter_fn)
-        if bind_path_key in bind_paths:
-            return bind_paths[bind_path_key]
-
-        getter = getter_fn(key)
-        elem = object.__getattribute__(self, "_to_evaluate")
-        value = getter(elem)
-
-        rolled_down_value = AnalyzedCode._roll_down_to_literal(value)
-
-        if coercions._deep_is_literal(rolled_down_value):
-            wrapper = PyWrapper(self._sa_fn, key, value, getter=getter)
-            bind_paths[bind_path_key] = wrapper
-            return wrapper
-        else:
-            return value
+        pass
 
 
 @inspection._inspects(LambdaElement)
 def insp(lmb):
-    return inspection.inspect(lmb._resolved)
+    pass

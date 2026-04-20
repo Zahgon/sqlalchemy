@@ -511,34 +511,12 @@ class CompositeProperty(
 
     @util.memoized_property
     def _comparable_elements(self) -> Sequence[QueryableAttribute[Any]]:
-        return [getattr(self.parent.class_, prop.key) for prop in self.props]
+        pass
 
     @util.memoized_property
     @util.preload_module("orm.properties")
     def props(self) -> Sequence[MapperProperty[Any]]:
-        props = []
-        MappedColumn = util.preloaded.orm_properties.MappedColumn
-
-        for attr in self.attrs:
-            if isinstance(attr, str):
-                prop = self.parent.get_property(attr, _configure_mappers=False)
-            elif isinstance(attr, schema.Column):
-                prop = self.parent._columntoproperty[attr]
-            elif isinstance(attr, MappedColumn):
-                prop = self.parent._columntoproperty[attr.column]
-            elif isinstance(attr, attributes.InstrumentedAttribute):
-                prop = attr.property
-            else:
-                prop = None
-
-            if not isinstance(prop, MapperProperty):
-                raise sa_exc.ArgumentError(
-                    "Composite expects Column objects or mapped "
-                    f"attributes/attribute names as arguments, got: {attr!r}"
-                )
-
-            props.append(prop)
-        return props
+        pass
 
     def _column_strategy_attrs(self) -> Sequence[QueryableAttribute[Any]]:
         return self._comparable_elements
@@ -555,11 +533,11 @@ class CompositeProperty(
 
     @property
     def mapper_property_to_assign(self) -> Optional[MapperProperty[_CC]]:
-        return self
+        pass
 
     @property
     def columns_to_assign(self) -> List[Tuple[schema.Column[Any], int]]:
-        return [(c, 0) for c in self.columns if c.table is None]
+        pass
 
     @util.preload_module("orm.properties")
     def _setup_arguments_on_columns(self) -> None:
@@ -678,7 +656,7 @@ class CompositeProperty(
 
     @util.memoized_property
     def _attribute_keys(self) -> Sequence[str]:
-        return [prop.key for prop in self.props]
+        pass
 
     def _populate_composite_bulk_save_mappings_fn(
         self,
@@ -796,9 +774,7 @@ class CompositeProperty(
 
         @util.memoized_property
         def clauses(self) -> ClauseList:
-            return expression.ClauseList(
-                group=False, *self._comparable_elements
-            )
+            pass
 
         def __clause_element__(self) -> CompositeProperty.CompositeBundle[_PT]:
             return self.expression
@@ -817,39 +793,14 @@ class CompositeProperty(
         def _bulk_update_tuples(
             self, value: Any
         ) -> Sequence[Tuple[_DMLColumnArgument, Any]]:
-            if isinstance(value, BindParameter):
-                value = value.value
-
-            values: Sequence[Any]
-
-            if value is None:
-                values = [None for key in self.prop._attribute_keys]
-            elif isinstance(self.prop.composite_class, type) and isinstance(
-                value, self.prop.composite_class
-            ):
-                values = self.prop._composite_values_from_instance(
-                    value  # type: ignore[arg-type]
-                )
-            else:
-                raise sa_exc.ArgumentError(
-                    "Can't UPDATE composite attribute %s to %r"
-                    % (self.prop, value)
-                )
-
-            return list(zip(self._comparable_elements, values))
+            pass
 
         def _bulk_dml_setter(self, key: str) -> Optional[Callable[..., Any]]:
             return self.prop._populate_composite_bulk_save_mappings_fn()
 
         @util.memoized_property
         def _comparable_elements(self) -> Sequence[QueryableAttribute[Any]]:
-            if self._adapt_to_entity:
-                return [
-                    getattr(self._adapt_to_entity.entity, prop.key)
-                    for prop in self.prop._comparable_elements
-                ]
-            else:
-                return self.prop._comparable_elements
+            pass
 
         def __eq__(self, other: Any) -> ColumnElement[bool]:  # type: ignore[override]  # noqa: E501
             return self._compare(operators.eq, other)
@@ -899,19 +850,7 @@ class CompositeProperty(
         def _compare(
             self, operator: OperatorType, other: Any
         ) -> ColumnElement[bool]:
-            values: Sequence[Any]
-            if other is None:
-                values = [None] * len(self.prop._comparable_elements)
-            else:
-                values = self.prop._composite_values_from_instance(other)
-            comparisons = [
-                operator(a, b)
-                for a, b in zip(self.prop._comparable_elements, values)
-            ]
-            if self._adapt_to_entity:
-                assert self.adapter is not None
-                comparisons = [self.adapter(x) for x in comparisons]
-            return sql.and_(*comparisons)
+            pass
 
     def __str__(self) -> str:
         return str(self.parent.class_.__name__) + "." + self.key
@@ -1039,7 +978,7 @@ class SynonymProperty(DescriptorProperty[_T]):
 
         @property
         def uses_objects(self) -> bool:
-            return getattr(self.parent.class_, self.name).impl.uses_objects
+            pass
 
     # TODO: when initialized, check _proxied_object,
     # emit a warning if its not a column-based property
@@ -1048,24 +987,7 @@ class SynonymProperty(DescriptorProperty[_T]):
     def _proxied_object(
         self,
     ) -> Union[MapperProperty[_T], SQLORMOperations[_T]]:
-        attr = getattr(self.parent.class_, self.name)
-        if not hasattr(attr, "property") or not isinstance(
-            attr.property, MapperProperty
-        ):
-            # attribute is a non-MapperProprerty proxy such as
-            # hybrid or association proxy
-            if isinstance(attr, attributes.QueryableAttribute):
-                return attr.comparator
-            elif isinstance(attr, SQLORMOperations):
-                # association proxy comes here
-                return attr
-
-            raise sa_exc.InvalidRequestError(
-                """synonym() attribute "%s.%s" only supports """
-                """ORM mapped attributes, got %r"""
-                % (self.parent.class_.__name__, self.name, attr)
-            )
-        return attr.property
+        pass
 
     def _column_strategy_attrs(self) -> Sequence[QueryableAttribute[Any]]:
         return (getattr(self.parent.class_, self.name),)

@@ -204,11 +204,7 @@ class Connection(ConnectionEventsTarget, inspection.Inspectable["Inspector"]):
 
     @property
     def _schema_translate_map(self) -> Optional[SchemaTranslateMapType]:
-        schema_translate_map: Optional[SchemaTranslateMapType] = (
-            self._execution_options.get("schema_translate_map", None)
-        )
-
-        return schema_translate_map
+        pass
 
     def schema_for_object(self, obj: HasSchemaAttr) -> Optional[str]:
         """Return the schema name for the given schema item taking into
@@ -539,15 +535,11 @@ class Connection(ConnectionEventsTarget, inspection.Inspectable["Inspector"]):
 
             :meth:`_engine.Connection.execution_options`
         """
-        return self._execution_options
+        pass
 
     @property
     def _still_open_and_dbapi_connection_is_valid(self) -> bool:
-        pool_proxied_connection = self._dbapi_connection
-        return (
-            pool_proxied_connection is not None
-            and pool_proxied_connection.is_valid
-        )
+        pass
 
     @property
     def closed(self) -> bool:
@@ -563,18 +555,7 @@ class Connection(ConnectionEventsTarget, inspection.Inspectable["Inspector"]):
         invalidated at the pool level, however
 
         """
-
-        # prior to 1.4, "invalid" was stored as a state independent of
-        # "closed", meaning an invalidated connection could be "closed",
-        # the _dbapi_connection would be None and closed=True, yet the
-        # "invalid" flag would stay True.  This meant that there were
-        # three separate states (open/valid, closed/valid, closed/invalid)
-        # when there is really no reason for that; a connection that's
-        # "closed" does not need to be "invalid".  So the state is now
-        # represented by the two facts alone.
-
-        pool_proxied_connection = self._dbapi_connection
-        return pool_proxied_connection is None and self.__can_reconnect
+        pass
 
     @property
     def connection(self) -> PoolProxiedConnection:
@@ -673,7 +654,7 @@ class Connection(ConnectionEventsTarget, inspection.Inspectable["Inspector"]):
             - set per :class:`_engine.Connection` isolation level
 
         """
-        return self.dialect.default_isolation_level
+        pass
 
     def _invalid_transaction(self) -> NoReturn:
         raise exc.PendingRollbackError(
@@ -1039,13 +1020,13 @@ class Connection(ConnectionEventsTarget, inspection.Inspectable["Inspector"]):
             self._transaction.rollback()
 
     def recover_twophase(self) -> List[Any]:
-        return self.engine.dialect.do_recover_twophase(self)
+        pass
 
     def rollback_prepared(self, xid: Any, recover: bool = False) -> None:
-        self.engine.dialect.do_rollback_twophase(self, xid, recover=recover)
+        pass
 
     def commit_prepared(self, xid: Any, recover: bool = False) -> None:
-        self.engine.dialect.do_commit_twophase(self, xid, recover=recover)
+        pass
 
     def in_transaction(self) -> bool:
         """Return True if a transaction is in progress."""
@@ -1098,7 +1079,7 @@ class Connection(ConnectionEventsTarget, inspection.Inspectable["Inspector"]):
         .. versionadded:: 1.4
 
         """
-        return self._nested_transaction
+        pass
 
     def _begin_impl(self, transaction: RootTransaction) -> None:
         if self._echo:
@@ -1457,10 +1438,7 @@ class Connection(ConnectionEventsTarget, inspection.Inspectable["Inspector"]):
         execution_options: CoreExecuteOptionsParameter,
     ) -> CursorResult[Unpack[TupleAny]]:
         """Execute a sql.FunctionElement object."""
-
-        return self._execute_clauseelement(
-            func.select(), distilled_parameters, execution_options
-        )
+        pass
 
     def _execute_default(
         self,
@@ -1469,55 +1447,7 @@ class Connection(ConnectionEventsTarget, inspection.Inspectable["Inspector"]):
         execution_options: CoreExecuteOptionsParameter,
     ) -> Any:
         """Execute a schema.ColumnDefault object."""
-
-        exec_opts = self._execution_options.merge_with(execution_options)
-
-        event_multiparams: Optional[_CoreMultiExecuteParams]
-        event_params: Optional[_CoreAnyExecuteParams]
-
-        # note for event handlers, the "distilled parameters" which is always
-        # a list of dicts is broken out into separate "multiparams" and
-        # "params" collections, which allows the handler to distinguish
-        # between an executemany and execute style set of parameters.
-        if self._has_events or self.engine._has_events:
-            (
-                default,
-                distilled_parameters,
-                event_multiparams,
-                event_params,
-            ) = self._invoke_before_exec_event(
-                default, distilled_parameters, exec_opts
-            )
-        else:
-            event_multiparams = event_params = None
-
-        try:
-            conn = self._dbapi_connection
-            if conn is None:
-                conn = self._revalidate_connection()
-
-            dialect = self.dialect
-            ctx = dialect.execution_ctx_cls._init_default(
-                dialect, self, conn, exec_opts
-            )
-        except (exc.PendingRollbackError, exc.ResourceClosedError):
-            raise
-        except BaseException as e:
-            self._handle_dbapi_exception(e, None, None, None, None)
-
-        ret = ctx._exec_default(None, default, None)
-
-        if self._has_events or self.engine._has_events:
-            self.dispatch.after_execute(
-                self,
-                default,
-                event_multiparams,
-                event_params,
-                exec_opts,
-                ret,
-            )
-
-        return ret
+        pass
 
     def _execute_ddl(
         self,
@@ -1526,51 +1456,7 @@ class Connection(ConnectionEventsTarget, inspection.Inspectable["Inspector"]):
         execution_options: CoreExecuteOptionsParameter,
     ) -> CursorResult[Unpack[TupleAny]]:
         """Execute a schema.DDL object."""
-
-        exec_opts = ddl._execution_options.merge_with(
-            self._execution_options, execution_options
-        )
-
-        event_multiparams: Optional[_CoreMultiExecuteParams]
-        event_params: Optional[_CoreSingleExecuteParams]
-
-        if self._has_events or self.engine._has_events:
-            (
-                ddl,
-                distilled_parameters,
-                event_multiparams,
-                event_params,
-            ) = self._invoke_before_exec_event(
-                ddl, distilled_parameters, exec_opts
-            )
-        else:
-            event_multiparams = event_params = None
-
-        schema_translate_map = exec_opts.get("schema_translate_map", None)
-
-        dialect = self.dialect
-
-        compiled = ddl.compile(
-            dialect=dialect, schema_translate_map=schema_translate_map
-        )
-        ret = self._execute_context(
-            dialect,
-            dialect.execution_ctx_cls._init_ddl,
-            compiled,
-            None,
-            exec_opts,
-            compiled,
-        )
-        if self._has_events or self.engine._has_events:
-            self.dispatch.after_execute(
-                self,
-                ddl,
-                event_multiparams,
-                event_params,
-                exec_opts,
-                ret,
-            )
-        return ret
+        pass
 
     def _invoke_before_exec_event(
         self,
@@ -1583,36 +1469,7 @@ class Connection(ConnectionEventsTarget, inspection.Inspectable["Inspector"]):
         _CoreMultiExecuteParams,
         _CoreSingleExecuteParams,
     ]:
-        event_multiparams: _CoreMultiExecuteParams
-        event_params: _CoreSingleExecuteParams
-
-        if len(distilled_params) == 1:
-            event_multiparams, event_params = [], distilled_params[0]
-        else:
-            event_multiparams, event_params = distilled_params, {}
-
-        for fn in self.dispatch.before_execute:
-            elem, event_multiparams, event_params = fn(
-                self,
-                elem,
-                event_multiparams,
-                event_params,
-                execution_options,
-            )
-
-        if event_multiparams:
-            distilled_params = list(event_multiparams)
-            if event_params:
-                raise exc.InvalidRequestError(
-                    "Event handler can't return non-empty multiparams "
-                    "and params at the same time"
-                )
-        elif event_params:
-            distilled_params = [event_params]
-        else:
-            distilled_params = []
-
-        return elem, distilled_params, event_multiparams, event_params
+        pass
 
     def _execute_clauseelement(
         self,
@@ -1621,72 +1478,7 @@ class Connection(ConnectionEventsTarget, inspection.Inspectable["Inspector"]):
         execution_options: CoreExecuteOptionsParameter,
     ) -> CursorResult[Unpack[TupleAny]]:
         """Execute a sql.ClauseElement object."""
-
-        exec_opts = elem._execution_options.merge_with(
-            self._execution_options, execution_options
-        )
-
-        has_events = self._has_events or self.engine._has_events
-        if has_events:
-            (
-                elem,
-                distilled_parameters,
-                event_multiparams,
-                event_params,
-            ) = self._invoke_before_exec_event(
-                elem, distilled_parameters, exec_opts
-            )
-
-        if distilled_parameters:
-            # ensure we don't retain a link to the view object for keys()
-            # which links to the values, which we don't want to cache
-            keys = sorted(distilled_parameters[0])
-            for_executemany = len(distilled_parameters) > 1
-        else:
-            keys = []
-            for_executemany = False
-
-        dialect = self.dialect
-
-        schema_translate_map = exec_opts.get("schema_translate_map", None)
-
-        compiled_cache: Optional[CompiledCacheType] = exec_opts.get(
-            "compiled_cache", self.engine._compiled_cache
-        )
-
-        compiled_sql, extracted_params, param_dict, cache_hit = (
-            elem._compile_w_cache(
-                dialect=dialect,
-                compiled_cache=compiled_cache,
-                column_keys=keys,
-                for_executemany=for_executemany,
-                schema_translate_map=schema_translate_map,
-                linting=self.dialect.compiler_linting | compiler.WARN_LINTING,
-            )
-        )
-        ret = self._execute_context(
-            dialect,
-            dialect.execution_ctx_cls._init_compiled,
-            compiled_sql,
-            distilled_parameters,
-            exec_opts,
-            compiled_sql,
-            distilled_parameters,
-            elem,
-            extracted_params,
-            cache_hit=cache_hit,
-            param_dict=param_dict,
-        )
-        if has_events:
-            self.dispatch.after_execute(
-                self,
-                elem,
-                event_multiparams,
-                event_params,
-                exec_opts,
-                ret,
-            )
-        return ret
+        pass
 
     def exec_driver_sql(
         self,
@@ -2546,7 +2338,7 @@ class Transaction(TransactionalContext):
 
     @property
     def is_valid(self) -> bool:
-        return self.is_active and not self.connection.invalidated
+        pass
 
     def close(self) -> None:
         """Close this :class:`.Transaction`.
@@ -2670,7 +2462,7 @@ class RootTransaction(Transaction):
 
     @property
     def _deactivated_from_connection(self) -> bool:
-        return self.connection._transaction is not self
+        pass
 
     def _connection_begin_impl(self) -> None:
         self.connection._begin_impl(self)
@@ -2788,7 +2580,7 @@ class NestedTransaction(Transaction):
 
     @property
     def _deactivated_from_connection(self) -> bool:
-        return self.connection._nested_transaction is not self
+        pass
 
     def _cancel(self) -> None:
         # called by RootTransaction when the outer transaction is
@@ -2953,13 +2745,7 @@ class Engine(
             self.update_execution_options(**execution_options)
 
     def _lru_size_alert(self, cache: util.LRUCache[Any, Any]) -> None:
-        if self._should_log_info():
-            self.logger.info(
-                "Compiled cache size pruning from %d items to %d.  "
-                "Increase cache size to reduce the frequency of pruning.",
-                len(cache),
-                cache.capacity,
-            )
+        pass
 
     @property
     def engine(self) -> Engine:
@@ -2982,8 +2768,7 @@ class Engine(
         .. versionadded:: 1.4
 
         """
-        if self._compiled_cache:
-            self._compiled_cache.clear()
+        pass
 
     def update_execution_options(self, **opt: Any) -> None:
         r"""Update the default execution_options dictionary
@@ -3108,7 +2893,7 @@ class Engine(
 
             :meth:`_engine.Engine.execution_options`
         """
-        return self._execution_options
+        pass
 
     @property
     def name(self) -> str:
@@ -3116,8 +2901,7 @@ class Engine(
         in use by this :class:`Engine`.
 
         """
-
-        return self.dialect.name
+        pass
 
     @property
     def driver(self) -> str:
@@ -3125,8 +2909,7 @@ class Engine(
         in use by this :class:`Engine`.
 
         """
-
-        return self.dialect.driver
+        pass
 
     echo = log.echo_property()
 
@@ -3187,11 +2970,7 @@ class Engine(
     def _optional_conn_ctx_manager(
         self, connection: Optional[Connection] = None
     ) -> Iterator[Connection]:
-        if connection is None:
-            with self.connect() as conn:
-                yield conn
-        else:
-            yield connection
+        pass
 
     @contextlib.contextmanager
     def begin(self) -> Iterator[Connection]:
@@ -3337,13 +3116,11 @@ class OptionEngineMixin(log.Identified):
 
         @property
         def _has_events(self) -> bool:
-            return self._proxied._has_events or self.__dict__.get(
-                "_has_events", False
-            )
+            pass
 
         @_has_events.setter
         def _has_events(self, value: bool) -> None:
-            self.__dict__["_has_events"] = value
+            pass
 
 
 class OptionEngine(OptionEngineMixin, Engine):

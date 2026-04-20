@@ -1440,21 +1440,7 @@ def automap_base(
      :func:`.declarative.declarative_base`.
 
     """
-    if declarative_base is None:
-        Base = _declarative_base(**kw)
-    else:
-        Base = declarative_base
-
-    return type(
-        Base.__name__,
-        (AutomapBase, Base),
-        {
-            "__abstract__": True,
-            "classes": util.Properties({}),
-            "by_module": util.Properties({}),
-            "_sa_automapbase_bookkeeping": _Bookkeeping(set()),
-        },
-    )
+    pass
 
 
 def _is_many_to_many(

@@ -103,7 +103,7 @@ class Row(BaseRow, _RowBase[Unpack[_Ts]], Generic[Unpack[_Ts]]):  # type: ignore
 
 
         """
-        return self
+        pass
 
     @deprecated(
         "2.0.19",
@@ -123,7 +123,7 @@ class Row(BaseRow, _RowBase[Unpack[_Ts]], Generic[Unpack[_Ts]]):  # type: ignore
             workaround for SQLAlchemy 2.1.
 
         """
-        return self._tuple()
+        pass
 
     @property
     @deprecated(
@@ -146,7 +146,7 @@ class Row(BaseRow, _RowBase[Unpack[_Ts]], Generic[Unpack[_Ts]]):  # type: ignore
 
             :attr:`.Result.t`
         """
-        return self
+        pass
 
     @property
     @deprecated(
@@ -167,7 +167,7 @@ class Row(BaseRow, _RowBase[Unpack[_Ts]], Generic[Unpack[_Ts]]):  # type: ignore
             workaround for SQLAlchemy 2.1.
 
         """
-        return self._t
+        pass
 
     @property
     def _mapping(self) -> RowMapping:
@@ -184,42 +184,24 @@ class Row(BaseRow, _RowBase[Unpack[_Ts]], Generic[Unpack[_Ts]]):  # type: ignore
         .. versionadded:: 1.4
 
         """
-        return RowMapping(self._parent, None, self._key_to_index, self._data)
+        pass
 
     def _filter_on_values(
         self, processor: Optional[_ProcessorsType]
     ) -> Row[Unpack[_Ts]]:
-        return Row(self._parent, processor, self._key_to_index, self._data)
+        pass
 
     if not TYPE_CHECKING:
 
         def _special_name_accessor(name: str) -> Any:
             """Handle ambiguous names such as "count" and "index" """
-
-            @property
-            def go(self: Row) -> Any:
-                if self._parent._has_key(name):
-                    return self.__getattr__(name)
-                else:
-
-                    def meth(*arg: Any, **kw: Any) -> Any:
-                        return getattr(collections_abc.Sequence, name)(
-                            self, *arg, **kw
-                        )
-
-                    return meth
-
-            return go
+            pass
 
         count = _special_name_accessor("count")
         index = _special_name_accessor("index")
 
     def _op(self, other: Any, op: Callable[[Any, Any], bool]) -> bool:
-        return (
-            op(self._to_tuple_instance(), other._to_tuple_instance())
-            if isinstance(other, Row)
-            else op(self._to_tuple_instance(), other)
-        )
+        pass
 
     __hash__ = BaseRow.__hash__
 
@@ -263,7 +245,7 @@ class Row(BaseRow, _RowBase[Unpack[_Ts]], Generic[Unpack[_Ts]]):  # type: ignore
             :attr:`.Row._mapping`
 
         """
-        return tuple([k for k in self._parent.keys if k is not None])
+        pass
 
     def _asdict(self) -> Dict[str, Any]:
         """Return a new dict which maps field names to their corresponding
@@ -280,7 +262,7 @@ class Row(BaseRow, _RowBase[Unpack[_Ts]], Generic[Unpack[_Ts]]):  # type: ignore
             :attr:`.Row._mapping`
 
         """
-        return dict(self._mapping)
+        pass
 
 
 BaseRowProxy = BaseRow

@@ -146,8 +146,7 @@ def _all_registries() -> Set[registry]:
 
 
 def _unconfigured_mappers() -> Iterator[Mapper[Any]]:
-    for reg in _all_registries():
-        yield from reg._mappers_to_configure()
+    pass
 
 
 _already_compiling = False
@@ -888,7 +887,7 @@ class Mapper(
         Returns self.class\_.
 
         """
-        return self.class_
+        pass
 
     class_: Type[_O]
     """The class to which this :class:`_orm.Mapper` is mapped."""
@@ -1137,7 +1136,7 @@ class Mapper(
 
     @util.memoized_property
     def _path_registry(self) -> _CachingEntityRegistry:
-        return PathRegistry.per_mapper(self)
+        pass
 
     def _configure_inheritance(self):
         """Configure settings related to inheriting and/or inherited mappers
@@ -1953,27 +1952,15 @@ class Mapper(
 
     @HasMemoized.memoized_attribute
     def _version_id_prop(self):
-        if self.version_id_col is not None:
-            return self._columntoproperty[self.version_id_col]
-        else:
-            return None
+        pass
 
     @HasMemoized.memoized_attribute
     def _acceptable_polymorphic_identities(self):
-        identities = set()
-
-        stack = deque([self])
-        while stack:
-            item = stack.popleft()
-            if item.persist_selectable is self.persist_selectable:
-                identities.add(item.polymorphic_identity)
-                stack.extend(item._inheriting_mappers)
-
-        return identities
+        pass
 
     @HasMemoized.memoized_attribute
     def _prop_set(self):
-        return frozenset(self._props.values())
+        pass
 
     @util.preload_module("sqlalchemy.orm.descriptor_props")
     def _adapt_inherited_property(self, key, prop, init):
@@ -2354,8 +2341,7 @@ class Mapper(
         using `add_property`.
 
         """
-        for key, value in dict_of_properties.items():
-            self.add_property(key, value)
+        pass
 
     def add_property(
         self, key: str, prop: Union[Column[Any], MapperProperty[Any]]
@@ -2380,17 +2366,7 @@ class Mapper(
 
     @property
     def _log_desc(self) -> str:
-        return (
-            "("
-            + self.class_.__name__
-            + "|"
-            + (
-                self.local_table is not None
-                and self.local_table.description
-                or str(self.local_table)
-            )
-            + ")"
-        )
+        pass
 
     def _log(self, msg: str, *args: Any) -> None:
         self.logger.info("%s " + msg, *((self._log_desc,) + args))
@@ -2480,13 +2456,12 @@ class Mapper(
     @HasMemoized.memoized_attribute
     def c(self) -> ReadOnlyColumnCollection[str, Column[Any]]:
         """A synonym for :attr:`_orm.Mapper.columns`."""
-        return self._columns.as_readonly()
+        pass
 
     @property
     def iterate_properties(self):
         """return an iterator of all MapperProperty objects."""
-
-        return iter(self._props.values())
+        pass
 
     def _mappers_from_spec(
         self, spec: Any, selectable: Optional[FromClause]
@@ -2555,48 +2530,15 @@ class Mapper(
 
     @HasMemoized.memoized_attribute
     def _version_id_has_server_side_value(self) -> bool:
-        vid_col = self.version_id_col
-
-        if vid_col is None:
-            return False
-
-        elif not isinstance(vid_col, Column):
-            return True
-        else:
-            return vid_col.server_default is not None or (
-                vid_col.default is not None
-                and (
-                    not vid_col.default.is_scalar
-                    and not vid_col.default.is_callable
-                )
-            )
+        pass
 
     @HasMemoized.memoized_attribute
     def _single_table_criteria_component(self):
-        if self.single and self.inherits and self.polymorphic_on is not None:
-
-            hierarchy = tuple(
-                m.polymorphic_identity
-                for m in self.self_and_descendants
-                if not m.polymorphic_abstract
-            )
-
-            return (
-                self.polymorphic_on._annotate(
-                    {"parententity": self, "parentmapper": self}
-                ),
-                hierarchy,
-            )
-        else:
-            return None
+        pass
 
     @HasMemoized.memoized_attribute
     def _single_table_criterion(self):
-        component = self._single_table_criteria_component
-        if component is not None:
-            return component[0].in_(component[1])
-        else:
-            return None
+        pass
 
     @HasMemoized.memoized_attribute
     def _has_aliased_polymorphic_fromclause(self):
@@ -2607,10 +2549,7 @@ class Mapper(
         if this is present.
 
         """
-        return self.with_polymorphic and isinstance(
-            self.with_polymorphic[1],
-            expression.AliasedReturnsRows,
-        )
+        pass
 
     @HasMemoized.memoized_attribute
     def _should_select_with_poly_adapter(self):
@@ -2622,52 +2561,11 @@ class Mapper(
         for this condition.
 
         """
-
-        # this has been simplified as of #8456.
-        # rule is: if we have a with_polymorphic or a concrete-style
-        # polymorphic selectable, *or* if the base mapper has either of those,
-        # we turn on the adaption thing.  if not, we do *no* adaption.
-        #
-        # (UPDATE for #8168: the above comment was not accurate, as we were
-        # still saying "do polymorphic" if we were using an auto-generated
-        # flattened JOIN for with_polymorphic.)
-        #
-        # this splits the behavior among the "regular" joined inheritance
-        # and single inheritance mappers, vs. the "weird / difficult"
-        # concrete and joined inh mappings that use a with_polymorphic of
-        # some kind or polymorphic_union.
-        #
-        # note we have some tests in test_polymorphic_rel that query against
-        # a subclass, then refer to the superclass that has a with_polymorphic
-        # on it (such as test_join_from_polymorphic_explicit_aliased_three).
-        # these tests actually adapt the polymorphic selectable (like, the
-        # UNION or the SELECT subquery with JOIN in it) to be just the simple
-        # subclass table.   Hence even if we are a "plain" inheriting mapper
-        # but our base has a wpoly on it, we turn on adaption.  This is a
-        # legacy case we should probably disable.
-        #
-        #
-        # UPDATE: simplified way more as of #8168.   polymorphic adaption
-        # is turned off even if with_polymorphic is set, as long as there
-        # is no user-defined aliased selectable / subquery configured.
-        # this scales back the use of polymorphic adaption in practice
-        # to basically no cases except for concrete inheritance with a
-        # polymorphic base class.
-        #
-        return (
-            self._has_aliased_polymorphic_fromclause
-            or self._requires_row_aliasing
-            or (self.base_mapper._has_aliased_polymorphic_fromclause)
-            or self.base_mapper._requires_row_aliasing
-        )
+        pass
 
     @HasMemoized.memoized_attribute
     def _with_polymorphic_mappers(self) -> Sequence[Mapper[Any]]:
-        self._check_configure()
-
-        if not self.with_polymorphic:
-            return []
-        return self._mappers_from_spec(*self.with_polymorphic)
+        pass
 
     @HasMemoized.memoized_attribute
     def _post_inspect(self):
@@ -2680,20 +2578,11 @@ class Mapper(
         This allows the inspection process run a configure mappers hook.
 
         """
-        self._check_configure()
+        pass
 
     @HasMemoized_ro_memoized_attribute
     def _with_polymorphic_selectable(self) -> FromClause:
-        if not self.with_polymorphic:
-            return self.persist_selectable
-
-        spec, selectable = self.with_polymorphic
-        if selectable is not None:
-            return selectable
-        else:
-            return self._selectable_from_mappers(
-                self._mappers_from_spec(spec, selectable), False
-            )
+        pass
 
     with_polymorphic_mappers = _with_polymorphic_mappers
     """The list of :class:`_orm.Mapper` objects included in the
@@ -2703,118 +2592,49 @@ class Mapper(
 
     @HasMemoized_ro_memoized_attribute
     def _insert_cols_evaluating_none(self):
-        return {
-            table: frozenset(
-                col for col in columns if col.type.should_evaluate_none
-            )
-            for table, columns in self._cols_by_table.items()
-        }
+        pass
 
     @HasMemoized.memoized_attribute
     def _insert_cols_as_none(self):
-        return {
-            table: frozenset(
-                col.key
-                for col in columns
-                if not col.primary_key
-                and not col.server_default
-                and not col.default
-                and not col.type.should_evaluate_none
-            )
-            for table, columns in self._cols_by_table.items()
-        }
+        pass
 
     @HasMemoized.memoized_attribute
     def _propkey_to_col(self):
-        return {
-            table: {self._columntoproperty[col].key: col for col in columns}
-            for table, columns in self._cols_by_table.items()
-        }
+        pass
 
     @HasMemoized.memoized_attribute
     def _pk_keys_by_table(self):
-        return {
-            table: frozenset([col.key for col in pks])
-            for table, pks in self._pks_by_table.items()
-        }
+        pass
 
     @HasMemoized.memoized_attribute
     def _pk_attr_keys_by_table(self):
-        return {
-            table: frozenset([self._columntoproperty[col].key for col in pks])
-            for table, pks in self._pks_by_table.items()
-        }
+        pass
 
     @HasMemoized.memoized_attribute
     def _server_default_cols(
         self,
     ) -> Mapping[FromClause, FrozenSet[Column[Any]]]:
-        return {
-            table: frozenset(
-                [
-                    col
-                    for col in cast("Iterable[Column[Any]]", columns)
-                    if col.server_default is not None
-                    or (
-                        col.default is not None
-                        and col.default.is_clause_element
-                    )
-                ]
-            )
-            for table, columns in self._cols_by_table.items()
-        }
+        pass
 
     @HasMemoized.memoized_attribute
     def _server_onupdate_default_cols(
         self,
     ) -> Mapping[FromClause, FrozenSet[Column[Any]]]:
-        return {
-            table: frozenset(
-                [
-                    col
-                    for col in cast("Iterable[Column[Any]]", columns)
-                    if col.server_onupdate is not None
-                    or (
-                        col.onupdate is not None
-                        and col.onupdate.is_clause_element
-                    )
-                ]
-            )
-            for table, columns in self._cols_by_table.items()
-        }
+        pass
 
     @HasMemoized.memoized_attribute
     def _server_default_col_keys(self) -> Mapping[FromClause, FrozenSet[str]]:
-        return {
-            table: frozenset(col.key for col in cols if col.key is not None)
-            for table, cols in self._server_default_cols.items()
-        }
+        pass
 
     @HasMemoized.memoized_attribute
     def _server_onupdate_default_col_keys(
         self,
     ) -> Mapping[FromClause, FrozenSet[str]]:
-        return {
-            table: frozenset(col.key for col in cols if col.key is not None)
-            for table, cols in self._server_onupdate_default_cols.items()
-        }
+        pass
 
     @HasMemoized.memoized_attribute
     def _server_default_plus_onupdate_propkeys(self) -> Set[str]:
-        result: Set[str] = set()
-
-        col_to_property = self._columntoproperty
-        for table, columns in self._server_default_cols.items():
-            result.update(
-                col_to_property[col].key
-                for col in columns.intersection(col_to_property)
-            )
-        for table, columns in self._server_onupdate_default_cols.items():
-            result.update(
-                col_to_property[col].key
-                for col in columns.intersection(col_to_property)
-            )
-        return result
+        pass
 
     @HasMemoized.memoized_instancemethod
     def __clause_element__(self):
@@ -2842,20 +2662,7 @@ class Mapper(
 
     @util.memoized_property
     def select_identity_token(self):
-        return (
-            expression.null()
-            ._annotate(
-                {
-                    "entity_namespace": self,
-                    "parententity": self,
-                    "parentmapper": self,
-                    "identity_token": True,
-                }
-            )
-            ._set_propagate_attrs(
-                {"compile_state_plugin": "orm", "plugin_subject": self}
-            )
-        )
+        pass
 
     @property
     def selectable(self) -> FromClause:
@@ -2896,51 +2703,18 @@ class Mapper(
 
     @HasMemoized.memoized_attribute
     def _polymorphic_properties(self):
-        return list(
-            self._iterate_polymorphic_properties(
-                self._with_polymorphic_mappers
-            )
-        )
+        pass
 
     @property
     def _all_column_expressions(self):
-        poly_properties = self._polymorphic_properties
-        adapter = self._polymorphic_adapter
-
-        return [
-            adapter.columns[c] if adapter else c
-            for prop in poly_properties
-            if isinstance(prop, properties.ColumnProperty)
-            and prop._renders_in_subqueries
-            for c in prop.columns
-        ]
+        pass
 
     def _columns_plus_keys(self, polymorphic_mappers=()):
-        if polymorphic_mappers:
-            poly_properties = self._iterate_polymorphic_properties(
-                polymorphic_mappers
-            )
-        else:
-            poly_properties = self._polymorphic_properties
-
-        return [
-            (prop.key, prop.columns[0])
-            for prop in poly_properties
-            if isinstance(prop, properties.ColumnProperty)
-        ]
+        pass
 
     @HasMemoized.memoized_attribute
     def _polymorphic_adapter(self) -> Optional[orm_util.ORMAdapter]:
-        if self._has_aliased_polymorphic_fromclause:
-            return orm_util.ORMAdapter(
-                orm_util._TraceAdaptRole.MAPPER_POLYMORPHIC_ADAPTER,
-                self,
-                selectable=self.selectable,
-                equivalents=self._equivalent_columns,
-                limit_on_entity=False,
-            )
-        else:
-            return None
+        pass
 
     def _iterate_polymorphic_properties(self, mappers=None):
         """Return an iterator of MapperProperty objects which will render into
@@ -3004,9 +2778,7 @@ class Mapper(
             :attr:`_orm.Mapper.all_orm_descriptors`
 
         """
-
-        self._check_configure()
-        return util.ReadOnlyProperties(self._props)
+        pass
 
     @HasMemoized.memoized_attribute
     def all_orm_descriptors(self) -> util.ReadOnlyProperties[InspectionAttr]:
@@ -3071,9 +2843,7 @@ class Mapper(
             :attr:`_orm.Mapper.attrs`
 
         """
-        return util.ReadOnlyProperties(
-            dict(self.class_manager._all_sqla_attributes())
-        )
+        pass
 
     @HasMemoized.memoized_attribute
     @util.preload_module("sqlalchemy.orm.descriptor_props")
@@ -3082,16 +2852,7 @@ class Mapper(
         all synonyms that refer to primary key columns
 
         """
-        descriptor_props = util.preloaded.orm_descriptor_props
-
-        pk_keys = {prop.key for prop in self._identity_key_props}
-
-        return {
-            syn.key: syn.name
-            for k, syn in self._props.items()
-            if isinstance(syn, descriptor_props.SynonymProperty)
-            and syn.name in pk_keys
-        }
+        pass
 
     @HasMemoized.memoized_attribute
     @util.preload_module("sqlalchemy.orm.descriptor_props")
@@ -3106,13 +2867,11 @@ class Mapper(
             objects.
 
         """
-        descriptor_props = util.preloaded.orm_descriptor_props
-
-        return self._filter_properties(descriptor_props.SynonymProperty)
+        pass
 
     @util.ro_non_memoized_property
     def entity_namespace(self) -> _EntityNamespace:
-        return self.class_  # type: ignore[return-value]
+        pass
 
     @HasMemoized.memoized_attribute
     def column_attrs(self) -> util.ReadOnlyProperties[ColumnProperty[Any]]:
@@ -3126,7 +2885,7 @@ class Mapper(
             objects.
 
         """
-        return self._filter_properties(properties.ColumnProperty)
+        pass
 
     @HasMemoized.memoized_attribute
     @util.preload_module("sqlalchemy.orm.relationships")
@@ -3172,9 +2931,7 @@ class Mapper(
             objects.
 
         """
-        return self._filter_properties(
-            util.preloaded.orm_descriptor_props.CompositeProperty
-        )
+        pass
 
     def _filter_properties(
         self, type_: Type[_MP]
@@ -3193,17 +2950,7 @@ class Mapper(
         by primary key.
 
         """
-        params = [
-            (
-                primary_key,
-                sql.bindparam("pk_%d" % idx, type_=primary_key.type),
-            )
-            for idx, primary_key in enumerate(self.primary_key, 1)
-        ]
-        return (
-            sql.and_(*[k == v for (k, v) in params]),
-            util.column_dict(params),
-        )
+        pass
 
     @HasMemoized.memoized_attribute
     def _equivalent_columns(self) -> _EquivalentColumnMap:
@@ -3221,26 +2968,7 @@ class Mapper(
             {tablea.col1: {tableb.col1, tablec.col1}, tablea.col2: {tabled.col2}}
 
         """  # noqa: E501
-        result: _EquivalentColumnMap = {}
-
-        def visit_binary(binary):
-            if binary.operator == operators.eq:
-                if binary.left in result:
-                    result[binary.left].add(binary.right)
-                else:
-                    result[binary.left] = {binary.right}
-                if binary.right in result:
-                    result[binary.right].add(binary.left)
-                else:
-                    result[binary.right] = {binary.left}
-
-        for mapper in self.base_mapper.self_and_descendants:
-            if mapper.inherit_condition is not None:
-                visitors.traverse(
-                    mapper.inherit_condition, {}, {"binary": visit_binary}
-                )
-
-        return result
+        pass
 
     def _is_userland_descriptor(self, assigned_name: str, obj: Any) -> bool:
         if isinstance(
@@ -3257,7 +2985,7 @@ class Mapper(
 
     @HasMemoized.memoized_attribute
     def _dataclass_fields(self):
-        return [f.name for f in util.dataclass_fields(self.class_)]
+        pass
 
     def _should_exclude(self, name, assigned_name, local, column):
         """determine whether a particular property should be implicitly
@@ -3353,13 +3081,7 @@ class Mapper(
         all their inheriting mappers as well.
 
         """
-        descendants = []
-        stack = deque([self])
-        while stack:
-            item = stack.popleft()
-            descendants.append(item)
-            stack.extend(item._inheriting_mappers)
-        return util.WeakSequence(descendants)
+        pass
 
     def polymorphic_iterator(self) -> Iterator[Mapper[Any]]:
         """Iterate through the collection including this mapper and
@@ -3372,7 +3094,7 @@ class Mapper(
         ``mapper.base_mapper.polymorphic_iterator()``.
 
         """
-        return iter(self.self_and_descendants)
+        pass
 
     def primary_mapper(self) -> Mapper[Any]:
         """Return the primary mapper corresponding to this mapper's class key
@@ -3382,7 +3104,7 @@ class Mapper(
 
     @property
     def primary_base_mapper(self) -> Mapper[Any]:
-        return self.class_manager.mapper.base_mapper
+        pass
 
     def _result_has_identity_key(self, result, adapter=None):
         pk_cols: Sequence[ColumnElement[Any]]
@@ -3414,23 +3136,7 @@ class Mapper(
             for the "row" argument
 
         """
-        pk_cols: Sequence[ColumnElement[Any]]
-        if adapter is not None:
-            pk_cols = [adapter.columns[c] for c in self.primary_key]
-        else:
-            pk_cols = self.primary_key
-
-        mapping: RowMapping
-        if hasattr(row, "_mapping"):
-            mapping = row._mapping
-        else:
-            mapping = row  # type: ignore[assignment]
-
-        return (
-            self._identity_class,
-            tuple(mapping[column] for column in pk_cols),
-            identity_token,
-        )
+        pass
 
     def identity_key_from_primary_key(
         self,
@@ -3462,8 +3168,7 @@ class Mapper(
         attribute name `key`.
 
         """
-        state = attributes.instance_state(instance)
-        return self._identity_key_from_state(state, PassiveFlag.PASSIVE_OFF)
+        pass
 
     def _identity_key_from_state(
         self,
@@ -3501,44 +3206,23 @@ class Mapper(
 
     @HasMemoized.memoized_attribute
     def _persistent_sortkey_fn(self):
-        key_fns = [col.type.sort_key_function for col in self.primary_key]
-
-        if set(key_fns).difference([None]):
-
-            def key(state):
-                return tuple(
-                    key_fn(val) if key_fn is not None else val
-                    for key_fn, val in zip(key_fns, state.key[1])
-                )
-
-        else:
-
-            def key(state):
-                return state.key[1]
-
-        return key
+        pass
 
     @HasMemoized.memoized_attribute
     def _identity_key_props(self):
-        return [self._columntoproperty[col] for col in self.primary_key]
+        pass
 
     @HasMemoized.memoized_attribute
     def _all_pk_cols(self):
-        collection: Set[ColumnClause[Any]] = set()
-        for table in self.tables:
-            collection.update(self._pks_by_table[table])
-        return collection
+        pass
 
     @HasMemoized.memoized_attribute
     def _should_undefer_in_wildcard(self):
-        cols: Set[ColumnElement[Any]] = set(self.primary_key)
-        if self.polymorphic_on is not None:
-            cols.add(self.polymorphic_on)
-        return cols
+        pass
 
     @HasMemoized.memoized_attribute
     def _primary_key_propkeys(self):
-        return {self._columntoproperty[col].key for col in self._all_pk_cols}
+        pass
 
     def _get_state_attr_by_column(
         self,
@@ -3551,8 +3235,7 @@ class Mapper(
         return state.manager[prop.key].impl.get(state, dict_, passive=passive)
 
     def _set_committed_state_attr_by_column(self, state, dict_, column, value):
-        prop = self._columntoproperty[column]
-        state.manager[prop.key].impl.set_committed_value(state, dict_, value)
+        pass
 
     def _set_state_attr_by_column(self, state, dict_, column, value):
         prop = self._columntoproperty[column]
@@ -3583,97 +3266,7 @@ class Mapper(
         only those tables to minimize joins.
 
         """
-        props = self._props
-
-        col_attribute_names = set(attribute_names).intersection(
-            state.mapper.column_attrs.keys()
-        )
-        tables: Set[FromClause] = set(
-            chain(
-                *[
-                    sql_util.find_tables(c, check_columns=True)
-                    for key in col_attribute_names
-                    for c in props[key].columns
-                ]
-            )
-        )
-
-        if self.base_mapper.local_table in tables:
-            return None
-
-        def visit_binary(binary):
-            leftcol = binary.left
-            rightcol = binary.right
-            if leftcol is None or rightcol is None:
-                return
-
-            if leftcol.table not in tables:
-                leftval = self._get_committed_state_attr_by_column(
-                    state,
-                    state.dict,
-                    leftcol,
-                    passive=PassiveFlag.PASSIVE_NO_INITIALIZE,
-                )
-                if leftval in orm_util._none_set:
-                    raise _OptGetColumnsNotAvailable()
-                binary.left = sql.bindparam(
-                    None, leftval, type_=binary.right.type
-                )
-            elif rightcol.table not in tables:
-                rightval = self._get_committed_state_attr_by_column(
-                    state,
-                    state.dict,
-                    rightcol,
-                    passive=PassiveFlag.PASSIVE_NO_INITIALIZE,
-                )
-                if rightval in orm_util._none_set:
-                    raise _OptGetColumnsNotAvailable()
-                binary.right = sql.bindparam(
-                    None, rightval, type_=binary.right.type
-                )
-
-        allconds: List[ColumnElement[bool]] = []
-
-        start = False
-
-        # as of #7507, from the lowest base table on upwards,
-        # we include all intermediary tables.
-
-        for mapper in reversed(list(self.iterate_to_root())):
-            if mapper.local_table in tables:
-                start = True
-            elif not isinstance(mapper.local_table, expression.TableClause):
-                return None
-            if start and not mapper.single:
-                assert mapper.inherits
-                assert not mapper.concrete
-                assert mapper.inherit_condition is not None
-                allconds.append(mapper.inherit_condition)
-                tables.add(mapper.local_table)
-
-        # only the bottom table needs its criteria to be altered to fit
-        # the primary key ident - the rest of the tables upwards to the
-        # descendant-most class should all be present and joined to each
-        # other.
-        try:
-            _traversed = visitors.cloned_traverse(
-                allconds[0], {}, {"binary": visit_binary}
-            )
-        except _OptGetColumnsNotAvailable:
-            return None
-        else:
-            allconds[0] = _traversed
-
-        cond = sql.and_(*allconds)
-
-        cols = []
-        for key in col_attribute_names:
-            cols.extend(props[key].columns)
-        return (
-            sql.select(*cols)
-            .where(cond)
-            .set_label_style(LABEL_STYLE_TABLENAME_PLUS_COL)
-        )
+        pass
 
     def _iterate_to_target_viawpoly(self, mapper):
         if self.isa(mapper):
@@ -3690,7 +3283,7 @@ class Mapper(
 
     @HasMemoized.memoized_attribute
     def _would_selectinload_combinations_cache(self):
-        return {}
+        pass
 
     def _would_selectin_load_only_from_given_mapper(self, super_mapper):
         """return True if this mapper would "selectin" polymorphic load based
@@ -3867,7 +3460,7 @@ class Mapper(
     @HasMemoized.memoized_attribute
     def _subclass_load_via_in_mapper(self):
         # the default is loading this mapper against the basemost mapper
-        return self._subclass_load_via_in(self, self.base_mapper)
+        pass
 
     def cascade_iterator(
         self,
@@ -3968,62 +3561,15 @@ class Mapper(
 
     @HasMemoized.memoized_attribute
     def _compiled_cache(self):
-        return util.LRUCache(self._compiled_cache_size)
+        pass
 
     @HasMemoized.memoized_attribute
     def _multiple_persistence_tables(self):
-        return len(self.tables) > 1
+        pass
 
     @HasMemoized.memoized_attribute
     def _sorted_tables(self):
-        table_to_mapper: Dict[TableClause, Mapper[Any]] = {}
-
-        for mapper in self.base_mapper.self_and_descendants:
-            for t in mapper.tables:
-                table_to_mapper.setdefault(t, mapper)
-
-        extra_dependencies = []
-        for table, mapper in table_to_mapper.items():
-            super_ = mapper.inherits
-            if super_:
-                extra_dependencies.extend(
-                    [(super_table, table) for super_table in super_.tables]
-                )
-
-        def skip(fk):
-            # attempt to skip dependencies that are not
-            # significant to the inheritance chain
-            # for two tables that are related by inheritance.
-            # while that dependency may be important, it's technically
-            # not what we mean to sort on here.
-            parent = table_to_mapper.get(fk.parent.table)
-            dep = table_to_mapper.get(fk.column.table)
-            if (
-                parent is not None
-                and dep is not None
-                and dep is not parent
-                and dep.inherit_condition is not None
-            ):
-                cols = set(sql_util._find_columns(dep.inherit_condition))
-                if parent.inherit_condition is not None:
-                    cols = cols.union(
-                        sql_util._find_columns(parent.inherit_condition)
-                    )
-                    return fk.parent not in cols and fk.column not in cols
-                else:
-                    return fk.parent not in cols
-            return False
-
-        sorted_ = sql_util.sort_tables(
-            table_to_mapper,
-            skip_fn=skip,
-            extra_dependencies=extra_dependencies,
-        )
-
-        ret = util.OrderedDict()
-        for t in sorted_:
-            ret[t] = table_to_mapper[t]
-        return ret
+        pass
 
     def _memo(self, key: Any, callable_: Callable[[], _T]) -> _T:
         if key in self._memoized_values:
@@ -4036,33 +3582,7 @@ class Mapper(
     def _table_to_equated(self):
         """memoized map of tables to collections of columns to be
         synchronized upwards to the base mapper."""
-
-        result: util.defaultdict[
-            Table,
-            List[
-                Tuple[
-                    Mapper[Any],
-                    List[Tuple[ColumnElement[Any], ColumnElement[Any]]],
-                ]
-            ],
-        ] = util.defaultdict(list)
-
-        def set_union(x, y):
-            return x.union(y)
-
-        for table in self._sorted_tables:
-            cols = set(table.c)
-
-            for m in self.iterate_to_root():
-                if m._inherits_equated_pairs and cols.intersection(
-                    reduce(
-                        set_union,
-                        [l.proxy_set for l, r in m._inherits_equated_pairs],
-                    )
-                ):
-                    result[table].append((m, m._inherits_equated_pairs))
-
-        return result
+        pass
 
 
 class _OptGetColumnsNotAvailable(Exception):
@@ -4366,10 +3886,7 @@ def validates(
 
 
 def _event_on_load(state, ctx):
-    instrumenting_mapper = state.manager.mapper
-
-    if instrumenting_mapper._reconstructor:
-        instrumenting_mapper._reconstructor(state.obj())
+    pass
 
 
 def _event_on_init(state, args, kwargs):
@@ -4380,12 +3897,7 @@ def _event_on_init(state, args, kwargs):
     scenarios (such as in the ORM tutorial).
 
     """
-
-    instrumenting_mapper = state.manager.mapper
-    if instrumenting_mapper:
-        instrumenting_mapper._check_configure()
-        if instrumenting_mapper._set_polymorphic_identity:
-            instrumenting_mapper._set_polymorphic_identity(state)
+    pass
 
 
 class _ColumnMapping(Dict["ColumnElement[Any]", "MapperProperty[Any]"]):

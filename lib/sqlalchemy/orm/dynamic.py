@@ -136,17 +136,11 @@ class _AppenderMixin(_AbstractCollectionWriter[_T]):
 
     @property
     def session(self) -> Optional[Session]:
-        sess = object_session(self.instance)
-        if sess is not None and sess.autoflush and self.instance in sess:
-            sess.flush()
-        if not orm_util.has_identity(self.instance):
-            return None
-        else:
-            return sess
+        pass
 
     @session.setter
     def session(self, session: Session) -> None:
-        self.sess = session
+        pass
 
     def _iter(self) -> Union[result.ScalarResult[_T], result.Result[_T]]:
         sess = self.session
@@ -246,7 +240,7 @@ class _AppenderMixin(_AbstractCollectionWriter[_T]):
         .. versionadded:: 2.0
 
         """
-        self._add_all_impl(iterator)
+        pass
 
     def add(self, item: _T) -> None:
         """Add an item to this :class:`_orm.AppenderQuery`.

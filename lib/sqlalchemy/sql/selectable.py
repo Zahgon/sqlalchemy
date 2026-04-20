@@ -213,7 +213,7 @@ class _OffsetLimitParam(BindParameter[int]):
 
     @property
     def _limit_offset_value(self) -> Optional[int]:
-        return self.effective_value
+        pass
 
 
 class ReturnsRows(roles.ReturnsRowsRole, DQLDMLClauseElement):
@@ -348,7 +348,7 @@ class Selectable(ReturnsRows):
         object, returning a copy of this :class:`_expression.FromClause`.
 
         """
-        return util.preloaded.sql_util.ClauseAdapter(alias).traverse(self)
+        pass
 
     def corresponding_column(
         self, column: KeyedColumnElement[Any], require_embedded: bool = False
@@ -432,13 +432,7 @@ class HasPrefixes:
          limit rendering of this prefix to only that dialect.
 
         """
-        self._prefixes = self._prefixes + tuple(
-            [
-                (coercions.expect(roles.StatementOptionRole, p), dialect)
-                for p in prefixes
-            ]
-        )
-        return self
+        pass
 
 
 class HasSuffixes:
@@ -484,13 +478,7 @@ class HasSuffixes:
          limit rendering of this suffix to only that dialect.
 
         """
-        self._suffixes = self._suffixes + tuple(
-            [
-                (coercions.expect(roles.StatementOptionRole, p), dialect)
-                for p in suffixes
-            ]
-        )
-        return self
+        pass
 
 
 class HasHints:
@@ -537,7 +525,7 @@ class HasHints:
             MySQL or Oracle Database optimizer hints
 
         """
-        return self._with_hint(None, text, dialect_name)
+        pass
 
     @_generative
     def with_hint(
@@ -596,8 +584,7 @@ class HasHints:
             MySQL or Oracle Database optimizer hints
 
         """
-
-        return self._with_hint(selectable, text, dialect_name)
+        pass
 
     def _with_hint(
         self,
@@ -605,18 +592,7 @@ class HasHints:
         text: str,
         dialect_name: str,
     ) -> Self:
-        if selectable is None:
-            self._statement_hints += ((dialect_name, text),)
-        else:
-            self._hints = self._hints.union(
-                {
-                    (
-                        coercions.expect(roles.FromClauseRole, selectable),
-                        dialect_name,
-                    ): text
-                }
-            )
-        return self
+        pass
 
 
 class FromClause(
@@ -647,7 +623,7 @@ class FromClause(
 
     @util.ro_non_memoized_property
     def _hide_froms(self) -> Iterable[FromClause]:
-        return ()
+        pass
 
     _is_clone_of: Optional[FromClause[_KeyColCC_co]]
 
@@ -674,7 +650,7 @@ class FromClause(
 
         At runtime returns self unchanged, without performing any validation.
         """
-        return self  # type: ignore
+        pass
 
     @overload
     def select(
@@ -865,7 +841,7 @@ class FromClause(
         if they are the same via annotation identity.
 
         """
-        return bool(self._cloned_set.intersection(other._cloned_set))
+        pass
 
     @util.ro_non_memoized_property
     def description(self) -> str:
@@ -874,7 +850,7 @@ class FromClause(
         Used primarily for error message formatting.
 
         """
-        return getattr(self, "name", self.__class__.__name__ + " object")
+        pass
 
     def _generate_fromclause_column_proxies(
         self,
@@ -910,7 +886,7 @@ class FromClause(
 
 
         """
-        return self.c
+        pass
 
     @util.ro_non_memoized_property
     def columns(self) -> _KeyColCC_co:
@@ -936,9 +912,7 @@ class FromClause(
         :return: a :class:`.ColumnCollection`
 
         """
-        if "_columns" not in self.__dict__:
-            self._setup_collections()
-        return self._columns.as_readonly()  # type: ignore[return-value]
+        pass
 
     def _setup_collections(self) -> None:
         with util.mini_gil:
@@ -980,7 +954,7 @@ class FromClause(
         alternative results.
 
         """
-        return self.c
+        pass
 
     @util.ro_memoized_property
     def primary_key(self) -> Iterable[NamedColumn[Any]]:
@@ -992,8 +966,7 @@ class FromClause(
         iterable collection of :class:`_schema.Column` objects.
 
         """
-        self._setup_collections()
-        return self.primary_key
+        pass
 
     @util.ro_memoized_property
     def foreign_keys(self) -> Iterable[ForeignKey]:
@@ -1031,11 +1004,11 @@ class FromClause(
 
     @util.ro_non_memoized_property
     def _select_iterable(self) -> _SelectIterable:
-        return (c for c in self.c if not _never_select_column(c))
+        pass
 
     @property
     def _cols_populated(self) -> bool:
-        return "_columns" in self.__dict__
+        pass
 
     def _populate_column_collection(
         self,
@@ -1130,7 +1103,7 @@ class NamedFromClause(FromClause[_KeyColCC_co]):
             :ref:`tutorial_functions` - in the :ref:`unified_tutorial`
 
         """
-        return TableValuedColumn(self, type_api.TABLEVALUE)
+        pass
 
     if TYPE_CHECKING:
 
@@ -1353,12 +1326,7 @@ class Join(roles.DMLTableRole, FromClause[_KeyColCC_co]):
 
     @util.ro_non_memoized_property
     def description(self) -> str:
-        return "Join object on %s(%d) and %s(%d)" % (
-            self.left.description,
-            id(self.left),
-            self.right.description,
-            id(self.right),
-        )
+        pass
 
     def is_derived_from(self, fromclause: Optional[FromClause]) -> bool:
         return (
@@ -1698,9 +1666,7 @@ class Join(roles.DMLTableRole, FromClause[_KeyColCC_co]):
 
     @util.ro_non_memoized_property
     def _hide_froms(self) -> Iterable[FromClause]:
-        return itertools.chain(
-            *[_from_objects(x.left, x.right) for x in self._cloned_set]
-        )
+        pass
 
     @util.ro_non_memoized_property
     def _from_objects(self) -> List[FromClause]:
@@ -1803,20 +1769,16 @@ class AliasedReturnsRows(NoInit, NamedFromClause[_KeyColCC_co]):
 
     @util.ro_non_memoized_property
     def description(self) -> str:
-        name = self.name
-        if isinstance(name, _anonymous_label):
-            return "anon_1"
-
-        return name
+        pass
 
     @util.ro_non_memoized_property
     def implicit_returning(self) -> bool:
-        return self.element.implicit_returning  # type: ignore
+        pass
 
     @property
     def original(self) -> ReturnsRows:
         """Legacy for dialects that are referring to Alias.original."""
-        return self.element
+        pass
 
     def is_derived_from(self, fromclause: Optional[FromClause]) -> bool:
         if fromclause in self._cloned_set:
@@ -1847,11 +1809,7 @@ class FromClauseAlias(AliasedReturnsRows[_KeyColCC_co]):
 
     @util.ro_non_memoized_property
     def description(self) -> str:
-        name = self.name
-        if isinstance(name, _anonymous_label):
-            return f"Anonymous alias of {self.element.description}"
-
-        return name
+        pass
 
 
 class Alias(roles.DMLTableRole, FromClauseAlias[_KeyColCC_co]):
@@ -2056,24 +2014,7 @@ class TableValuedAlias(LateralFromClause, Alias):
          currently known to be required by PostgreSQL for some SQL functions.
 
         """  # noqa: E501
-
-        # note: don't use the @_generative system here, keep a reference
-        # to the original object.  otherwise you can have reuse of the
-        # python id() of the original which can cause name conflicts if
-        # a new anon-name grabs the same identifier as the local anon-name
-        # (just saw it happen on CI)
-
-        # construct against original to prevent memory growth
-        # for repeated generations
-        new_alias: TableValuedAlias = TableValuedAlias._construct(
-            self.element,
-            name=name,
-            table_value_type=self._tableval_type,
-            joins_implicitly=self.joins_implicitly,
-        )
-        new_alias._render_derived = True
-        new_alias._render_derived_w_types = with_types
-        return new_alias
+        pass
 
 
 class Lateral(FromClauseAlias, LateralFromClause):
@@ -2164,7 +2105,7 @@ class TableSample(FromClauseAlias):
         super()._init(selectable, name=name)
 
     def _get_method(self) -> Function[Any]:
-        return self.sampling
+        pass
 
 
 class CTE(
@@ -2365,7 +2306,7 @@ class CTE(
         Updated CTEs should still refer to the original CTE.
         This function returns this reference identifier.
         """
-        return self._restates if self._restates is not None else self
+        pass
 
     if TYPE_CHECKING:
 
@@ -2704,12 +2645,7 @@ class HasCTE(roles.HasCTERole, SelectsRows):
 
 
         """  # noqa: E501
-        opt = _CTEOpts(nest_here)
-        for cte in ctes:
-            cte = coercions.expect(roles.IsCTERole, cte)
-            self._independent_ctes += (cte,)
-            self._independent_ctes_opts += (opt,)
-        return self
+        pass
 
     def cte(
         self,
@@ -3067,7 +3003,7 @@ class Subquery(AliasedReturnsRows[_KeyColCC_co]):
         "use the :meth:`_query.Query.scalar_subquery` method.",
     )
     def as_scalar(self) -> ScalarSelect[Any]:
-        return self.element.set_label_style(LABEL_STYLE_NONE).scalar_subquery()
+        pass
 
 
 class FromGrouping(GroupedElement, FromClause[_KeyColCC_co]):
@@ -3088,11 +3024,11 @@ class FromGrouping(GroupedElement, FromClause[_KeyColCC_co]):
 
     @util.ro_non_memoized_property
     def c(self) -> _KeyColCC_co:
-        return self.element.columns
+        pass
 
     @property
     def primary_key(self) -> Iterable[NamedColumn[Any]]:
-        return self.element.primary_key
+        pass
 
     @property
     def foreign_keys(self) -> Iterable[ForeignKey]:
@@ -3115,7 +3051,7 @@ class FromGrouping(GroupedElement, FromClause[_KeyColCC_co]):
 
     @util.ro_non_memoized_property
     def _hide_froms(self) -> Iterable[FromClause]:
-        return self.element._hide_froms
+        pass
 
     @util.ro_non_memoized_property
     def _from_objects(self) -> List[FromClause]:
@@ -3210,7 +3146,7 @@ class TableClause(
     @util.ro_memoized_property
     def _autoincrement_column(self) -> Optional[ColumnClause[Any]]:
         """No PK or default support so no autoincrement column."""
-        return None
+        pass
 
     def __init__(self, name: str, *columns: ColumnClause[Any], **kw: Any):
         super().__init__()
@@ -3246,7 +3182,7 @@ class TableClause(
 
     @util.ro_memoized_property
     def description(self) -> str:
-        return self.name
+        pass
 
     def _insert_col_impl(
         self,
@@ -3274,7 +3210,7 @@ class TableClause(
         .. versionadded:: 2.1
 
         """
-        self._insert_col_impl(column, index=index)
+        pass
 
     @util.preload_module("sqlalchemy.sql.dml")
     def insert(self) -> util.preloaded.sql_dml.Insert:
@@ -3448,11 +3384,11 @@ class Values(roles.InElementRole, HasCTE, Generative, LateralFromClause):
 
     @property
     def _column_types(self) -> List[TypeEngine[Any]]:
-        return [col.type for col in self._column_args]
+        pass
 
     @util.ro_non_memoized_property
     def _all_selected_columns(self) -> _SelectIterable:
-        return self._column_args
+        pass
 
     @_generative
     def alias(self, name: Optional[str] = None, flat: bool = False) -> Self:
@@ -3519,9 +3455,7 @@ class Values(roles.InElementRole, HasCTE, Generative, LateralFromClause):
          constructor.
 
         """
-
-        self._data += (values,)
-        return self
+        pass
 
     def scalar_values(self) -> ScalarValues:
         """Returns a scalar ``VALUES`` construct that can be used as a
@@ -3590,7 +3524,7 @@ class ScalarValues(roles.InElementRole, GroupedElement, ColumnElement[Any]):
 
     @property
     def _column_types(self) -> List[TypeEngine[Any]]:
-        return [col.type for col in self._column_args]
+        pass
 
     def __clause_element__(self) -> ScalarValues:
         return self
@@ -3716,7 +3650,7 @@ class SelectBase(
 
 
         """
-        return self.selected_columns._as_readonly()
+        pass
 
     def get_label_style(self) -> SelectLabelStyle:
         """
@@ -3747,7 +3681,7 @@ class SelectBase(
         ":meth:`_expression.SelectBase.scalar_subquery`.",
     )
     def as_scalar(self) -> ScalarSelect[Any]:
-        return self.scalar_subquery()
+        pass
 
     def exists(self) -> Exists:
         """Return an :class:`_sql.Exists` representation of this selectable,
@@ -3934,16 +3868,7 @@ class SelectBase(
             :class:`_schema.CreateTableAs`
 
         """
-        sql_ddl = util.preloaded.sql_ddl
-
-        return sql_ddl.CreateTableAs(
-            self,
-            target,
-            metadata=metadata,
-            schema=schema,
-            temporary=temporary,
-            if_not_exists=if_not_exists,
-        )
+        pass
 
     def _ensure_disambiguated_names(self) -> Self:
         """Ensure that the names generated by this selectbase will be
@@ -4007,7 +3932,7 @@ class SelectStatementGrouping(GroupedElement, SelectBase, Generic[_SB]):
             return self
 
     def get_label_style(self) -> SelectLabelStyle:
-        return self.element.get_label_style()
+        pass
 
     def set_label_style(
         self, label_style: SelectLabelStyle
@@ -4018,7 +3943,7 @@ class SelectStatementGrouping(GroupedElement, SelectBase, Generic[_SB]):
 
     @property
     def select_statement(self) -> _SB:
-        return self.element
+        pass
 
     def self_group(self, against: Optional[OperatorType] = None) -> Self:
         return self
@@ -4053,7 +3978,7 @@ class SelectStatementGrouping(GroupedElement, SelectBase, Generic[_SB]):
 
     @util.ro_non_memoized_property
     def _all_selected_columns(self) -> _SelectIterable:
-        return self.element._all_selected_columns
+        pass
 
     @util.ro_non_memoized_property
     def selected_columns(self) -> ColumnCollection[str, ColumnElement[Any]]:
@@ -4069,7 +3994,7 @@ class SelectStatementGrouping(GroupedElement, SelectBase, Generic[_SB]):
             :attr:`_sql.Select.selected_columns`
 
         """
-        return self.element.selected_columns
+        pass
 
     @util.ro_non_memoized_property
     def _from_objects(self) -> List[FromClause]:
@@ -4185,7 +4110,7 @@ class GenerativeSelect(DialectKWArgs, SelectBase, Generative):
         .. versionadded:: 1.4
 
         """
-        return self._label_style
+        pass
 
     def set_label_style(self, style: SelectLabelStyle) -> Self:
         """Return a new selectable with the specified label style.
@@ -4233,16 +4158,12 @@ class GenerativeSelect(DialectKWArgs, SelectBase, Generative):
     @property
     def _group_by_clause(self) -> ClauseList:
         """ClauseList access to group_by_clauses for legacy dialects"""
-        return ClauseList._construct_raw(
-            operators.comma_op, self._group_by_clauses
-        )
+        pass
 
     @property
     def _order_by_clause(self) -> ClauseList:
         """ClauseList access to order_by_clauses for legacy dialects"""
-        return ClauseList._construct_raw(
-            operators.comma_op, self._order_by_clauses
-        )
+        pass
 
     def _offset_or_limit_clause(
         self,
@@ -4280,17 +4201,7 @@ class GenerativeSelect(DialectKWArgs, SelectBase, Generative):
         parameter. Otherwise, a compilation error is raised.
 
         """
-        if clause is None:
-            return None
-        try:
-            value = clause._limit_offset_value
-        except AttributeError as err:
-            raise exc.CompileError(
-                "This SELECT structure does not use a simple "
-                "integer value for %s" % attrname
-            ) from err
-        else:
-            return util.asint(value)
+        pass
 
     @property
     def _limit(self) -> Optional[int]:
@@ -4300,13 +4211,13 @@ class GenerativeSelect(DialectKWArgs, SelectBase, Generative):
         isn't currently set to an integer.
 
         """
-        return self._offset_or_limit_clause_asint(self._limit_clause, "limit")
+        pass
 
     def _simple_int_clause(self, clause: ClauseElement) -> bool:
         """True if the clause is a simple integer, False
         if it is not present or is a SQL expression.
         """
-        return isinstance(clause, _OffsetLimitParam)
+        pass
 
     @property
     def _offset(self) -> Optional[int]:
@@ -4316,17 +4227,11 @@ class GenerativeSelect(DialectKWArgs, SelectBase, Generative):
         offset isn't currently set to an integer.
 
         """
-        return self._offset_or_limit_clause_asint(
-            self._offset_clause, "offset"
-        )
+        pass
 
     @property
     def _has_row_limiting_clause(self) -> bool:
-        return (
-            self._limit_clause is not None
-            or self._offset_clause is not None
-            or self._fetch_clause is not None
-        )
+        pass
 
     @_generative
     def limit(self, limit: _LimitOffsetType) -> Self:
@@ -4610,10 +4515,7 @@ class CompoundSelectState(CompileState):
         Dict[str, ColumnElement[Any]],
     ]:
         # TODO: this is hacky and slow
-        hacky_subquery = self.statement.subquery()
-        hacky_subquery.named_with_column = False
-        d = {c.key: c for c in hacky_subquery.c}
-        return d, d, d
+        pass
 
 
 class _CompoundSelectKeyword(Enum):
@@ -4814,7 +4716,7 @@ class CompoundSelect(
 
     @util.ro_non_memoized_property
     def _all_selected_columns(self) -> _SelectIterable:
-        return self.selects[0]._all_selected_columns
+        pass
 
     @util.ro_non_memoized_property
     def selected_columns(
@@ -4838,7 +4740,7 @@ class CompoundSelect(
         .. versionadded:: 1.4
 
         """
-        return self.selects[0].selected_columns
+        pass
 
 
 # backwards compat
@@ -4901,16 +4803,7 @@ class SelectState(util.MemoizedSlots, CompileState):
     def get_column_descriptions(
         cls, statement: Select[Unpack[TupleAny]]
     ) -> List[Dict[str, Any]]:
-        return [
-            {
-                "name": name,
-                "type": element.type,
-                "expr": element,
-            }
-            for _, name, _, element, _ in (
-                statement._generate_columns_plus_names(False)
-            )
-        ]
+        pass
 
     @classmethod
     def from_statement(
@@ -4918,17 +4811,13 @@ class SelectState(util.MemoizedSlots, CompileState):
         statement: Select[Unpack[TupleAny]],
         from_statement: roles.ReturnsRowsRole,
     ) -> ExecutableReturnsRows:
-        cls._plugin_not_implemented()
+        pass
 
     @classmethod
     def get_columns_clause_froms(
         cls, statement: Select[Unpack[TupleAny]]
     ) -> List[FromClause]:
-        return cls._normalize_froms(
-            itertools.chain.from_iterable(
-                element._from_objects for element in statement._raw_columns
-            )
-        )
+        pass
 
     @classmethod
     def _column_naming_convention(
@@ -5073,60 +4962,7 @@ class SelectState(util.MemoizedSlots, CompileState):
         correlating.
 
         """
-
-        froms = self.froms
-
-        if self.statement._correlate:
-            to_correlate = self.statement._correlate
-            if to_correlate:
-                froms = [
-                    f
-                    for f in froms
-                    if f
-                    not in _cloned_intersection(
-                        _cloned_intersection(
-                            froms, explicit_correlate_froms or ()
-                        ),
-                        to_correlate,
-                    )
-                ]
-
-        if self.statement._correlate_except is not None:
-            froms = [
-                f
-                for f in froms
-                if f
-                not in _cloned_difference(
-                    _cloned_intersection(
-                        froms, explicit_correlate_froms or ()
-                    ),
-                    self.statement._correlate_except,
-                )
-            ]
-
-        if (
-            self.statement._auto_correlate
-            and implicit_correlate_froms
-            and len(froms) > 1
-        ):
-            froms = [
-                f
-                for f in froms
-                if f
-                not in _cloned_intersection(froms, implicit_correlate_froms)
-            ]
-
-            if not len(froms):
-                raise exc.InvalidRequestError(
-                    "Select statement '%r"
-                    "' returned no FROM clauses "
-                    "due to auto-correlation; "
-                    "specify correlate(<tables>) "
-                    "to control correlation "
-                    "manually." % self.statement
-                )
-
-        return froms
+        pass
 
     def _memoized_attr__label_resolve_dict(
         self,
@@ -5135,21 +4971,7 @@ class SelectState(util.MemoizedSlots, CompileState):
         Dict[str, ColumnElement[Any]],
         Dict[str, ColumnElement[Any]],
     ]:
-        with_cols: Dict[str, ColumnElement[Any]] = {
-            c._tq_label or c.key: c
-            for c in self.statement._all_selected_columns
-            if c._allow_label_resolve
-        }
-        only_froms: Dict[str, ColumnElement[Any]] = {
-            c.key: c  # type: ignore
-            for c in _select_iterables(self.froms)
-            if c._allow_label_resolve
-        }
-        only_cols: Dict[str, ColumnElement[Any]] = with_cols.copy()
-        for key, value in only_froms.items():
-            with_cols.setdefault(key, value)
-
-        return with_cols, only_froms, only_cols
+        pass
 
     @classmethod
     def _get_filter_by_entities(
@@ -5170,31 +4992,13 @@ class SelectState(util.MemoizedSlots, CompileState):
         .. versionadded:: 2.1
 
         """
-        entities: set[
-            Union[FromClause, _JoinTargetProtocol, ColumnElement[Any]]
-        ]
-
-        entities = set(
-            join_element[0] for join_element in statement._setup_joins
-        )
-
-        for memoized in statement._memoized_select_entities:
-            entities.update(
-                join_element[0] for join_element in memoized._setup_joins
-            )
-
-        entities.update(statement._from_obj)
-
-        for col in statement._raw_columns:
-            entities.update(col._from_objects)
-
-        return entities
+        pass
 
     @classmethod
     def all_selected_columns(
         cls, statement: Select[Unpack[TupleAny]]
     ) -> _SelectIterable:
-        return [c for c in _select_iterables(statement._raw_columns)]
+        pass
 
     def _setup_joins(
         self,
@@ -5640,8 +5444,7 @@ class Select(
 
     def filter(self, *criteria: _ColumnExpressionArgument[bool]) -> Self:
         """A synonym for the :meth:`_sql.Select.where` method."""
-
-        return self.where(*criteria)
+        pass
 
     if TYPE_CHECKING:
 
@@ -5708,16 +5511,7 @@ class Select(
             :meth:`_sql.Select.where` - filter on SQL expressions.
 
         """
-        # Get all entities via plugin system
-        all_entities = SelectState.get_plugin_class(
-            self
-        )._get_filter_by_entities(self)
-
-        clauses = [
-            _entity_namespace_key_search_all(all_entities, key) == value
-            for key, value in kwargs.items()
-        ]
-        return self.filter(*clauses)
+        pass
 
     @property
     def column_descriptions(self) -> Any:
@@ -5760,8 +5554,7 @@ class Select(
             :ref:`queryguide_inspection` - ORM background
 
         """
-        meth = SelectState.get_plugin_class(self).get_column_descriptions
-        return meth(self)
+        pass
 
     def from_statement(
         self, statement: roles.ReturnsRowsRole
@@ -5785,8 +5578,7 @@ class Select(
             ORM Querying Guide
 
         """
-        meth = SelectState.get_plugin_class(self).from_statement
-        return meth(self, statement)
+        pass
 
     @_generative
     def join(
@@ -5893,9 +5685,7 @@ class Select(
         Usage is the same as that of :meth:`_selectable.Select.join_from`.
 
         """
-        return self.join_from(
-            from_, target, onclause=onclause, isouter=True, full=full
-        )
+        pass
 
     @_generative
     def join_from(
@@ -5949,31 +5739,7 @@ class Select(
             :meth:`_expression.Select.join`
 
         """  # noqa: E501
-
-        # note the order of parsing from vs. target is important here, as we
-        # are also deriving the source of the plugin (i.e. the subject mapper
-        # in an ORM query) which should favor the "from_" over the "target"
-
-        from_ = coercions.expect(
-            roles.FromClauseRole, from_, apply_propagate_attrs=self
-        )
-        join_target = coercions.expect(
-            roles.JoinTargetRole, target, apply_propagate_attrs=self
-        )
-        if onclause is not None:
-            onclause_element = coercions.expect(roles.OnClauseRole, onclause)
-        else:
-            onclause_element = None
-
-        self._setup_joins += (
-            (
-                join_target,
-                onclause_element,
-                from_,
-                {"isouter": isouter, "full": full},
-            ),
-        )
-        return self
+        pass
 
     def outerjoin(
         self,
@@ -6055,9 +5821,7 @@ class Select(
             :attr:`_sql.Select.columns_clause_froms`
 
         """
-        compiler = self._default_compiler()
-
-        return self._compile_state_factory(self, compiler)._get_display_froms()
+        pass
 
     @property
     @util.deprecated(
@@ -6071,7 +5835,7 @@ class Select(
 
 
         """
-        return self.get_final_froms()
+        pass
 
     @property
     def columns_clause_froms(self) -> List[FromClause]:
@@ -6089,10 +5853,7 @@ class Select(
             collection to set up a new FROM list
 
         """
-
-        return SelectState.get_plugin_class(self).get_columns_clause_froms(
-            self
-        )
+        pass
 
     @property
     def inner_columns(self) -> _SelectIterable:
@@ -6104,8 +5865,7 @@ class Select(
         :attr:`_expression.Select.exported_columns` collection.
 
         """
-
-        return iter(self._all_selected_columns)
+        pass
 
     def is_derived_from(self, fromclause: Optional[FromClause]) -> bool:
         if fromclause is not None and self in fromclause._cloned_set:
@@ -6493,10 +6253,7 @@ class Select(
         .. versionadded:: 1.4
 
         """
-
-        return BooleanClauseList._construct_for_whereclause(
-            self._where_criteria
-        )
+        pass
 
     _whereclause = whereclause
 
@@ -6524,13 +6281,7 @@ class Select(
         its HAVING clause, joined to the existing clause via AND, if any.
 
         """
-
-        for criterion in having:
-            having_criteria = coercions.expect(
-                roles.WhereHavingRole, criterion, apply_propagate_attrs=self
-            )
-            self._having_criteria += (having_criteria,)
-        return self
+        pass
 
     @_generative
     def distinct(self, *expr: _ColumnExpressionArgument[Any]) -> Self:
@@ -6815,31 +6566,11 @@ class Select(
         .. versionadded:: 1.4
 
         """
-
-        # compare to SelectState._generate_columns_plus_names, which
-        # generates the actual names used in the SELECT string.  that
-        # method is more complex because it also renders columns that are
-        # fully ambiguous, e.g. same column more than once.
-        conv = cast(
-            "Callable[[Any], str]",
-            SelectState._column_naming_convention(self._label_style),
-        )
-
-        cc: WriteableColumnCollection[str, ColumnElement[Any]] = (
-            WriteableColumnCollection(
-                [
-                    (conv(c), c)
-                    for c in self._all_selected_columns
-                    if is_column_element(c)
-                ]
-            )
-        )
-        return cc.as_readonly()
+        pass
 
     @HasMemoized_ro_memoized_attribute
     def _all_selected_columns(self) -> _SelectIterable:
-        meth = SelectState.get_plugin_class(self).all_selected_columns
-        return list(meth(self))
+        pass
 
     def _ensure_disambiguated_names(self) -> Select[Unpack[TupleAny]]:
         if self._label_style is LABEL_STYLE_NONE:
@@ -7116,7 +6847,7 @@ class ScalarSelect(
         return self
 
     def _ungroup(self) -> Self:
-        return self
+        pass
 
     @_generative
     def correlate(
@@ -7441,13 +7172,11 @@ class TextualSelect(SelectBase, ExecutableReturnsRows, Generative):
         .. versionadded:: 1.4
 
         """
-        return WriteableColumnCollection(
-            (c.key, c) for c in self.column_args
-        ).as_readonly()
+        pass
 
     @util.ro_non_memoized_property
     def _all_selected_columns(self) -> _SelectIterable:
-        return self.column_args
+        pass
 
     def set_label_style(self, style: SelectLabelStyle) -> TextualSelect:
         return self
@@ -7549,5 +7278,4 @@ class AnnotatedFromClause(Annotated):
         See test_selectable->test_annotated_corresponding_column
 
         """
-        ee = self._Annotated__element  # type: ignore
-        return ee.c  # type: ignore
+        pass

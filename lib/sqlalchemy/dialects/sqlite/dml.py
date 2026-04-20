@@ -100,7 +100,7 @@ class Insert(StandardInsert):
             :class:`_expression.ColumnCollection` for further examples.
 
         """
-        return alias(self.table, name="excluded").columns
+        pass
 
     _on_conflict_exclusive = _exclusive_against(
         "_post_values_clause",
@@ -156,10 +156,7 @@ class Insert(StandardInsert):
          ``DO NOTHING`` for those rows).
 
         """
-
-        return self.ext(
-            OnConflictDoUpdate(index_elements, index_where, set_, where)
-        )
+        pass
 
     @_on_conflict_exclusive
     def on_conflict_do_nothing(
@@ -180,8 +177,7 @@ class Insert(StandardInsert):
          conditional target index.
 
         """
-
-        return self.ext(OnConflictDoNothing(index_elements, index_where))
+        pass
 
 
 class OnConflictClause(SyntaxExtension, ClauseElement):

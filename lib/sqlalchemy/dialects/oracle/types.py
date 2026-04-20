@@ -47,15 +47,7 @@ class VARCHAR2(VARCHAR):
         Oracle requires a length for VARCHAR2 in CAST expressions.
         If no length is specified, we default to 4000 (max for VARCHAR2).
         """
-        type_ = sqltypes.to_instance(type_)
-        if isinstance(type_, VARCHAR2):
-            return type_
-        elif isinstance(type_, VARCHAR):
-            return VARCHAR2(
-                length=type_.length or 4000, collation=type_.collation
-            )
-        else:
-            return VARCHAR2(length=type_.length or 4000)
+        pass
 
 
 NVARCHAR2 = NVARCHAR
@@ -78,10 +70,7 @@ class NUMBER(sqltypes.Numeric, sqltypes.Integer):
 
     @property
     def _type_affinity(self):
-        if bool(self.scale and self.scale > 0):
-            return sqltypes.Numeric
-        else:
-            return sqltypes.Integer
+        pass
 
 
 class FLOAT(sqltypes.FLOAT):
@@ -226,7 +215,7 @@ class DATE(_OracleDateLiteralRender, sqltypes.DateTime):
         return self._literal_processor_datetime(dialect)
 
     def _compare_type_affinity(self, other):
-        return other._type_affinity in (sqltypes.DateTime, sqltypes.Date)
+        pass
 
 
 class _OracleDate(_OracleDateLiteralRender, sqltypes.Date):
@@ -256,10 +245,7 @@ class INTERVAL(sqltypes.NativeForEmulated, sqltypes._AbstractInterval):
 
     @classmethod
     def _adapt_from_generic_interval(cls, interval):
-        return INTERVAL(
-            day_precision=interval.day_precision,
-            second_precision=interval.second_precision,
-        )
+        pass
 
     @classmethod
     def adapt_emulated_to_native(
@@ -272,18 +258,14 @@ class INTERVAL(sqltypes.NativeForEmulated, sqltypes._AbstractInterval):
 
     @property
     def _type_affinity(self):
-        return sqltypes.Interval
+        pass
 
     def as_generic(self, allow_nulltype=False):
-        return sqltypes.Interval(
-            native=True,
-            second_precision=self.second_precision,
-            day_precision=self.day_precision,
-        )
+        pass
 
     @property
     def python_type(self) -> Type[dt.timedelta]:
-        return dt.timedelta
+        pass
 
     def literal_processor(
         self, dialect: Dialect

@@ -307,8 +307,7 @@ class _ORMClassConfigurator:
         table: Optional[FromClause],
         mapper_kw: _MapperKwArgs,
     ) -> Mapper[_O]:
-        _ImperativeMapperConfig(registry, cls_, table, mapper_kw)
-        return cast("MappedClassProtocol[_O]", cls_).__mapper__
+        pass
 
 
 class _MapperConfig(_ORMClassConfigurator):
@@ -383,12 +382,7 @@ class _ImperativeMapperConfig(_MapperConfig):
             self._early_mapping(mapper_kw)
 
     def map(self, mapper_kw: _MapperKwArgs = util.EMPTY_DICT) -> Mapper[Any]:
-        mapper_cls = Mapper
-
-        return self.set_cls_attribute(
-            "__mapper__",
-            mapper_cls(self.cls, self.local_table, **mapper_kw),
-        )
+        pass
 
     def _setup_inheritance(self, mapper_kw: _MapperKwArgs) -> None:
         cls = self.cls
@@ -1348,27 +1342,7 @@ class _DeclarativeMapperConfig(_MapperConfig, _ClassScanAbstractConfig):
     def _update_annotations_for_non_mapped_class(
         cls, klass: Type[_O]
     ) -> Mapping[str, _AnnotationScanType]:
-        cls_annotations = util.get_annotations(klass)
-
-        new_anno = {}
-        for name, annotation in cls_annotations.items():
-            if _is_mapped_annotation(annotation, klass, klass):
-                extracted = _extract_mapped_subtype(
-                    annotation,
-                    klass,
-                    klass.__module__,
-                    name,
-                    type(None),
-                    required=False,
-                    is_dataclass_field=False,
-                    expect_mapped=False,
-                )
-                if extracted:
-                    inner, _ = extracted
-                    new_anno[name] = inner
-            else:
-                new_anno[name] = annotation
-        return new_anno
+        pass
 
     def _warn_for_decl_attributes(
         self, cls: Type[Any], key: str, c: Any
@@ -1926,102 +1900,10 @@ class _DeclarativeMapperConfig(_MapperConfig, _ClassScanAbstractConfig):
                         )
 
     def _prepare_mapper_arguments(self, mapper_kw: _MapperKwArgs) -> None:
-        properties = self.properties
-
-        if self.mapper_args_fn:
-            mapper_args = self.mapper_args_fn()
-        else:
-            mapper_args = {}
-
-        if mapper_kw:
-            mapper_args.update(mapper_kw)
-
-        if "properties" in mapper_args:
-            properties = dict(properties)
-            properties.update(mapper_args["properties"])
-
-        # make sure that column copies are used rather
-        # than the original columns from any mixins
-        for k in ("version_id_col", "polymorphic_on"):
-            if k in mapper_args:
-                v = mapper_args[k]
-                mapper_args[k] = self.column_copies.get(v, v)
-
-        if "primary_key" in mapper_args:
-            mapper_args["primary_key"] = [
-                self.column_copies.get(v, v)
-                for v in util.to_list(mapper_args["primary_key"])
-            ]
-
-        if "inherits" in mapper_args:
-            inherits_arg = mapper_args["inherits"]
-            if isinstance(inherits_arg, Mapper):
-                inherits_arg = inherits_arg.class_
-
-            if inherits_arg is not self.inherits:
-                raise exc.InvalidRequestError(
-                    "mapper inherits argument given for non-inheriting "
-                    "class %s" % (mapper_args["inherits"])
-                )
-
-        if self.inherits:
-            mapper_args["inherits"] = self.inherits
-
-        if self.inherits and not mapper_args.get("concrete", False):
-            # note the superclass is expected to have a Mapper assigned and
-            # not be a deferred config, as this is called within map()
-            inherited_mapper = class_mapper(self.inherits, False)
-            inherited_table = inherited_mapper.local_table
-
-            # single or joined inheritance
-            # exclude any cols on the inherited table which are
-            # not mapped on the parent class, to avoid
-            # mapping columns specific to sibling/nephew classes
-            if "exclude_properties" not in mapper_args:
-                mapper_args["exclude_properties"] = exclude_properties = {
-                    c.key
-                    for c in inherited_table.c
-                    if c not in inherited_mapper._columntoproperty
-                }.union(inherited_mapper.exclude_properties or ())
-                exclude_properties.difference_update(
-                    [c.key for c in self.declared_columns]
-                )
-
-            # look through columns in the current mapper that
-            # are keyed to a propname different than the colname
-            # (if names were the same, we'd have popped it out above,
-            # in which case the mapper makes this combination).
-            # See if the superclass has a similar column property.
-            # If so, join them together.
-            for k, col in list(properties.items()):
-                if not isinstance(col, expression.ColumnElement):
-                    continue
-                if k in inherited_mapper._props:
-                    p = inherited_mapper._props[k]
-                    if isinstance(p, ColumnProperty):
-                        # note here we place the subclass column
-                        # first.  See [ticket:1892] for background.
-                        properties[k] = [col] + p.columns
-        result_mapper_args = mapper_args.copy()
-        result_mapper_args["properties"] = properties
-        self.mapper_args = result_mapper_args
+        pass
 
     def map(self, mapper_kw: _MapperKwArgs = util.EMPTY_DICT) -> Mapper[Any]:
-        self._prepare_mapper_arguments(mapper_kw)
-        if hasattr(self.cls, "__mapper_cls__"):
-            mapper_cls = cast(
-                "Type[Mapper[Any]]",
-                util.unbound_method_to_callable(
-                    self.cls.__mapper_cls__  # type: ignore
-                ),
-            )
-        else:
-            mapper_cls = Mapper
-
-        return self.set_cls_attribute(
-            "__mapper__",
-            mapper_cls(self.cls, self.local_table, **self.mapper_args),
-        )
+        pass
 
 
 class _UnmappedDataclassConfig(_ClassScanAbstractConfig):
@@ -2149,7 +2031,7 @@ class _DeferredDeclarativeConfig(_DeclarativeMapperConfig):
 
     @classmethod
     def _remove_config_cls(cls, ref: weakref.ref[Type[Any]]) -> None:
-        cls._configs.pop(ref, None)
+        pass
 
     @classmethod
     def has_cls(cls, class_: Type[Any]) -> bool:
@@ -2158,16 +2040,7 @@ class _DeferredDeclarativeConfig(_DeclarativeMapperConfig):
 
     @classmethod
     def raise_unmapped_for_cls(cls, class_: Type[Any]) -> NoReturn:
-        if hasattr(class_, "_sa_raise_deferred_config"):
-            class_._sa_raise_deferred_config()
-
-        raise orm_exc.UnmappedClassError(
-            class_,
-            msg=(
-                f"Class {orm_exc._safe_cls_name(class_)} has a deferred "
-                "mapping on it.  It is not yet usable as a mapped class."
-            ),
-        )
+        pass
 
     @classmethod
     def config_for_cls(cls, class_: Type[Any]) -> _DeferredDeclarativeConfig:
@@ -2200,8 +2073,7 @@ class _DeferredDeclarativeConfig(_DeclarativeMapperConfig):
         return list(topological.sort(tuples, classes_for_base))
 
     def map(self, mapper_kw: _MapperKwArgs = util.EMPTY_DICT) -> Mapper[Any]:
-        self._configs.pop(self._cls, None)
-        return super().map(mapper_kw)
+        pass
 
 
 def _add_attribute(

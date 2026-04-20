@@ -555,10 +555,7 @@ def deregister(class_: Type[Any]) -> None:
     :class:`_expression.ClauseElement` type.
 
     """
-
-    if hasattr(class_, "_compiler_dispatcher"):
-        class_._compiler_dispatch = class_._original_compiler_dispatch
-        del class_._compiler_dispatcher
+    pass
 
 
 class _dispatcher:

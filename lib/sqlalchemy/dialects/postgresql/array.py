@@ -212,7 +212,7 @@ class array(expression.ExpressionClauseList[_T]):
 
     @property
     def _select_iterable(self) -> _SelectIterable:
-        return (self,)
+        pass
 
     def _bind_param(
         self,
@@ -406,16 +406,13 @@ class ARRAY(sqltypes.ARRAY[_T]):
             """Boolean expression.  Test if array has elements in common with
             an argument array expression.
             """
-            return self.operate(OVERLAP, other, result_type=sqltypes.Boolean)
+            pass
 
     comparator_factory = Comparator
 
     @util.memoized_property
     def _against_native_enum(self) -> bool:
-        return (
-            isinstance(self.item_type, sqltypes.Enum)
-            and self.item_type.native_enum
-        )
+        pass
 
     def literal_processor(
         self, dialect: Dialect

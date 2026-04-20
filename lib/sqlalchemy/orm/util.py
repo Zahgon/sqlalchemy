@@ -462,23 +462,7 @@ def identity_key(
       :param identity_token: optional identity token
 
     """  # noqa: E501
-    if class_ is not None:
-        mapper = class_mapper(class_)
-        if row is None:
-            if ident is None:
-                raise sa_exc.ArgumentError("ident or row is required")
-            return mapper.identity_key_from_primary_key(
-                tuple(util.to_list(ident)), identity_token=identity_token
-            )
-        else:
-            return mapper.identity_key_from_row(
-                row, identity_token=identity_token
-            )
-    elif instance is not None:
-        mapper = object_mapper(instance)
-        return mapper.identity_key_from_instance(instance)
-    else:
-        raise sa_exc.ArgumentError("class or instance is required")
+    pass
 
 
 class _TraceAdaptRole(enum.Enum):
@@ -618,9 +602,7 @@ class ORMAdapter(sql_util.ColumnAdapter):
         )
 
     def _include_fn(self, elem):
-        entity = elem._annotations.get("parentmapper", None)
-
-        return not entity or entity.isa(self.mapper) or self.mapper.isa(entity)
+        pass
 
 
 class AliasedClass(
@@ -749,19 +731,7 @@ class AliasedClass(
     def _reconstitute_from_aliased_insp(
         cls, aliased_insp: AliasedInsp[_O]
     ) -> AliasedClass[_O]:
-        obj = cls.__new__(cls)
-        obj.__name__ = f"aliased({aliased_insp.mapper.class_.__name__})"
-        obj._aliased_insp = aliased_insp
-
-        if aliased_insp._is_with_polymorphic:
-            for sub_aliased_insp in aliased_insp._with_polymorphic_entities:
-                if sub_aliased_insp is not aliased_insp:
-                    ent = AliasedClass._reconstitute_from_aliased_insp(
-                        sub_aliased_insp
-                    )
-                    setattr(obj, sub_aliased_insp.class_.__name__, ent)
-
-        return obj
+        pass
 
     def __getattr__(self, key: str) -> Any:
         try:
@@ -797,23 +767,7 @@ class AliasedClass(
     ) -> Any:
         # this method is only used in terms of the
         # sqlalchemy.ext.serializer extension
-        attr = getattr(mapped_class, key)
-        if hasattr(attr, "__call__") and hasattr(attr, "__self__"):
-            return types.MethodType(attr.__func__, self)
-
-        # attribute is a descriptor, that will be invoked against a
-        # "self"; so invoke the descriptor against this self
-        if hasattr(attr, "__get__"):
-            attr = attr.__get__(None, self)
-
-        # attributes within the QueryableAttribute system will want this
-        # to be invoked so the object can be adapted
-        if hasattr(attr, "adapt_to_entity"):
-            aliased_insp._weak_entity = weakref.ref(self)
-            attr = attr.adapt_to_entity(aliased_insp)
-            setattr(self, key, attr)
-
-        return attr
+        pass
 
     def __repr__(self) -> str:
         return "<AliasedClass at 0x%x; %s>" % (
@@ -1083,42 +1037,27 @@ class AliasedInsp(
         # is passed around.
         # to work around this case, we just generate a new one when we need
         # it, as it is a simple class with very little initial state on it.
-        ent = self._weak_entity()
-        if ent is None:
-            ent = AliasedClass._reconstitute_from_aliased_insp(self)
-            self._weak_entity = weakref.ref(ent)
-        return ent
+        pass
 
     is_aliased_class = True
     "always returns True"
 
     def _memoized_method___clause_element__(self) -> FromClause:
-        return self.selectable._annotate(
-            {
-                "parentmapper": self.mapper,
-                "parententity": self,
-                "entity_namespace": self,
-            }
-        )._set_propagate_attrs(
-            {"compile_state_plugin": "orm", "plugin_subject": self}
-        )
+        pass
 
     @property
     def entity_namespace(self) -> AliasedClass[_O]:
-        return self.entity
+        pass
 
     @property
     def class_(self) -> Type[_O]:
         """Return the mapped class ultimately represented by this
         :class:`.AliasedInsp`."""
-        return self.mapper.class_
+        pass
 
     @property
     def _path_registry(self) -> _AbstractEntityRegistry:
-        if self._use_mapper_path:
-            return self.mapper._path_registry
-        else:
-            return PathRegistry.per_mapper(self)
+        pass
 
     def __getstate__(self) -> Dict[str, Any]:
         return {
@@ -1154,31 +1093,7 @@ class AliasedInsp(
         # assert self._is_with_polymorphic
         # assert other._is_with_polymorphic
 
-        primary_mapper = other.mapper
-
-        assert self.mapper is primary_mapper
-
-        our_classes = util.to_set(
-            mp.class_ for mp in self.with_polymorphic_mappers
-        )
-        new_classes = {mp.class_ for mp in other.with_polymorphic_mappers}
-        if our_classes == new_classes:
-            return other
-        else:
-            classes = our_classes.union(new_classes)
-
-        mappers, selectable = primary_mapper._with_polymorphic_args(
-            classes, None, innerjoin=not other.represents_outer_join
-        )
-        selectable = selectable._anonymous_fromclause(flat=True)
-        return AliasedClass(
-            primary_mapper,
-            selectable,
-            with_polymorphic_mappers=mappers,
-            with_polymorphic_discriminator=other.polymorphic_on,
-            use_mapper_path=other._use_mapper_path,
-            represents_outer_join=other.represents_outer_join,
-        )._aliased_insp
+        pass
 
     def _adapt_element(
         self, expr: _ORMCOLEXPR, key: Optional[str] = None
@@ -1242,31 +1157,13 @@ class AliasedInsp(
             assert False, "mapper %s doesn't correspond to %s" % (mapper, self)
 
     def _memoized_attr__get_clause(self):
-        onclause, replacemap = self.mapper._get_clause
-        return (
-            self._adapter.traverse(onclause),
-            {
-                self._adapter.traverse(col): param
-                for col, param in replacemap.items()
-            },
-        )
+        pass
 
     def _memoized_attr__memoized_values(self):
-        return {}
+        pass
 
     def _memoized_attr__all_column_expressions(self):
-        if self._is_with_polymorphic:
-            cols_plus_keys = self.mapper._columns_plus_keys(
-                [ent.mapper for ent in self._with_polymorphic_entities]
-            )
-        else:
-            cols_plus_keys = self.mapper._columns_plus_keys()
-
-        cols_plus_keys = [
-            (key, self._adapt_element(col)) for key, col in cols_plus_keys
-        ]
-
-        return WriteableColumnCollection(cols_plus_keys)
+        pass
 
     def _memo(self, key, callable_, *args, **kw):
         if key in self._memoized_values:
@@ -1422,12 +1319,7 @@ class LoaderCriteriaOption(CriteriaOption):
     def _unreduce(
         cls, entity, where_criteria, include_aliases, propagate_to_loaders
     ):
-        return LoaderCriteriaOption(
-            entity,
-            where_criteria,
-            include_aliases=include_aliases,
-            propagate_to_loaders=propagate_to_loaders,
-        )
+        pass
 
     def __reduce__(self):
         return (
@@ -1516,15 +1408,7 @@ inspection._inspects(AliasedClass)(lambda target: target._aliased_insp)
 def _inspect_mc(
     class_: Type[_O],
 ) -> Optional[Mapper[_O]]:
-    try:
-        class_manager = opt_manager_of_class(class_)
-        if class_manager is None or not class_manager.is_mapped:
-            return None
-        mapper = class_manager.mapper
-    except orm_exc.NO_STATE:
-        return None
-    else:
-        return mapper
+    pass
 
 
 GenericAlias = type(List[Any])
@@ -1534,8 +1418,7 @@ GenericAlias = type(List[Any])
 def _inspect_generic_alias(
     class_: Type[_O],
 ) -> Optional[Mapper[_O]]:
-    origin = cast("Type[_O]", get_origin(class_))
-    return _inspect_mc(origin)
+    pass
 
 
 @inspection._self_inspects
@@ -1633,16 +1516,13 @@ class Bundle(
 
     @property
     def entity(self) -> Optional[_InternalEntityType[Any]]:
-        ie: Optional[_InternalEntityType[Any]] = self.exprs[
-            0
-        ]._annotations.get("parententity", None)
-        return ie
+        pass
 
     @property
     def entity_namespace(
         self,
     ) -> ReadOnlyColumnCollection[str, KeyedColumnElement[Any]]:
-        return self.c
+        pass
 
     columns: ReadOnlyColumnCollection[str, KeyedColumnElement[Any]]
 
@@ -1705,7 +1585,7 @@ class Bundle(
 
     @property
     def clauses(self):
-        return self.__clause_element__().clauses
+        pass
 
     def label(self, name):
         """Provide a copy of this :class:`.Bundle` passing a new label."""
@@ -1945,28 +1825,7 @@ class _ORMJoin(expression.Join):
         Given join(a, b) and join(b, c), return join(a, b).join(c)
 
         """
-        leftmost = other
-        while isinstance(leftmost, sql.Join):
-            leftmost = leftmost.left
-
-        assert self.right is leftmost
-
-        left = _ORMJoin(
-            self.left,
-            other.left,
-            self.onclause,
-            isouter=self.isouter,
-            _left_memo=self._left_memo,
-            _right_memo=other._left_memo._path_registry,
-        )
-
-        return _ORMJoin(
-            left,
-            other.right,
-            other.onclause,
-            isouter=other.isouter,
-            _right_memo=other._right_memo,
-        )
+        pass
 
     def join(
         self,
@@ -2072,8 +1931,7 @@ def has_identity(object_: object) -> bool:
         :func:`.was_deleted`
 
     """
-    state = attributes.instance_state(object_)
-    return state.has_identity
+    pass
 
 
 def was_deleted(object_: object) -> bool:
@@ -2242,83 +2100,7 @@ def _cleanup_mapped_str_annotation(
     # additionally, resolve symbols for these names since this is where
     # we'd have to do it
 
-    inner: Optional[Match[str]]
-
-    mm = re.match(r"^([^ \|]+?)\[(.+)\]$", annotation)
-
-    if not mm:
-        return annotation
-
-    # ticket #8759.  Resolve the Mapped name to a real symbol.
-    # originally this just checked the name.
-    try:
-        obj = eval_name_only(mm.group(1), originating_module)
-    except NameError as ne:
-        raise _CleanupError(
-            f'For annotation "{annotation}", could not resolve '
-            f'container type "{mm.group(1)}".  '
-            "Please ensure this type is imported at the module level "
-            "outside of TYPE_CHECKING blocks"
-        ) from ne
-
-    if obj is typing.ClassVar:
-        real_symbol = "ClassVar"
-    else:
-        try:
-            if issubclass(obj, _MappedAnnotationBase):
-                real_symbol = obj.__name__
-            else:
-                return annotation
-        except TypeError:
-            # avoid isinstance(obj, type) check, just catch TypeError
-            return annotation
-
-    # note: if one of the codepaths above didn't define real_symbol and
-    # then didn't return, real_symbol raises UnboundLocalError
-    # which is actually a NameError, and the calling routines don't
-    # notice this since they are catching NameError anyway.   Just in case
-    # this is being modified in the future, something to be aware of.
-
-    stack = []
-    inner = mm
-    while True:
-        stack.append(real_symbol if mm is inner else inner.group(1))
-        g2 = inner.group(2)
-        inner = re.match(r"^([^ \|]+?)\[(.+)\]$", g2)
-        if inner is None:
-            stack.append(g2)
-            break
-
-    # stacks we want to rewrite, that is, quote the last entry which
-    # we think is a relationship class name:
-    #
-    #   ['Mapped', 'List', 'Address']
-    #   ['Mapped', 'A']
-    #
-    # stacks we dont want to rewrite, which are generally MappedColumn
-    # use cases:
-    #
-    # ['Mapped', "'Optional[Dict[str, str]]'"]
-    # ['Mapped', 'dict[str, str] | None']
-
-    if (
-        # avoid already quoted symbols such as
-        # ['Mapped', "'Optional[Dict[str, str]]'"]
-        not re.match(r"""^["'].*["']$""", stack[-1])
-        # avoid further generics like Dict[] such as
-        # ['Mapped', 'dict[str, str] | None'],
-        # ['Mapped', 'list[int] | list[str]'],
-        # ['Mapped', 'Union[list[int], list[str]]'],
-        and not re.search(r"[\[\]]", stack[-1])
-    ):
-        stripchars = "\"' "
-        stack[-1] = ", ".join(
-            f'"{elem.strip(stripchars)}"' for elem in stack[-1].split(",")
-        )
-
-        annotation = "[".join(stack) + ("]" * (len(stack) - 1))
-
-    return annotation
+    pass
 
 
 def _extract_mapped_subtype(

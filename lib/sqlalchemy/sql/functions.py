@@ -197,7 +197,7 @@ class FunctionElement(
 
     @property
     def _proxy_key(self) -> Any:
-        return super()._proxy_key or getattr(self, "name", None)
+        pass
 
     def _execute_on_connection(
         self,
@@ -205,9 +205,7 @@ class FunctionElement(
         distilled_params: _CoreMultiExecuteParams,
         execution_options: CoreExecuteOptionsParameter,
     ) -> CursorResult[Any]:
-        return connection._execute_function(
-            self, distilled_params, execution_options
-        )
+        pass
 
     def scalar_table_valued(
         self, name: str, type_: Optional[_TypeEngineArgument[_T]] = None
@@ -241,8 +239,7 @@ class FunctionElement(
             :meth:`_functions.FunctionElement.column_valued`
 
         """  # noqa: E501
-
-        return ScalarFunctionColumn(self, name, type_)
+        pass
 
     def table_valued(
         self, *expr: _ColumnExpressionOrStrLabelArgument[Any], **kw: Any
@@ -335,20 +332,7 @@ class FunctionElement(
             using a derived column clause, e.g. ``AS name(col1, col2, ...)``
 
         """  # noqa: 501
-
-        new_func = self._generate()
-
-        with_ordinality = kw.pop("with_ordinality", None)
-        joins_implicitly = kw.pop("joins_implicitly", None)
-        name = kw.pop("name", None)
-
-        if with_ordinality:
-            expr += (with_ordinality,)
-            new_func._with_ordinality = True
-
-        new_func.type = new_func._table_value_type = TableValueType(*expr)
-
-        return new_func.alias(name=name, joins_implicitly=joins_implicitly)
+        pass
 
     def column_valued(
         self, name: Optional[str] = None, joins_implicitly: bool = False
@@ -390,8 +374,7 @@ class FunctionElement(
             :meth:`_functions.FunctionElement.table_valued`
 
         """  # noqa: 501
-
-        return self.alias(name=name, joins_implicitly=joins_implicitly).column
+        pass
 
     @util.ro_non_memoized_property
     def columns(
@@ -424,28 +407,17 @@ class FunctionElement(
     @util.ro_memoized_property
     def c(self) -> ReadOnlyColumnCollection[str, KeyedColumnElement[Any]]:
         """synonym for :attr:`.FunctionElement.columns`."""
-
-        return WriteableColumnCollection(
-            columns=[(col.key, col) for col in self._all_selected_columns]
-        ).as_readonly()
+        pass
 
     @property
     def _all_selected_columns(self) -> Sequence[KeyedColumnElement[Any]]:
-        if is_table_value_type(self.type):
-            # TODO: this might not be fully accurate
-            cols = cast(
-                "Sequence[KeyedColumnElement[Any]]", self.type._elements
-            )
-        else:
-            cols = [self.label(None)]
-
-        return cols
+        pass
 
     @property
     def exported_columns(  # type: ignore[override]
         self,
     ) -> ColumnCollection[str, KeyedColumnElement[Any]]:
-        return self.columns
+        pass
 
     @HasMemoized.memoized_attribute
     def clauses(self) -> ClauseList:
@@ -453,7 +425,7 @@ class FunctionElement(
         the arguments for this :class:`.FunctionElement`.
 
         """
-        return cast(ClauseList, self.clause_expr.element)
+        pass
 
     def over(
         self,
@@ -588,9 +560,7 @@ class FunctionElement(
 
 
         """
-        if not criterion:
-            return self
-        return FunctionFilter(self, *criterion)
+        pass
 
     def as_comparison(
         self, left_index: int, right_index: int
@@ -665,7 +635,7 @@ class FunctionElement(
             example use within the ORM
 
         """
-        return FunctionAsBinary(self, left_index, right_index)
+        pass
 
     @property
     def _from_objects(self) -> Any:
@@ -682,8 +652,7 @@ class FunctionElement(
         is used.
 
         """
-
-        return None
+        pass
 
     def alias(
         self, name: Optional[str] = None, joins_implicitly: bool = False
@@ -816,9 +785,7 @@ class FunctionElement(
         column expressions and not FromClauses.
 
         """
-        # ideally functions would not be fromclauses but we failed to make
-        # this adjustment in 1.4
-        return _entity_namespace(self.clause_expr)
+        pass
 
 
 class FunctionAsBinary(BinaryExpression[Any]):
@@ -851,19 +818,19 @@ class FunctionAsBinary(BinaryExpression[Any]):
 
     @property
     def left_expr(self) -> ColumnElement[Any]:
-        return self.sql_function.clauses.clauses[self.left_index - 1]
+        pass
 
     @left_expr.setter
     def left_expr(self, value: ColumnElement[Any]) -> None:
-        self.sql_function.clauses.clauses[self.left_index - 1] = value
+        pass
 
     @property
     def right_expr(self) -> ColumnElement[Any]:
-        return self.sql_function.clauses.clauses[self.right_index - 1]
+        pass
 
     @right_expr.setter
     def right_expr(self, value: ColumnElement[Any]) -> None:
-        self.sql_function.clauses.clauses[self.right_index - 1] = value
+        pass
 
     if not TYPE_CHECKING:
         # mypy can't accommodate @property to replace an instance
@@ -2043,14 +2010,7 @@ class OrderedSetAgg(GenericFunction[_T]):
     def within_group_type(
         self, within_group: WithinGroup[Any]
     ) -> TypeEngine[Any]:
-        func_clauses = cast(ClauseList, self.clause_expr.element)
-        order_by: Sequence[ColumnElement[Any]] = sqlutil.unwrap_order_by(
-            within_group.order_by
-        )
-        if self.array_for_multi_clause and len(func_clauses.clauses) > 1:
-            return sqltypes.ARRAY(order_by[0].type)
-        else:
-            return order_by[0].type
+        pass
 
 
 class mode(OrderedSetAgg[_T]):

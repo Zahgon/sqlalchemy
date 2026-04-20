@@ -242,7 +242,7 @@ class QueuePool(Pool):
         return self._pool.maxsize
 
     def timeout(self) -> float:
-        return self._timeout
+        pass
 
     def checkedin(self) -> int:
         return self._pool.qsize()
@@ -383,9 +383,7 @@ class SingletonThreadPool(Pool):
     ) -> None:
         # used by the test suite to make a new engine / pool without
         # losing the state of an existing SQLite :memory: connection
-        assert not hasattr(other_singleton_pool._fairy, "current")
-        self._conn = other_singleton_pool._conn
-        self._all_conns = other_singleton_pool._all_conns
+        pass
 
     def dispose(self) -> None:
         """Dispose of this pool."""
@@ -491,12 +489,7 @@ class StaticPool(Pool):
     def _transfer_from(self, other_static_pool: StaticPool) -> None:
         # used by the test suite to make a new engine / pool without
         # losing the state of an existing SQLite :memory: connection
-        def creator(rec: ConnectionPoolEntry) -> DBAPIConnection:
-            conn = other_static_pool.connection.dbapi_connection
-            assert conn is not None
-            return conn
-
-        self._invoke_creator = creator
+        pass
 
     def _create_connection(self) -> ConnectionPoolEntry:
         raise NotImplementedError()

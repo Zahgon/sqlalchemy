@@ -132,31 +132,7 @@ class DDLIf(typing.NamedTuple):
         compiler: Optional[DDLCompiler] = None,
         **kw: Any,
     ) -> bool:
-        if bind is not None:
-            dialect = bind.dialect
-        elif compiler is not None:
-            dialect = compiler.dialect
-        else:
-            assert False, "compiler or dialect is required"
-
-        if isinstance(self.dialect, str):
-            if self.dialect != dialect.name:
-                return False
-        elif isinstance(self.dialect, (tuple, list, set)):
-            if dialect.name not in self.dialect:
-                return False
-        if self.callable_ is not None and not self.callable_(
-            ddl,
-            target,
-            bind,
-            state=self.state,
-            dialect=dialect,
-            compiler=compiler,
-            **kw,
-        ):
-            return False
-
-        return True
+        pass
 
 
 class ExecutableDDLElement(roles.DDLRole, Executable, BaseDDLElement):
@@ -200,9 +176,7 @@ class ExecutableDDLElement(roles.DDLRole, Executable, BaseDDLElement):
     def _execute_on_connection(
         self, connection, distilled_params, execution_options
     ):
-        return connection._execute_ddl(
-            self, distilled_params, execution_options
-        )
+        pass
 
     @_generative
     def against(self, target: SchemaItem) -> Self:
@@ -323,18 +297,13 @@ class ExecutableDDLElement(roles.DDLRole, Executable, BaseDDLElement):
             :ref:`event_toplevel`
 
         """
-        self._ddl_if = DDLIf(dialect, callable_, state)
-        return self
+        pass
 
     def _should_execute(self, target, bind, **kw):
-        if self._ddl_if is None:
-            return True
-        else:
-            return self._ddl_if._should_execute(self, target, bind, **kw)
+        pass
 
     def _invoke_with(self, bind):
-        if self._should_execute(self.target, bind):
-            return bind.execute(self)
+        pass
 
     def __call__(self, target, bind, **kw):
         """Execute the DDL as a ddl_listener."""
@@ -456,8 +425,7 @@ class _CreateDropBase(ExecutableDDLElement, Generic[_SI]):
 
     @property
     def stringify_dialect(self):  # type: ignore[override]
-        assert not isinstance(self.element, str)
-        return self.element.create_drop_stringify_dialect
+        pass
 
     def _create_rule_disable(self, compiler):
         """Allow disable of _create_rule using a callable.
@@ -467,7 +435,7 @@ class _CreateDropBase(ExecutableDDLElement, Generic[_SI]):
         to retain serializability.
 
         """
-        return False
+        pass
 
 
 class _CreateBase(_CreateDropBase[_SI]):
@@ -572,7 +540,7 @@ class CreateTable(TableCreateDDL):
         self.include_foreign_key_constraints = include_foreign_key_constraints
 
     def to_metadata(self, metadata: MetaData, table: Table) -> Self:
-        return self.__class__(table, if_not_exists=self.if_not_exists)
+        pass
 
 
 class _TableViaSelect(TableCreateDDL, ExecutableDDLElement):
@@ -610,14 +578,10 @@ class _TableViaSelect(TableCreateDDL, ExecutableDDLElement):
 
     @property
     def element(self):  # type: ignore
-        return self.table
+        pass
 
     def to_metadata(self, metadata: MetaData, table: Table) -> Self:
-        new = self.__class__.__new__(self.__class__)
-        new.__dict__.update(self.__dict__)
-        new.metadata = metadata
-        new.table = table
-        return new
+        pass
 
     @util.preload_module("sqlalchemy.sql.schema")
     def _gen_table(self) -> None:
@@ -919,10 +883,7 @@ class DropView(TableDropDDL):
         self.materialized = materialized
 
     def to_metadata(self, metadata: MetaData, table: Table) -> Self:
-        new = self.__class__.__new__(self.__class__)
-        new.__dict__.update(self.__dict__)
-        new.element = table
-        return new
+        pass
 
 
 class CreateConstraint(BaseDDLElement):
@@ -1071,7 +1032,7 @@ class DropTable(TableDropDDL):
         super().__init__(element, if_exists=if_exists)
 
     def to_metadata(self, metadata: MetaData, table: Table) -> Self:
-        return self.__class__(table, if_exists=self.if_exists)
+        pass
 
 
 class CreateSequence(_CreateBase["Sequence"]):
@@ -1272,14 +1233,7 @@ class InvokeCreateDDLBase(InvokeDDLBase):
     def with_ddl_events(self, target, **kw):
         """helper context manager that will apply appropriate DDL events
         to a CREATE or DROP operation."""
-
-        target.dispatch.before_create(
-            target, self.connection, _ddl_runner=self, **kw
-        )
-        yield
-        target.dispatch.after_create(
-            target, self.connection, _ddl_runner=self, **kw
-        )
+        pass
 
 
 class InvokeDropDDLBase(InvokeDDLBase):
@@ -1287,14 +1241,7 @@ class InvokeDropDDLBase(InvokeDDLBase):
     def with_ddl_events(self, target, **kw):
         """helper context manager that will apply appropriate DDL events
         to a CREATE or DROP operation."""
-
-        target.dispatch.before_drop(
-            target, self.connection, _ddl_runner=self, **kw
-        )
-        yield
-        target.dispatch.after_drop(
-            target, self.connection, _ddl_runner=self, **kw
-        )
+        pass
 
 
 class CheckFirst(Flag):
@@ -1339,9 +1286,7 @@ class CheckFirst(Flag):
 
     @classmethod
     def _missing_(cls, value: object) -> Any:
-        if isinstance(value, bool):
-            return cls.ALL if value else cls.NONE
-        return super()._missing_(value)
+        pass
 
 
 class SchemaGenerator(InvokeCreateDDLBase):
@@ -1361,85 +1306,16 @@ class SchemaGenerator(InvokeCreateDDLBase):
         self.memo = {}
 
     def _can_create_table(self, table):
-        self.dialect.validate_identifier(table.name)
-        effective_schema = self.connection.schema_for_object(table)
-        if effective_schema:
-            self.dialect.validate_identifier(effective_schema)
-
-        bool_to_check = (
-            CheckFirst.TABLES if not table.is_view else CheckFirst.VIEWS
-        )
-        return (
-            not self.checkfirst & bool_to_check
-            or not self.dialect.has_table(
-                self.connection, table.name, schema=effective_schema
-            )
-        )
+        pass
 
     def _can_create_index(self, index):
-        effective_schema = self.connection.schema_for_object(index.table)
-        if effective_schema:
-            self.dialect.validate_identifier(effective_schema)
-        return (
-            not self.checkfirst & CheckFirst.INDEXES
-            or not self.dialect.has_index(
-                self.connection,
-                index.table.name,
-                index.name,
-                schema=effective_schema,
-            )
-        )
+        pass
 
     def _can_create_sequence(self, sequence):
-        effective_schema = self.connection.schema_for_object(sequence)
-
-        return self.dialect.supports_sequences and (
-            (not self.dialect.sequences_optional or not sequence.optional)
-            and (
-                not self.checkfirst & CheckFirst.SEQUENCES
-                or not self.dialect.has_sequence(
-                    self.connection, sequence.name, schema=effective_schema
-                )
-            )
-        )
+        pass
 
     def visit_metadata(self, metadata):
-        if self.tables is not None:
-            tables = self.tables
-        else:
-            tables = list(metadata.tables.values())
-
-        collection = sort_tables_and_constraints(
-            [t for t in tables if self._can_create_table(t)]
-        )
-
-        seq_coll = [
-            s
-            for s in metadata._sequences.values()
-            if s.column is None and self._can_create_sequence(s)
-        ]
-
-        event_collection = [t for (t, fks) in collection if t is not None]
-
-        with self.with_ddl_events(
-            metadata,
-            tables=event_collection,
-            checkfirst=self.checkfirst,
-        ):
-            for seq in seq_coll:
-                self.traverse_single(seq, create_ok=True)
-
-            for table, fkcs in collection:
-                if table is not None:
-                    self.traverse_single(
-                        table,
-                        create_ok=True,
-                        include_foreign_key_constraints=fkcs,
-                        _is_metadata_operation=True,
-                    )
-                else:
-                    for fkc in fkcs:
-                        self.traverse_single(fkc)
+        pass
 
     def visit_table(
         self,
@@ -1448,76 +1324,16 @@ class SchemaGenerator(InvokeCreateDDLBase):
         include_foreign_key_constraints=None,
         _is_metadata_operation=False,
     ):
-        if not create_ok and not self._can_create_table(table):
-            return
-
-        with self.with_ddl_events(
-            table,
-            checkfirst=self.checkfirst,
-            _is_metadata_operation=_is_metadata_operation,
-        ):
-            for column in table.columns:
-                if column.default is not None:
-                    self.traverse_single(column.default)
-
-            if not self.dialect.supports_alter:
-                # e.g., don't omit any foreign key constraints
-                include_foreign_key_constraints = None
-
-            if table._creator_ddl is not None:
-                table_create_ddl = table._creator_ddl
-            else:
-                table_create_ddl = CreateTable(
-                    table,
-                    include_foreign_key_constraints=(
-                        include_foreign_key_constraints
-                    ),
-                )
-
-            table_create_ddl._invoke_with(self.connection)
-
-            if hasattr(table, "indexes"):
-                for index in table.indexes:
-                    self.traverse_single(index, create_ok=True)
-
-            if (
-                self.dialect.supports_comments
-                and not self.dialect.inline_comments
-            ):
-                if table.comment is not None:
-                    SetTableComment(table)._invoke_with(self.connection)
-
-                for column in table.columns:
-                    if column.comment is not None:
-                        SetColumnComment(column)._invoke_with(self.connection)
-
-                if self.dialect.supports_constraint_comments:
-                    for constraint in table.constraints:
-                        if constraint.comment is not None:
-                            self.connection.execute(
-                                SetConstraintComment(constraint)
-                            )
+        pass
 
     def visit_foreign_key_constraint(self, constraint):
-        if not self.dialect.supports_alter:
-            return
-
-        with self.with_ddl_events(constraint):
-            AddConstraint(constraint, isolate_from_table=True)._invoke_with(
-                self.connection
-            )
+        pass
 
     def visit_sequence(self, sequence, create_ok=False):
-        if not create_ok and not self._can_create_sequence(sequence):
-            return
-        with self.with_ddl_events(sequence):
-            CreateSequence(sequence)._invoke_with(self.connection)
+        pass
 
     def visit_index(self, index, create_ok=False):
-        if not create_ok and not self._can_create_index(index):
-            return
-        with self.with_ddl_events(index):
-            CreateIndex(index)._invoke_with(self.connection)
+        pass
 
 
 class SchemaDropper(InvokeDropDDLBase):
@@ -1537,128 +1353,19 @@ class SchemaDropper(InvokeDropDDLBase):
         self.memo = {}
 
     def visit_metadata(self, metadata):
-        if self.tables is not None:
-            tables = self.tables
-        else:
-            tables = list(metadata.tables.values())
-
-        try:
-            unsorted_tables = [t for t in tables if self._can_drop_table(t)]
-            collection = list(
-                reversed(
-                    sort_tables_and_constraints(
-                        unsorted_tables,
-                        filter_fn=lambda constraint: (
-                            False
-                            if not self.dialect.supports_alter
-                            or constraint.name is None
-                            else None
-                        ),
-                    )
-                )
-            )
-        except exc.CircularDependencyError as err2:
-            if not self.dialect.supports_alter:
-                util.warn(
-                    "Can't sort tables for DROP; an "
-                    "unresolvable foreign key "
-                    "dependency exists between tables: %s; and backend does "
-                    "not support ALTER.  To restore at least a partial sort, "
-                    "apply use_alter=True to ForeignKey and "
-                    "ForeignKeyConstraint "
-                    "objects involved in the cycle to mark these as known "
-                    "cycles that will be ignored."
-                    % (", ".join(sorted([t.fullname for t in err2.cycles])))
-                )
-                collection = [(t, ()) for t in unsorted_tables]
-            else:
-                raise exc.CircularDependencyError(
-                    err2.args[0],
-                    err2.cycles,
-                    err2.edges,
-                    msg="Can't sort tables for DROP; an "
-                    "unresolvable foreign key "
-                    "dependency exists between tables: %s.  Please ensure "
-                    "that the ForeignKey and ForeignKeyConstraint objects "
-                    "involved in the cycle have "
-                    "names so that they can be dropped using "
-                    "DROP CONSTRAINT."
-                    % (", ".join(sorted([t.fullname for t in err2.cycles]))),
-                ) from err2
-
-        seq_coll = [
-            s
-            for s in metadata._sequences.values()
-            if self._can_drop_sequence(s)
-        ]
-
-        event_collection = [t for (t, fks) in collection if t is not None]
-
-        with self.with_ddl_events(
-            metadata,
-            tables=event_collection,
-            checkfirst=self.checkfirst,
-        ):
-            for table, fkcs in collection:
-                if table is not None:
-                    self.traverse_single(
-                        table,
-                        drop_ok=True,
-                        _is_metadata_operation=True,
-                        _ignore_sequences=seq_coll,
-                    )
-                else:
-                    for fkc in fkcs:
-                        self.traverse_single(fkc)
-
-            for seq in seq_coll:
-                self.traverse_single(seq, drop_ok=seq.column is None)
+        pass
 
     def _can_drop_table(self, table):
-        self.dialect.validate_identifier(table.name)
-        effective_schema = self.connection.schema_for_object(table)
-        if effective_schema:
-            self.dialect.validate_identifier(effective_schema)
-        bool_to_check = (
-            CheckFirst.TABLES if not table.is_view else CheckFirst.VIEWS
-        )
-
-        return not self.checkfirst & bool_to_check or self.dialect.has_table(
-            self.connection, table.name, schema=effective_schema
-        )
+        pass
 
     def _can_drop_index(self, index):
-        effective_schema = self.connection.schema_for_object(index.table)
-        if effective_schema:
-            self.dialect.validate_identifier(effective_schema)
-        return (
-            not self.checkfirst & CheckFirst.INDEXES
-            or self.dialect.has_index(
-                self.connection,
-                index.table.name,
-                index.name,
-                schema=effective_schema,
-            )
-        )
+        pass
 
     def _can_drop_sequence(self, sequence):
-        effective_schema = self.connection.schema_for_object(sequence)
-        return self.dialect.supports_sequences and (
-            (not self.dialect.sequences_optional or not sequence.optional)
-            and (
-                not self.checkfirst & CheckFirst.SEQUENCES
-                or self.dialect.has_sequence(
-                    self.connection, sequence.name, schema=effective_schema
-                )
-            )
-        )
+        pass
 
     def visit_index(self, index, drop_ok=False):
-        if not drop_ok and not self._can_drop_index(index):
-            return
-
-        with self.with_ddl_events(index):
-            DropIndex(index)(index, self.connection)
+        pass
 
     def visit_table(
         self,
@@ -1667,45 +1374,13 @@ class SchemaDropper(InvokeDropDDLBase):
         _is_metadata_operation=False,
         _ignore_sequences=(),
     ):
-        if not drop_ok and not self._can_drop_table(table):
-            return
-
-        with self.with_ddl_events(
-            table,
-            checkfirst=self.checkfirst,
-            _is_metadata_operation=_is_metadata_operation,
-        ):
-            if table._dropper_ddl is not None:
-                table_dropper_ddl = table._dropper_ddl
-            else:
-                table_dropper_ddl = DropTable(table)
-            table_dropper_ddl._invoke_with(self.connection)
-
-            # traverse client side defaults which may refer to server-side
-            # sequences. noting that some of these client side defaults may
-            # also be set up as server side defaults
-            # (see https://docs.sqlalchemy.org/en/
-            # latest/core/defaults.html
-            # #associating-a-sequence-as-the-server-side-
-            # default), so have to be dropped after the table is dropped.
-            for column in table.columns:
-                if (
-                    column.default is not None
-                    and column.default not in _ignore_sequences
-                ):
-                    self.traverse_single(column.default)
+        pass
 
     def visit_foreign_key_constraint(self, constraint):
-        if not self.dialect.supports_alter:
-            return
-        with self.with_ddl_events(constraint):
-            DropConstraint(constraint)._invoke_with(self.connection)
+        pass
 
     def visit_sequence(self, sequence, drop_ok=False):
-        if not drop_ok and not self._can_drop_sequence(sequence):
-            return
-        with self.with_ddl_events(sequence):
-            DropSequence(sequence)._invoke_with(self.connection)
+        pass
 
 
 def sort_tables(

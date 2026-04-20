@@ -190,13 +190,7 @@ def ordering_list(
     Additional arguments are passed to the :class:`.OrderingList` constructor.
 
     """
-
-    kw = _unsugar_count_from(
-        count_from=count_from,
-        ordering_func=ordering_func,
-        reorder_on_append=reorder_on_append,
-    )
-    return lambda: OrderingList(attr, **kw)
+    pass
 
 
 # Ordering utility functions
@@ -204,27 +198,17 @@ def ordering_list(
 
 def count_from_0(index: int, collection: object) -> int:
     """Numbering function: consecutive integers starting at 0."""
-
-    return index
+    pass
 
 
 def count_from_1(index: int, collection: object) -> int:
     """Numbering function: consecutive integers starting at 1."""
-
-    return index + 1
+    pass
 
 
 def count_from_n_factory(start: int) -> OrderingFunc[Any]:
     """Numbering function: consecutive integers starting at arbitrary start."""
-
-    def f(index: int, collection: object) -> int:
-        return index + start
-
-    try:
-        f.__name__ = "count_from_%i" % start
-    except TypeError:
-        pass
-    return f
+    pass
 
 
 def _unsugar_count_from(**kw: Any) -> Dict[str, Any]:
@@ -233,16 +217,7 @@ def _unsugar_count_from(**kw: Any) -> Dict[str, Any]:
     Keyword argument filter, prepares a simple ``ordering_func`` from a
     ``count_from`` argument, otherwise passes ``ordering_func`` on unchanged.
     """
-
-    count_from = kw.pop("count_from", None)
-    if kw.get("ordering_func", None) is None and count_from is not None:
-        if count_from == 0:
-            kw["ordering_func"] = count_from_0
-        elif count_from == 1:
-            kw["ordering_func"] = count_from_1
-        else:
-            kw["ordering_func"] = count_from_n_factory(count_from)
-    return kw
+    pass
 
 
 class OrderingList(List[_T]):
@@ -334,8 +309,7 @@ class OrderingList(List[_T]):
         ordering information set.
 
         """
-        for index, entity in enumerate(self):
-            self._order_entity(index, entity, True)
+        pass
 
     # As of 0.5, _reorder is no longer semi-private
     _reorder = reorder
@@ -359,8 +333,7 @@ class OrderingList(List[_T]):
 
     def _raw_append(self, entity: _T) -> None:
         """Append without any ordering behavior."""
-
-        super().append(entity)
+        pass
 
     _raw_append = collection.adds(1)(_raw_append)
 
@@ -433,7 +406,4 @@ def _reconstitute(
     unpickling :class:`.OrderingList` objects.
 
     """
-    obj = cls.__new__(cls)
-    obj.__dict__.update(dict_)
-    list.extend(obj, items)
-    return obj
+    pass

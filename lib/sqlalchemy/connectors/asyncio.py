@@ -147,10 +147,7 @@ class AsyncAdapt_dbapi_module:
         .. versionadded:: 2.1
 
         """
-        if self.dbapi_module is not None:
-            return self.dbapi_module
-        else:
-            return self.driver
+        pass
 
 
 class AsyncAdapt_dbapi_cursor:
@@ -193,25 +190,23 @@ class AsyncAdapt_dbapi_cursor:
 
     @property
     def description(self) -> Optional[_DBAPICursorDescription]:
-        if "description" in self._soft_closed_memoized:
-            return self._soft_closed_memoized["description"]  # type: ignore[no-any-return]  # noqa: E501
-        return self._cursor.description
+        pass
 
     @property
     def rowcount(self) -> int:
-        return self._cursor.rowcount
+        pass
 
     @property
     def arraysize(self) -> int:
-        return self._cursor.arraysize
+        pass
 
     @arraysize.setter
     def arraysize(self, value: int) -> None:
-        self._cursor.arraysize = value
+        pass
 
     @property
     def lastrowid(self) -> int:
-        return self._cursor.lastrowid
+        pass
 
     async def _async_soft_close(self) -> None:
         """close the cursor but keep the results pending, and memoize the

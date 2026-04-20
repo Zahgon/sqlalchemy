@@ -36,63 +36,31 @@ class ConventionDict:
         self._const_name = const.name
 
     def _key_table_name(self):
-        return self.table.name
+        pass
 
     def _column_X(self, idx, attrname):
-        if self._is_fk:
-            try:
-                fk = self.const.elements[idx]
-            except IndexError:
-                return ""
-            else:
-                return getattr(fk.parent, attrname)
-        else:
-            cols = list(self.const.columns)
-            try:
-                col = cols[idx]
-            except IndexError:
-                return ""
-            else:
-                return getattr(col, attrname)
+        pass
 
     def _key_constraint_name(self):
-        if self._const_name in (None, _NONE_NAME):
-            raise exc.InvalidRequestError(
-                "Naming convention including "
-                "%(constraint_name)s token requires that "
-                "constraint is explicitly named."
-            )
-        if not isinstance(self._const_name, conv):
-            self.const.name = None
-        return self._const_name
+        pass
 
     def _key_column_X_key(self, idx):
         # note this method was missing before
         # [ticket:3989], meaning tokens like ``%(column_0_key)s`` weren't
         # working even though documented.
-        return self._column_X(idx, "key")
+        pass
 
     def _key_column_X_name(self, idx):
-        return self._column_X(idx, "name")
+        pass
 
     def _key_column_X_label(self, idx):
-        return self._column_X(idx, "_ddl_label")
+        pass
 
     def _key_referred_table_name(self):
-        fk = self.const.elements[0]
-        refs = fk.target_fullname.split(".")
-        if len(refs) == 3:
-            refschema, reftable, refcol = refs
-        else:
-            reftable, refcol = refs
-        return reftable
+        pass
 
     def _key_referred_column_X_name(self, idx):
-        fk = self.const.elements[idx]
-        # note that before [ticket:3989], this method was returning
-        # the specification for the :class:`.ForeignKey` itself, which normally
-        # would be using the ``.key`` of the column, not the name.
-        return fk.column.name
+        pass
 
     def __getitem__(self, key):
         if key in self.convention:
@@ -137,73 +105,21 @@ _prefix_dict = {
 
 
 def _get_convention(dict_, key):
-    for super_ in key.__mro__:
-        if super_ in _prefix_dict and _prefix_dict[super_] in dict_:
-            return dict_[_prefix_dict[super_]]
-        elif super_ in dict_:
-            return dict_[super_]
-    else:
-        return None
+    pass
 
 
 def _constraint_name_for_table(const, table):
-    metadata = table.metadata
-    convention = _get_convention(metadata.naming_convention, type(const))
-
-    if isinstance(const.name, conv):
-        return const.name
-    elif (
-        convention is not None
-        and not isinstance(const.name, conv)
-        and (
-            const.name is None
-            or "constraint_name" in convention
-            or const.name is _NONE_NAME
-        )
-    ):
-        return conv(
-            convention
-            % ConventionDict(const, table, metadata.naming_convention)
-        )
-    elif convention is _NONE_NAME:
-        return None
+    pass
 
 
 @event.listens_for(
     PrimaryKeyConstraint, "_sa_event_column_added_to_pk_constraint"
 )
 def _column_added_to_pk_constraint(pk_constraint, col):
-    if pk_constraint._implicit_generated:
-        # only operate upon the "implicit" pk constraint for now,
-        # as we have to force the name to None to reset it.  the
-        # "implicit" constraint will only have a naming convention name
-        # if at all.
-        table = pk_constraint.table
-        pk_constraint.name = None
-        newname = _constraint_name_for_table(pk_constraint, table)
-        if newname:
-            pk_constraint.name = newname
+    pass
 
 
 @event.listens_for(Constraint, "after_parent_attach")
 @event.listens_for(Index, "after_parent_attach")
 def _constraint_name(const, table):
-    if isinstance(table, Column):
-        # this path occurs for a CheckConstraint linked to a Column
-
-        # for column-attached constraint, set another event
-        # to link the column attached to the table as this constraint
-        # associated with the table.
-        event.listen(
-            table,
-            "after_parent_attach",
-            lambda col, table: _constraint_name(const, table),
-        )
-
-    elif isinstance(table, Table):
-        if isinstance(const.name, conv) or const.name is _NONE_NAME:
-            return
-
-        newname = _constraint_name_for_table(const, table)
-        if newname:
-            const.name = newname
+    pass

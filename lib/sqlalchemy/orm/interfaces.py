@@ -569,7 +569,7 @@ class MapperProperty(
             :attr:`.SchemaItem.info`
 
         """
-        return {}
+        pass
 
     def setup(
         self,
@@ -709,8 +709,7 @@ class MapperProperty(
 
 
         """
-
-        return getattr(self.parent.class_, self.key)  # type: ignore
+        pass
 
     def do_init(self) -> None:
         """Perform subclass-specific initialization post-mapper-creation
@@ -902,8 +901,7 @@ class PropComparator(SQLORMOperations[_T_co], Generic[_T_co], ColumnOperators):
         construct.
 
         """
-
-        return [(cast("_DMLColumnArgument", self.__clause_element__()), value)]
+        pass
 
     def _bulk_dml_setter(self, key: str) -> Optional[Callable[..., Any]]:
         """return a callable that will process a bulk INSERT value"""
@@ -922,7 +920,7 @@ class PropComparator(SQLORMOperations[_T_co], Generic[_T_co], ColumnOperators):
     def _parentmapper(self) -> Mapper[Any]:
         """legacy; this is renamed to _parententity to be
         compatible with QueryableAttribute."""
-        return self._parententity.mapper
+        pass
 
     def _criterion_exists(
         self,
@@ -948,15 +946,15 @@ class PropComparator(SQLORMOperations[_T_co], Generic[_T_co], ColumnOperators):
 
     @staticmethod
     def _any_op(a: Any, b: Any, **kwargs: Any) -> Any:
-        return a.any(b, **kwargs)
+        pass
 
     @staticmethod
     def _has_op(left: Any, other: Any, **kwargs: Any) -> Any:
-        return left.has(other, **kwargs)
+        pass
 
     @staticmethod
     def _of_type_op(a: Any, class_: Any) -> Any:
-        return a.of_type(class_)
+        pass
 
     any_op = cast(operators.OperatorType, _any_op)
     has_op = cast(operators.OperatorType, _has_op)
@@ -1049,8 +1047,7 @@ class PropComparator(SQLORMOperations[_T_co], Generic[_T_co], ColumnOperators):
           corresponding values.
 
         """
-
-        return self.operate(PropComparator.any_op, criterion, **kwargs)
+        pass
 
     def has(
         self,
@@ -1107,17 +1104,12 @@ class StrategizedProperty(MapperProperty[_T]):
     _strategies: Dict[_StrategyKey, LoaderStrategy]
 
     def _memoized_attr__wildcard_token(self) -> Tuple[str]:
-        return (
-            f"{self.strategy_wildcard_key}:{path_registry._WILDCARD_TOKEN}",
-        )
+        pass
 
     def _memoized_attr__default_path_loader_key(
         self,
     ) -> Tuple[str, Tuple[str]]:
-        return (
-            "loader",
-            (f"{self.strategy_wildcard_key}:{path_registry._DEFAULT_TOKEN}",),
-        )
+        pass
 
     def _get_context_loader(
         self, context: _ORMCompileState, path: _AbstractEntityRegistry

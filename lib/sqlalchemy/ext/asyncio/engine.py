@@ -306,8 +306,7 @@ class AsyncConnection(  # type:ignore[misc]
         adapts the driver connection to the DBAPI protocol.
 
         """
-
-        return await greenlet_spawn(getattr, self._proxied, "connection")
+        pass
 
     @util.ro_non_memoized_property
     def info(self) -> _InfoType:
@@ -329,9 +328,7 @@ class AsyncConnection(  # type:ignore[misc]
 
     @util.ro_non_memoized_property
     def _proxied(self) -> Connection:
-        if not self.sync_connection:
-            self._raise_for_not_started()
-        return self.sync_connection
+        pass
 
     def begin(self) -> AsyncTransaction:
         """Begin a transaction prior to autobegin occurring."""
@@ -405,12 +402,7 @@ class AsyncConnection(  # type:ignore[misc]
         .. versionadded:: 1.4.0b2
 
         """
-
-        trans = self._proxied.get_nested_transaction()
-        if trans is not None:
-            return AsyncTransaction._retrieve_proxy_for_target(trans)
-        else:
-            return None
+        pass
 
     @overload
     async def execution_options(
@@ -582,30 +574,7 @@ class AsyncConnection(  # type:ignore[misc]
             :meth:`.AsyncConnection.stream_scalars`
 
         """
-        if not self.dialect.supports_server_side_cursors:
-            raise exc.InvalidRequestError(
-                "Can't use `stream` or `stream_scalars` with the current "
-                "dialect since it does not support server side cursors."
-            )
-
-        result = await greenlet_spawn(
-            self._proxied.execute,
-            statement,
-            parameters,
-            execution_options=util.EMPTY_DICT.merge_with(
-                execution_options, _stream_results
-            ),
-            _require_await=True,
-        )
-        assert result.context._is_server_side
-        ar = AsyncResult(result)
-        try:
-            yield ar
-        except GeneratorExit:
-            pass
-        else:
-            task = asyncio.create_task(ar.close())
-            await asyncio.shield(task)
+        pass
 
     @overload
     async def execute(
@@ -829,11 +798,7 @@ class AsyncConnection(  # type:ignore[misc]
             :meth:`.AsyncConnection.stream`
 
         """
-
-        async with self.stream(
-            statement, parameters, execution_options=execution_options
-        ) as result:
-            yield result.scalars()
+        pass
 
     async def run_sync(
         self,
@@ -902,10 +867,7 @@ class AsyncConnection(  # type:ignore[misc]
             :ref:`session_run_sync`
 
         '''  # noqa: E501
-
-        return await greenlet_spawn(
-            fn, self._proxied, *arg, _require_await=False, **kw
-        )
+        pass
 
     def __await__(self) -> Generator[Any, None, AsyncConnection]:
         return self.start().__await__()
@@ -946,8 +908,7 @@ class AsyncConnection(  # type:ignore[misc]
 
 
         """  # noqa: E501
-
-        return self._proxied.invalidated
+        pass
 
     @property
     def dialect(self) -> Dialect:
@@ -955,12 +916,11 @@ class AsyncConnection(  # type:ignore[misc]
         on behalf of the :class:`_asyncio.AsyncConnection` class.
 
         """  # noqa: E501
-
-        return self._proxied.dialect
+        pass
 
     @dialect.setter
     def dialect(self, attr: Dialect) -> None:
-        self._proxied.dialect = attr
+        pass
 
     @property
     def default_isolation_level(self) -> Any:
@@ -995,8 +955,7 @@ class AsyncConnection(  # type:ignore[misc]
 
 
         """  # noqa: E501
-
-        return self._proxied.default_isolation_level
+        pass
 
     # END PROXY METHODS AsyncConnection
 
@@ -1058,7 +1017,7 @@ class AsyncEngine(ProxyComparable[Engine], AsyncConnectable):  # type: ignore[mi
 
     @util.ro_non_memoized_property
     def _proxied(self) -> Engine:
-        return self.sync_engine
+        pass
 
     @classmethod
     def _regenerate_proxy_for_target(
@@ -1189,8 +1148,7 @@ class AsyncEngine(ProxyComparable[Engine], AsyncConnectable):  # type: ignore[mi
 
 
         """  # noqa: E501
-
-        return self._proxied.clear_compiled_cache()
+        pass
 
     def update_execution_options(self, **opt: Any) -> None:
         r"""Update the default execution_options dictionary
@@ -1231,8 +1189,7 @@ class AsyncEngine(ProxyComparable[Engine], AsyncConnectable):  # type: ignore[mi
             :meth:`_engine.Engine.execution_options`
 
         """  # noqa: E501
-
-        return self._proxied.get_execution_options()
+        pass
 
     @property
     def url(self) -> URL:
@@ -1266,12 +1223,11 @@ class AsyncEngine(ProxyComparable[Engine], AsyncConnectable):  # type: ignore[mi
         on behalf of the :class:`_asyncio.AsyncEngine` class.
 
         """  # noqa: E501
-
-        return self._proxied.dialect
+        pass
 
     @dialect.setter
     def dialect(self, attr: Dialect) -> None:
-        self._proxied.dialect = attr
+        pass
 
     @property
     def engine(self) -> Any:
@@ -1302,8 +1258,7 @@ class AsyncEngine(ProxyComparable[Engine], AsyncConnectable):  # type: ignore[mi
 
 
         """  # noqa: E501
-
-        return self._proxied.name
+        pass
 
     @property
     def driver(self) -> Any:
@@ -1317,8 +1272,7 @@ class AsyncEngine(ProxyComparable[Engine], AsyncConnectable):  # type: ignore[mi
 
 
         """  # noqa: E501
-
-        return self._proxied.driver
+        pass
 
     @property
     def echo(self) -> Any:
@@ -1336,12 +1290,11 @@ class AsyncEngine(ProxyComparable[Engine], AsyncConnectable):  # type: ignore[mi
         ``logging.DEBUG``.
 
         """  # noqa: E501
-
-        return self._proxied.echo
+        pass
 
     @echo.setter
     def echo(self, attr: Any) -> None:
-        self._proxied.echo = attr
+        pass
 
     # END PROXY METHODS AsyncEngine
 
@@ -1383,17 +1336,15 @@ class AsyncTransaction(
 
     @util.ro_non_memoized_property
     def _proxied(self) -> Transaction:
-        if not self.sync_transaction:
-            self._raise_for_not_started()
-        return self.sync_transaction
+        pass
 
     @property
     def is_valid(self) -> bool:
-        return self._proxied.is_valid
+        pass
 
     @property
     def is_active(self) -> bool:
-        return self._proxied.is_active
+        pass
 
     async def close(self) -> None:
         """Close this :class:`.AsyncTransaction`.

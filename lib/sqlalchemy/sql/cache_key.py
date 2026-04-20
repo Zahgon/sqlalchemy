@@ -409,7 +409,7 @@ class SlotsMemoizedHasCacheKey(HasCacheKey, util.MemoizedSlots):
     __slots__ = ()
 
     def _memoized_method__generate_cache_key(self) -> Optional[CacheKey]:
-        return HasCacheKey._generate_cache_key(self)
+        pass
 
 
 class CacheKey(NamedTuple):
@@ -455,20 +455,7 @@ class CacheKey(NamedTuple):
 
 
         """
-        if self.key not in statement_cache:
-            statement_cache[self.key] = sql_str = str(statement)
-        else:
-            sql_str = statement_cache[self.key]
-
-        if not self.bindparams:
-            param_tuple = tuple(parameters[key] for key in sorted(parameters))
-        else:
-            param_tuple = tuple(
-                parameters.get(bindparam.key, bindparam.value)
-                for bindparam in self.bindparams
-            )
-
-        return repr((sql_str, param_tuple))
+        pass
 
     def __eq__(self, other: Any) -> bool:
         return other is not None and bool(self.key == other.key)
@@ -478,42 +465,13 @@ class CacheKey(NamedTuple):
 
     @classmethod
     def _diff_tuples(cls, left: CacheKey, right: CacheKey) -> str:
-        ck1 = CacheKey(left, [], None)
-        ck2 = CacheKey(right, [], None)
-        return ck1._diff(ck2)
+        pass
 
     def _whats_different(self, other: CacheKey) -> Iterator[str]:
-        k1 = self.key
-        k2 = other.key
-
-        stack: List[int] = []
-        pickup_index = 0
-        while True:
-            s1, s2 = k1, k2
-            for idx in stack:
-                s1 = s1[idx]
-                s2 = s2[idx]
-
-            for idx, (e1, e2) in enumerate(zip_longest(s1, s2)):
-                if idx < pickup_index:
-                    continue
-                if e1 != e2:
-                    if isinstance(e1, tuple) and isinstance(e2, tuple):
-                        stack.append(idx)
-                        break
-                    else:
-                        yield "key%s[%d]:  %s != %s" % (
-                            "".join("[%d]" % id_ for id_ in stack),
-                            idx,
-                            e1,
-                            e2,
-                        )
-            else:
-                stack.pop(-1)
-                break
+        pass
 
     def _diff(self, other: CacheKey) -> str:
-        return ", ".join(self._whats_different(other))
+        pass
 
     def __str__(self) -> str:
         stack: List[Union[Tuple[Any, ...], HasCacheKey]] = [self.key]
@@ -547,9 +505,7 @@ class CacheKey(NamedTuple):
 
     def _generate_param_dict(self) -> Dict[str, Any]:
         """used for testing"""
-
-        _anon_map = prefix_anon_map()
-        return {b.key % _anon_map: b.effective_value for b in self.bindparams}
+        pass
 
     @util.preload_module("sqlalchemy.sql.elements")
     def _apply_params_to_element(
@@ -630,7 +586,7 @@ class _CacheKeyTraversal(HasTraversalDispatch):
         anon_map: anon_map,
         bindparams: List[BindParameter[Any]],
     ) -> Tuple[Any, ...]:
-        return tuple((fn.__code__, c_key) for fn, c_key in obj)
+        pass
 
     def visit_inspectable(
         self,
@@ -640,7 +596,7 @@ class _CacheKeyTraversal(HasTraversalDispatch):
         anon_map: anon_map,
         bindparams: List[BindParameter[Any]],
     ) -> Tuple[Any, ...]:
-        return (attrname, inspect(obj)._gen_cache_key(anon_map, bindparams))
+        pass
 
     def visit_string_list(
         self,
@@ -650,7 +606,7 @@ class _CacheKeyTraversal(HasTraversalDispatch):
         anon_map: anon_map,
         bindparams: List[BindParameter[Any]],
     ) -> Tuple[Any, ...]:
-        return tuple(obj)
+        pass
 
     def visit_multi(
         self,
@@ -660,14 +616,7 @@ class _CacheKeyTraversal(HasTraversalDispatch):
         anon_map: anon_map,
         bindparams: List[BindParameter[Any]],
     ) -> Tuple[Any, ...]:
-        return (
-            attrname,
-            (
-                obj._gen_cache_key(anon_map, bindparams)
-                if isinstance(obj, HasCacheKey)
-                else obj
-            ),
-        )
+        pass
 
     def visit_multi_list(
         self,
@@ -677,17 +626,7 @@ class _CacheKeyTraversal(HasTraversalDispatch):
         anon_map: anon_map,
         bindparams: List[BindParameter[Any]],
     ) -> Tuple[Any, ...]:
-        return (
-            attrname,
-            tuple(
-                (
-                    elem._gen_cache_key(anon_map, bindparams)
-                    if isinstance(elem, HasCacheKey)
-                    else elem
-                )
-                for elem in obj
-            ),
-        )
+        pass
 
     def visit_has_cache_key_tuples(
         self,
@@ -697,18 +636,7 @@ class _CacheKeyTraversal(HasTraversalDispatch):
         anon_map: anon_map,
         bindparams: List[BindParameter[Any]],
     ) -> Tuple[Any, ...]:
-        if not obj:
-            return ()
-        return (
-            attrname,
-            tuple(
-                tuple(
-                    elem._gen_cache_key(anon_map, bindparams)
-                    for elem in tup_elem
-                )
-                for tup_elem in obj
-            ),
-        )
+        pass
 
     def visit_has_cache_key_list(
         self,
@@ -718,12 +646,7 @@ class _CacheKeyTraversal(HasTraversalDispatch):
         anon_map: anon_map,
         bindparams: List[BindParameter[Any]],
     ) -> Tuple[Any, ...]:
-        if not obj:
-            return ()
-        return (
-            attrname,
-            tuple(elem._gen_cache_key(anon_map, bindparams) for elem in obj),
-        )
+        pass
 
     def visit_executable_options(
         self,
@@ -733,16 +656,7 @@ class _CacheKeyTraversal(HasTraversalDispatch):
         anon_map: anon_map,
         bindparams: List[BindParameter[Any]],
     ) -> Tuple[Any, ...]:
-        if not obj:
-            return ()
-        return (
-            attrname,
-            tuple(
-                elem._gen_cache_key(anon_map, bindparams)
-                for elem in obj
-                if elem._is_has_cache_key
-            ),
-        )
+        pass
 
     def visit_inspectable_list(
         self,
@@ -752,9 +666,7 @@ class _CacheKeyTraversal(HasTraversalDispatch):
         anon_map: anon_map,
         bindparams: List[BindParameter[Any]],
     ) -> Tuple[Any, ...]:
-        return self.visit_has_cache_key_list(
-            attrname, [inspect(o) for o in obj], parent, anon_map, bindparams
-        )
+        pass
 
     def visit_clauseelement_tuples(
         self,
@@ -764,9 +676,7 @@ class _CacheKeyTraversal(HasTraversalDispatch):
         anon_map: anon_map,
         bindparams: List[BindParameter[Any]],
     ) -> Tuple[Any, ...]:
-        return self.visit_has_cache_key_tuples(
-            attrname, obj, parent, anon_map, bindparams
-        )
+        pass
 
     def visit_fromclause_ordered_set(
         self,
@@ -776,12 +686,7 @@ class _CacheKeyTraversal(HasTraversalDispatch):
         anon_map: anon_map,
         bindparams: List[BindParameter[Any]],
     ) -> Tuple[Any, ...]:
-        if not obj:
-            return ()
-        return (
-            attrname,
-            tuple([elem._gen_cache_key(anon_map, bindparams) for elem in obj]),
-        )
+        pass
 
     def visit_clauseelement_unordered_set(
         self,
@@ -791,17 +696,7 @@ class _CacheKeyTraversal(HasTraversalDispatch):
         anon_map: anon_map,
         bindparams: List[BindParameter[Any]],
     ) -> Tuple[Any, ...]:
-        if not obj:
-            return ()
-        cache_keys = [
-            elem._gen_cache_key(anon_map, bindparams) for elem in obj
-        ]
-        return (
-            attrname,
-            tuple(
-                sorted(cache_keys)
-            ),  # cache keys all start with (id_, class)
-        )
+        pass
 
     def visit_named_ddl_element(
         self,
@@ -811,7 +706,7 @@ class _CacheKeyTraversal(HasTraversalDispatch):
         anon_map: anon_map,
         bindparams: List[BindParameter[Any]],
     ) -> Tuple[Any, ...]:
-        return (attrname, obj.name)
+        pass
 
     def visit_prefix_sequence(
         self,
@@ -821,18 +716,7 @@ class _CacheKeyTraversal(HasTraversalDispatch):
         anon_map: anon_map,
         bindparams: List[BindParameter[Any]],
     ) -> Tuple[Any, ...]:
-        if not obj:
-            return ()
-
-        return (
-            attrname,
-            tuple(
-                [
-                    (clause._gen_cache_key(anon_map, bindparams), strval)
-                    for clause, strval in obj
-                ]
-            ),
-        )
+        pass
 
     def visit_setup_join_tuple(
         self,
@@ -842,23 +726,7 @@ class _CacheKeyTraversal(HasTraversalDispatch):
         anon_map: anon_map,
         bindparams: List[BindParameter[Any]],
     ) -> Tuple[Any, ...]:
-        return tuple(
-            (
-                target._gen_cache_key(anon_map, bindparams),
-                (
-                    onclause._gen_cache_key(anon_map, bindparams)
-                    if onclause is not None
-                    else None
-                ),
-                (
-                    from_._gen_cache_key(anon_map, bindparams)
-                    if from_ is not None
-                    else None
-                ),
-                tuple([(key, flags[key]) for key in sorted(flags)]),
-            )
-            for (target, onclause, from_, flags) in obj
-        )
+        pass
 
     def visit_table_hint_list(
         self,
@@ -868,22 +736,7 @@ class _CacheKeyTraversal(HasTraversalDispatch):
         anon_map: anon_map,
         bindparams: List[BindParameter[Any]],
     ) -> Tuple[Any, ...]:
-        if not obj:
-            return ()
-
-        return (
-            attrname,
-            tuple(
-                [
-                    (
-                        clause._gen_cache_key(anon_map, bindparams),
-                        dialect_name,
-                        text,
-                    )
-                    for (clause, dialect_name), text in obj.items()
-                ]
-            ),
-        )
+        pass
 
     def visit_plain_dict(
         self,
@@ -893,7 +746,7 @@ class _CacheKeyTraversal(HasTraversalDispatch):
         anon_map: anon_map,
         bindparams: List[BindParameter[Any]],
     ) -> Tuple[Any, ...]:
-        return (attrname, tuple([(key, obj[key]) for key in sorted(obj)]))
+        pass
 
     def visit_dialect_options(
         self,
@@ -903,21 +756,7 @@ class _CacheKeyTraversal(HasTraversalDispatch):
         anon_map: anon_map,
         bindparams: List[BindParameter[Any]],
     ) -> Tuple[Any, ...]:
-        return (
-            attrname,
-            tuple(
-                (
-                    dialect_name,
-                    tuple(
-                        [
-                            (key, obj[dialect_name][key])
-                            for key in sorted(obj[dialect_name])
-                        ]
-                    ),
-                )
-                for dialect_name in sorted(obj)
-            ),
-        )
+        pass
 
     def visit_string_clauseelement_dict(
         self,
@@ -927,13 +766,7 @@ class _CacheKeyTraversal(HasTraversalDispatch):
         anon_map: anon_map,
         bindparams: List[BindParameter[Any]],
     ) -> Tuple[Any, ...]:
-        return (
-            attrname,
-            tuple(
-                (key, obj[key]._gen_cache_key(anon_map, bindparams))
-                for key in sorted(obj)
-            ),
-        )
+        pass
 
     def visit_string_multi_dict(
         self,
@@ -943,20 +776,7 @@ class _CacheKeyTraversal(HasTraversalDispatch):
         anon_map: anon_map,
         bindparams: List[BindParameter[Any]],
     ) -> Tuple[Any, ...]:
-        return (
-            attrname,
-            tuple(
-                (
-                    key,
-                    (
-                        value._gen_cache_key(anon_map, bindparams)
-                        if isinstance(value, HasCacheKey)
-                        else value
-                    ),
-                )
-                for key, value in [(key, obj[key]) for key in sorted(obj)]
-            ),
-        )
+        pass
 
     def visit_fromclause_canonical_column_collection(
         self,
@@ -967,13 +787,7 @@ class _CacheKeyTraversal(HasTraversalDispatch):
         bindparams: List[BindParameter[Any]],
     ) -> Tuple[Any, ...]:
         # inlining into the internals of ColumnCollection
-        return (
-            attrname,
-            tuple(
-                col._gen_cache_key(anon_map, bindparams)
-                for k, col, _ in obj._collection
-            ),
-        )
+        pass
 
     def visit_unknown_structure(
         self,
@@ -983,8 +797,7 @@ class _CacheKeyTraversal(HasTraversalDispatch):
         anon_map: anon_map,
         bindparams: List[BindParameter[Any]],
     ) -> Tuple[Any, ...]:
-        anon_map[NO_CACHE] = True
-        return ()
+        pass
 
     def visit_dml_ordered_values(
         self,
@@ -994,20 +807,7 @@ class _CacheKeyTraversal(HasTraversalDispatch):
         anon_map: anon_map,
         bindparams: List[BindParameter[Any]],
     ) -> Tuple[Any, ...]:
-        return (
-            attrname,
-            tuple(
-                (
-                    (
-                        key._gen_cache_key(anon_map, bindparams)
-                        if hasattr(key, "__clause_element__")
-                        else key
-                    ),
-                    value._gen_cache_key(anon_map, bindparams),
-                )
-                for key, value in obj
-            ),
-        )
+        pass
 
     def visit_dml_values(
         self,
@@ -1019,20 +819,7 @@ class _CacheKeyTraversal(HasTraversalDispatch):
     ) -> Tuple[Any, ...]:
         # in py37 we can assume two dictionaries created in the same
         # insert ordering will retain that sorting
-        return (
-            attrname,
-            tuple(
-                (
-                    (
-                        k._gen_cache_key(anon_map, bindparams)
-                        if hasattr(k, "__clause_element__")
-                        else k
-                    ),
-                    obj[k]._gen_cache_key(anon_map, bindparams),
-                )
-                for k in obj
-            ),
-        )
+        pass
 
     def visit_dml_multi_values(
         self,
@@ -1043,8 +830,7 @@ class _CacheKeyTraversal(HasTraversalDispatch):
         bindparams: List[BindParameter[Any]],
     ) -> Tuple[Any, ...]:
         # multivalues are simply not cacheable right now
-        anon_map[NO_CACHE] = True
-        return ()
+        pass
 
     def visit_params(
         self,
@@ -1054,13 +840,7 @@ class _CacheKeyTraversal(HasTraversalDispatch):
         anon_map: anon_map,
         bindparams: List[BindParameter[Any]],
     ) -> Tuple[Any, ...]:
-        if obj:
-            if CacheConst.PARAMS in anon_map:
-                to_set = anon_map[CacheConst.PARAMS] | obj
-            else:
-                to_set = obj
-            anon_map[CacheConst.PARAMS] = to_set
-        return ()
+        pass
 
 
 _cache_key_traversal_visitor = _CacheKeyTraversal()

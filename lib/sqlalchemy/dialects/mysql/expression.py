@@ -118,9 +118,7 @@ class match(Generative, elements.BinaryExpression[Any]):
         :return: a new :class:`_mysql.match` instance with modifications
          applied.
         """
-
-        self.modifiers = self.modifiers.union({"mysql_boolean_mode": True})
-        return self
+        pass
 
     @_generative
     def in_natural_language_mode(self) -> Self:
@@ -130,9 +128,7 @@ class match(Generative, elements.BinaryExpression[Any]):
         :return: a new :class:`_mysql.match` instance with modifications
          applied.
         """
-
-        self.modifiers = self.modifiers.union({"mysql_natural_language": True})
-        return self
+        pass
 
     @_generative
     def with_query_expansion(self) -> Self:
@@ -141,6 +137,4 @@ class match(Generative, elements.BinaryExpression[Any]):
         :return: a new :class:`_mysql.match` instance with modifications
          applied.
         """
-
-        self.modifiers = self.modifiers.union({"mysql_query_expansion": True})
-        return self
+        pass

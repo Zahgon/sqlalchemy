@@ -359,10 +359,10 @@ class VECTOR(types.TypeEngine):
 
     class comparator_factory(types.TypeEngine.Comparator):
         def l2_distance(self, other):
-            return self.op("<->", return_type=Float)(other)
+            pass
 
         def inner_product(self, other):
-            return self.op("<#>", return_type=Float)(other)
+            pass
 
         def cosine_distance(self, other):
-            return self.op("<=>", return_type=Float)(other)
+            pass

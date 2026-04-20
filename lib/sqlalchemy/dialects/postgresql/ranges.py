@@ -87,40 +87,34 @@ class Range(Generic[_T]):
     @property
     def isempty(self) -> bool:
         "A synonym for the 'empty' attribute."
-
-        return self.empty
+        pass
 
     @property
     def is_empty(self) -> bool:
         "A synonym for the 'empty' attribute."
-
-        return self.empty
+        pass
 
     @property
     def lower_inc(self) -> bool:
         """Return True if the lower bound is inclusive."""
-
-        return self.bounds[0] == "["
+        pass
 
     @property
     def lower_inf(self) -> bool:
         """Return True if this range is non-empty and lower bound is
         infinite."""
-
-        return not self.empty and self.lower is None
+        pass
 
     @property
     def upper_inc(self) -> bool:
         """Return True if the upper bound is inclusive."""
-
-        return self.bounds[1] == "]"
+        pass
 
     @property
     def upper_inf(self) -> bool:
         """Return True if this range is non-empty and the upper bound is
         infinite."""
-
-        return not self.empty and self.upper is None
+        pass
 
     @property
     def __sa_type_engine__(self) -> AbstractSingleRange[_T]:
@@ -365,67 +359,23 @@ class Range(Generic[_T]):
 
     def strictly_left_of(self, other: Range[_T]) -> bool:
         "Determine whether this range is completely to the left of `other`."
-
-        # Empty ranges are neither to left nor to the right of any other range
-        if self.empty or other.empty:
-            return False
-
-        supper = self.upper
-        supper_b = self.bounds[1]
-        olower = other.lower
-        olower_b = other.bounds[0]
-
-        # Check whether this upper edge is less than other's lower end
-        return self._compare_edges(supper, supper_b, olower, olower_b) < 0
+        pass
 
     __lshift__ = strictly_left_of
 
     def strictly_right_of(self, other: Range[_T]) -> bool:
         "Determine whether this range is completely to the right of `other`."
-
-        # Empty ranges are neither to left nor to the right of any other range
-        if self.empty or other.empty:
-            return False
-
-        slower = self.lower
-        slower_b = self.bounds[0]
-        oupper = other.upper
-        oupper_b = other.bounds[1]
-
-        # Check whether this lower edge is greater than other's upper end
-        return self._compare_edges(slower, slower_b, oupper, oupper_b) > 0
+        pass
 
     __rshift__ = strictly_right_of
 
     def not_extend_left_of(self, other: Range[_T]) -> bool:
         "Determine whether this does not extend to the left of `other`."
-
-        # Empty ranges are neither to left nor to the right of any other range
-        if self.empty or other.empty:
-            return False
-
-        slower = self.lower
-        slower_b = self.bounds[0]
-        olower = other.lower
-        olower_b = other.bounds[0]
-
-        # Check whether this lower edge is not less than other's lower end
-        return self._compare_edges(slower, slower_b, olower, olower_b) >= 0
+        pass
 
     def not_extend_right_of(self, other: Range[_T]) -> bool:
         "Determine whether this does not extend to the right of `other`."
-
-        # Empty ranges are neither to left nor to the right of any other range
-        if self.empty or other.empty:
-            return False
-
-        supper = self.upper
-        supper_b = self.bounds[1]
-        oupper = other.upper
-        oupper_b = other.bounds[1]
-
-        # Check whether this upper edge is not greater than other's upper end
-        return self._compare_edges(supper, supper_b, oupper, oupper_b) <= 0
+        pass
 
     def _upper_edge_adjacent_to_lower(
         self,
@@ -669,16 +619,7 @@ class Range(Generic[_T]):
         return self._stringify()
 
     def _stringify(self) -> str:
-        if self.empty:
-            return "empty"
-
-        l, r = self.lower, self.upper
-        l = "" if l is None else l  # type: ignore
-        r = "" if r is None else r  # type: ignore
-
-        b0, b1 = cast("Tuple[str, str]", self.bounds)
-
-        return f"{b0}{l},{r}{b1}"
+        pass
 
 
 class MultiRange(List[Range[_T]]):
@@ -787,7 +728,7 @@ class AbstractRange(sqltypes.TypeEngine[_T]):
             """Boolean expression. Returns true if the column is strictly
             left of the right hand operand.
             """
-            return self.expr.operate(STRICTLY_LEFT_OF, other)
+            pass
 
         __lshift__ = strictly_left_of
 
@@ -795,7 +736,7 @@ class AbstractRange(sqltypes.TypeEngine[_T]):
             """Boolean expression. Returns true if the column is strictly
             right of the right hand operand.
             """
-            return self.expr.operate(STRICTLY_RIGHT_OF, other)
+            pass
 
         __rshift__ = strictly_right_of
 
@@ -803,13 +744,13 @@ class AbstractRange(sqltypes.TypeEngine[_T]):
             """Boolean expression. Returns true if the range in the column
             does not extend right of the range in the operand.
             """
-            return self.expr.operate(NOT_EXTEND_RIGHT_OF, other)
+            pass
 
         def not_extend_left_of(self, other: Any) -> ColumnElement[bool]:
             """Boolean expression. Returns true if the range in the column
             does not extend left of the range in the operand.
             """
-            return self.expr.operate(NOT_EXTEND_LEFT_OF, other)
+            pass
 
         def adjacent_to(self, other: Any) -> ColumnElement[bool]:
             """Boolean expression. Returns true if the range in the column
